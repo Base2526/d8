@@ -1,0 +1,7 @@
+resume.form:
+    path: '/exform'
+    defaults:
+      _title: 'Chat form'
+      _form: '\Drupal\mydata\Form\ExForm'
+    requirements:
+      _permission: 'access content'

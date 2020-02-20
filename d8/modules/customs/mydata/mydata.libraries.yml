@@ -1,0 +1,11 @@
+mydata_key:
+    version: 1.x
+    js:
+        js/mydata.js: {}   
+    dependencies:
+        - core/drupal
+        - core/jquery
+        - core/drupalSettings
+    # css:
+    #   theme:
+    #     css/lrv.css: {}

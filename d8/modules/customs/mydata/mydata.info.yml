@@ -1,0 +1,5 @@
+name: My data
+type: module
+description: my data
+core: 8.x
+package: d8

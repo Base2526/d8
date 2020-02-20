@@ -1,0 +1,31 @@
+<?php
+function mydata_page_attachments(array &$attachments) {
+    $attachments['#attached']['library'][] = 'mydata/mydata_key';
+    // $attachments['#attached']['library'][] = 'mydata/socket_io';
+
+    // $element['#attached']['js'][] = array(
+    //     'data' => array('myModule' => array('basePath' => base_path())), 
+    //     'type' => 'setting',
+    //   );
+
+    /*
+    pass parameter to .js
+
+    (function ($, Drupal, drupalSettings) {
+        console.log(drupalSettings);
+
+        var user = drupalSettings.user;
+        console.log(user);
+
+        var foo = drupalSettings.fluffiness.cuddlySlider.foo;
+        console.log(foo);
+
+    })(jQuery, Drupal, drupalSettings);
+    */
+    $computed_settings = [
+        'foo' => 'bar',
+        'baz' => 'qux',
+    ];
+    $attachments['#attached']['drupalSettings']['myvar'] = $computed_settings;
+    $attachments['#attached']['drupalSettings']['fluffiness']['cuddlySlider'] = $computed_settings;
+}
