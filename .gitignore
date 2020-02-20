@@ -25,5 +25,6 @@ drupal8/vendor
 nodejs/node_modules
 apps/node_modules
 apps/package-lock.json
-d8
+d8/node_modules
+d8/vendor
 # apps
