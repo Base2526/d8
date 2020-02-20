@@ -20,10 +20,10 @@
 # simpletest
 vendor
 pgadmin
-mongodb/*
+mongodb
 drupal8/vendor
 nodejs/node_modules
 apps/node_modules
 apps/package-lock.json
 d8
-apps
+# apps
