@@ -16,8 +16,8 @@ services:
       - ./d8/composer.json:/var/www/html/composer.json
       # - ./d8/drupal-nodejs:/var/www/html/drupal-nodejs
       - ./d8/settings.php:/var/www/html/sites/default/settings.php
-      - ./d8/vendor:/var/www/html/vendor
-      - ./d8/share:/var/www/html/share
+      # - ./d8/vendor:/var/www/html/vendor
+      # - ./d8/share:/var/www/html/share
       - ./d8/php.ini:/usr/local/etc/php/php.ini
 
       # chat
