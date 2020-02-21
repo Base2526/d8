@@ -7,8 +7,8 @@
     // var user = drupalSettings.user;
     // console.log(user);
 
-    // var foo = drupalSettings.fluffiness.cuddlySlider.foo;
-    // console.log(foo);
+    var foo = drupalSettings.fluffiness.cuddlySlider;
+    console.log(foo);
 
 
     // var io = require('socket.io');

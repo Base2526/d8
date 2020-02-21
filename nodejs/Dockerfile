@@ -10,7 +10,9 @@ FROM node:8
 # Create app directory
 WORKDIR /usr/src/app
 # Install app dependencies
-COPY package*.json ./
+# COPY package*.json ./
+
+COPY . .
 
 RUN npm install
 
@@ -18,7 +20,7 @@ RUN npm install
 RUN npm install -g nodemon
 
 # Copy app source code
-COPY . .
+# COPY . .
 
 #Expose port and start application
 EXPOSE 3000
