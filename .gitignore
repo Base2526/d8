@@ -21,7 +21,6 @@
 vendor
 pgadmin
 mongodb
-drupal8/vendor
 nodejs/node_modules
 apps/node_modules
 apps/package-lock.json
