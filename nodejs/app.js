@@ -92,22 +92,43 @@ io.on('connection', (socket) => {
   //     console.log(body) 
   // });
 
-  request('http://web/rest/api/get?_format=json', function (error, response, body) {
-       // if (!error && response.statusCode == 200) {
-       console.log(response) // Print the google web page.
-       console.log(body)
-       // }
-  })
+  // request('http://web/rest/api/get?_format=json', function (error, response, body) {
+  //      // if (!error && response.statusCode == 200) {
+  //      console.log(response) // Print the google web page.
+  //      console.log(body)
+  //      // }
+  // })
+
+  socket.conn.on('heartbeat', function() {
+    console.log('#1');
+    if (!socket.authenticated) {
+      // Don't start counting as present until they authenticate.
+      return;
+    }
+
+    console.log('#2');
+    //Presence.upsert(socket.id, {
+    //  username: socket.username
+    //});
+  });
 
   /*
   สร้าง event ไว้รอรับข้อความจาก react-native
   */
   socket.on("chat_message", msg => {
     console.log(msg);
-    io.emit("chat_message", 'bbu');
+    // io.emit("chat_message", 'bbu');
+
+    io.sockets.in('room1').emit('response_message', 'what is going on, party people?');
   });
 
+  socket.on('create', function(room) {
+    socket.join(room);
+    console.log(this);
+  });
+  
   socket.on('disconnect', () => {
+    
     console.log(`Socket ${socket.id} disconnected.`);
   });
 });

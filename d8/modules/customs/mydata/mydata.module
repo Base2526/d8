@@ -23,12 +23,10 @@ function mydata_page_attachments(array &$attachments) {
     })(jQuery, Drupal, drupalSettings);
     */
 
-    $configs= Drupal\config_pages\Entity\ConfigPages::config('cp_config');
-    $field_a1 = $configs->get('field_a1')->value;
+    $configs= Drupal\config_pages\Entity\ConfigPages::config('config_nodejs');
+    $nodejs_url = $configs->get('field_nodejs_url')->value;
     $computed_settings = [
-        'foo' => 'bar',
-        'field_a1' => $field_a1,
+        'nodejs_url' => $nodejs_url,
     ];
-    $attachments['#attached']['drupalSettings']['myvar'] = $computed_settings;
-    $attachments['#attached']['drupalSettings']['fluffiness']['cuddlySlider'] = $computed_settings;
+    $attachments['#attached']['drupalSettings']['configs'] = $computed_settings;
 }

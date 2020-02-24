@@ -34,12 +34,72 @@ class ExForm extends FormBase {
             '#title' => t('Message:'),
             '#required' => TRUE,
         );
+
+        // $form['js_action'] = array(
+        //     '#type' => 'button', 
+        //     '#value' => t('Click me'), 
+        // );
+        // $form['js_action']['#attached'] = array(
+        //     'js' => array(drupal_get_path('module', 'mydata') . '/mydata_key.js',)
+        // );
+
+        $form['actions']['chect-socket.io'] = [
+            '#type' => 'button',
+            '#value' => $this->t('Check socket.io'),
+            '#attributes' => [
+              'onclick' => 'return false;'
+            ],
+            // '#attached' => array(
+            //   'library' => array(
+            //     'mydata/mydata_key',
+            //   ),
+            // ),
+        ];
+
+        $form['actions']['create-room'] = [
+            '#type' => 'button',
+            '#value' => $this->t('Create room'),
+            '#attributes' => [
+              'onclick' => 'return false;'
+            ],
+            // '#attached' => array(
+            //   'library' => array(
+            //     'mydata/mydata_key',
+            //   ),
+            // ),
+        ];
+
+        $form['actions']['list-client'] = [
+            '#type' => 'button',
+            '#value' => $this->t('Get list of clients in specific room'),
+            '#attributes' => [
+              'onclick' => 'return false;'
+            ],
+            // '#attached' => array(
+            //   'library' => array(
+            //     'mydata/mydata_key',
+            //   ),
+            // ),
+        ];
+
+        $form['actions']['send-message-to-client'] = [
+            '#type' => 'button',
+            '#value' => $this->t('Send message to client'),
+            '#attributes' => [
+              'onclick' => 'return false;'
+            ],
+            // '#attached' => array(
+            //   'library' => array(
+            //     'mydata/mydata_key',
+            //   ),
+            // ),
+        ];
         
         $form['actions']['#type'] = 'actions';
-        $form['actions']['submit'] = array(
+        $form['actions']['buttton_submit'] = array(
             '#type' => 'submit',
             '#value' => $this->t('Send'),
-            '#button_type' => 'primary',
+            // '#button_type' => 'primary',
         );
         return $form;
     }

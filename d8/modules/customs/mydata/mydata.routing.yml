@@ -4,4 +4,5 @@ resume.form:
       _title: 'Chat form'
       _form: '\Drupal\mydata\Form\ExForm'
     requirements:
-      _permission: 'access content'
+      _role: 'authenticated+administrator'
+      # _user_is_logged_in: TRUE
