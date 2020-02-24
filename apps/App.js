@@ -76,9 +76,11 @@ export default class App extends Component{
       }
     );
 
-    this.socket = io("http://127.0.0.1:8888", {query:"platform=react"});
+    this.socket = io("http://192.168.1.3:3000", {query:"platform=react"});
     this.socket.on('connect', function(){
       console.log('socket.io-client > connect');
+
+      
     });
     this.socket.on('event', function(data){
       console.log('socket.io-client > event');
@@ -91,6 +93,10 @@ export default class App extends Component{
       console.log('>>>>>>> ' + msg);
       // this.setState({ chatMessages: [...this.state.chatMessages, msg]   
     });
+
+    this.socket.on('response_message', function(data) {
+      console.log(data);
+    });
   }
 
   sendEcho() {
@@ -98,6 +104,9 @@ export default class App extends Component{
     /*
       เป็นการส่ง data ไปที่ event chat_message (nodejs server)
     */
+
+    this.socket.emit('create', 'room1');
+
     this.socket.emit('chat_message', 'this.state.chatMessage ??');
     // Sends echo request to nodeJS.
     // console.log('Sends echo request to nodeJS.');
