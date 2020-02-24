@@ -33,12 +33,15 @@ var socket;
         console.log(socket);
         socket = io(configs.nodejs_url, {query:"platform=web&uid=" + user.uid});
         console.log(socket);
+        
     
         socket.on('connect', function(data) {
             // socket.emit('chat_message', 'Hello World from client (web)');
             // console.log(socket);
 
-            socket.emit('create', 'room1');
+            console.log(socket.id);
+
+            // socket.emit('create', 'room1');
         });
 
         socket.on('response_message', function(data) {
@@ -110,19 +113,15 @@ var socket;
     function createRoom(){        
         // console.log(socket);
         if (socket !== undefined) {
-            socket.emit('create', 'room1');
+            socket.emit('create', 'room2');
             console.log('create_room');
         }else{
             console.log('socket === undefined');
         }
     }
 
-    function listClient(){
-        var roster = io.sockets.clients('chatroom1');
-        for ( i in roster )
-        {
-        console.log('Username: ' + roster[i]);   
-        }
+    function listClient(){ 
+        socket.emit('get_list_of_clients_in_specific_room', 'from client');
     }
 
     function sendMessageToClient(){

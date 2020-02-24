@@ -1,3 +1,5 @@
+// refer : https://github.com/nathanpeck/socket.io-chat-fargate/blob/master/services/client/server.js#L40
+
 // const express = require("express");
 // const app = express();
 // const connectDb = require("./src/connection");
@@ -61,7 +63,7 @@ app.get("/user-create", async (req, res) => {
 
 const http  = require('http');
 const server= http.createServer(app);
-const io = require('socket.io')(server);
+let io = require('socket.io')(server);
 
 var request = require('request');
 io.on('connection', (socket) => { 
@@ -100,7 +102,7 @@ io.on('connection', (socket) => {
   // })
 
   socket.conn.on('heartbeat', function() {
-    console.log('#1');
+    // console.log('#1');
     if (!socket.authenticated) {
       // Don't start counting as present until they authenticate.
       return;
@@ -131,6 +133,21 @@ io.on('connection', (socket) => {
     
     console.log(`Socket ${socket.id} disconnected.`);
   });
+
+  socket.on("get_list_of_clients_in_specific_room", msg => {
+
+    console.log(io.sockets.connected);
+    // var roster = io.sockets.clients('room1');
+
+    // roster.forEach(function(client) {
+    //     console.log('Username: ' + client.nickname);
+    // }); 
+  });
+
+
+  /*
+  
+  */
 });
 
 // io.on('disconnect', () => {
