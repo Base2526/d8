@@ -6,7 +6,7 @@
     "require": {
         "composer/installers": "^1.0.24",
         "wikimedia/composer-merge-plugin": "^1.4",
-        "mongodb/mongodb": "^1.5"
+        "nodespark/des-connector": "7.x-dev"
     },
     "replace": {
         "drupal/core": "^8.6"

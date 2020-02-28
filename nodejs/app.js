@@ -118,8 +118,10 @@ io.on('connection', (socket) => {
   สร้าง event ไว้รอรับข้อความจาก react-native
   */
   socket.on("chat_message", msg => {
-    console.log(msg);
+    // console.log(msg);
     // io.emit("chat_message", 'bbu');
+
+    // socket.authenticated = true;
 
     io.sockets.in('room1').emit('response_message', 'what is going on, party people?');
   });
