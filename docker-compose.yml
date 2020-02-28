@@ -95,7 +95,7 @@ services:
     environment:
       - node.name=elasticsearch
       - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es02,es03
+      - discovery.seed_hosts=elasticsearch
       - cluster.initial_master_nodes=elasticsearch
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
