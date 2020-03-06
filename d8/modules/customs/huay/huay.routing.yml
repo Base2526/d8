@@ -1,0 +1,64 @@
+# resume.form:
+#     path: '/exform'
+#     defaults:
+#       _title: 'Chat form'
+#       _form: '\Drupal\huay\Form\ExForm'
+#     requirements:
+#       _role: 'authenticated+administrator'
+#       # _user_is_logged_in: TRUE
+
+huay.login:
+  path: '/login'
+  defaults:
+    _form: '\Drupal\huay\Form\LoginForm'
+  requirements:
+    _access: 'TRUE'
+
+huay.register:
+  path: '/register'
+  defaults:
+    _form: '\Drupal\huay\Form\RegisterForm'
+  requirements:
+    _access: 'TRUE'
+
+huay.forgot_password:
+  path: '/forgot_password'
+  defaults:
+    _form: '\Drupal\huay\Form\ForgotpasswordForm'
+  requirements:
+    _access: 'TRUE'
+
+huay.frontpage:
+  path: '/frontpage'
+  defaults:
+    _controller: '\Drupal\huay\Plugin\Page\FrontPage::page'
+  requirements:
+    _access: 'TRUE'
+
+huay.lotterypage:
+  path: '/lotterypage'
+  defaults:
+    _controller: '\Drupal\huay\Plugin\Page\LotteryPage::page'
+  requirements:
+    _access: 'TRUE'
+
+huay.requestpage:
+  path: '/requestpage'
+  defaults:
+    _form: '\Drupal\huay\Form\RequestForm'
+  requirements:
+    _access: 'TRUE'
+
+huay.profile:
+  path: '/profile'
+  defaults:
+    _form: '\Drupal\huay\Form\ProfileForm'
+  requirements:
+    _access: 'TRUE'
+
+huay.bank:
+  path: '/bank'
+  defaults:
+    _form: '\Drupal\huay\Form\AddbankForm'
+  requirements:
+    _access: 'TRUE'

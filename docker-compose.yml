@@ -10,15 +10,9 @@ services:
       - DB_NAME=d8
       - DB_USER_NAME=postgres
       - DB_PASSWORD=postgres
-
-      # - LOCAL= true
-      # - ENV_NAME= test
-      # - REDIS_ENDPOINT= redis
-      # - DYNAMODB_ENDPOINT= http://dynamodb-local:8000
-      # - AWS_ACCESS_KEY_ID= test
-      # - AWS_SECRET_ACCESS_KEY= test
     volumes:
       - ./d8/modules:/var/www/html/sites/default/modules
+      - ./d8/themes:/var/www/html/sites/default/themes
       - ./d8/info.php:/var/www/html/info.php
       - ./d8/composer.json:/var/www/html/composer.json
       # - ./d8/drupal-nodejs:/var/www/html/drupal-nodejs

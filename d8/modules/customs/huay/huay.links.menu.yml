@@ -1,0 +1,31 @@
+huay.login:
+    title: 'Huay login'
+    route_name: huay.login
+
+huay.register:
+    title: 'Huay register'
+    route_name: huay.register
+
+huay.forgot_password:
+    title: 'Huay forgot password'
+    route_name: huay.forgot_password
+
+huay.frontpage:
+    title: 'Huay frontpage'
+    route_name: huay.frontpage
+
+huay.lotterypage:
+    title: 'Huay lotterypage'
+    route_name: huay.lotterypage
+
+huay.requestpage:
+    title: 'Huay requestpage'
+    route_name: huay.requestpage
+
+huay.profile:
+    title: 'Huay profile'
+    route_name: huay.profile
+
+huay.bank:
+    title: 'Huay bank'
+    route_name: huay.bank

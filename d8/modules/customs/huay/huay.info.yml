@@ -1,0 +1,5 @@
+name: Huay
+type: module
+description: huay
+core: 8.x
+package: huay

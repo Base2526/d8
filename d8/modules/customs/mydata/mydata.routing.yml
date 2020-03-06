@@ -6,3 +6,10 @@ resume.form:
     requirements:
       _role: 'authenticated+administrator'
       # _user_is_logged_in: TRUE
+
+# huay.login:
+#   path: '/login'
+#   defaults:
+#     _form: '\Drupal\credit_sales_approval\Form\LoginForm'
+#   requirements:
+#     _access: 'TRUE'

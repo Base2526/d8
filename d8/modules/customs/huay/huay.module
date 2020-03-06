@@ -1,0 +1,53 @@
+<?php
+function huay_page_attachments(array &$attachments) {
+    $attachments['#attached']['library'][] = 'huay/huay';
+    // $attachments['#attached']['library'][] = 'mydata/socket_io';
+
+    // $element['#attached']['js'][] = array(
+    //     'data' => array('myModule' => array('basePath' => base_path())), 
+    //     'type' => 'setting',
+    //   );
+
+    /*
+    pass parameter to .js
+
+    (function ($, Drupal, drupalSettings) {
+        console.log(drupalSettings);
+
+        var user = drupalSettings.user;
+        console.log(user);
+
+        var foo = drupalSettings.fluffiness.cuddlySlider.foo;
+        console.log(foo);
+
+    })(jQuery, Drupal, drupalSettings);
+    */
+
+    $configs= Drupal\config_pages\Entity\ConfigPages::config('config_nodejs');
+    $nodejs_url = $configs->get('field_nodejs_url')->value;
+    $params = [
+        'nodejs_url' => $nodejs_url,
+    ];
+    $attachments['#attached']['drupalSettings']['configs'] = $params;
+}
+
+
+/*
+ * Implements hook_theme()
+*/
+function huay_theme($existing, $type, $theme, $path) {  
+    return [
+      'front-page' => [
+        'variables' => [
+          'role' => '',
+          'params' => array(),
+        ],
+      ],   
+      'lottery-page' => [
+        'variables' => [
+          'role' => '',
+          'params' => array(),
+        ],
+      ],
+    ];
+  }
