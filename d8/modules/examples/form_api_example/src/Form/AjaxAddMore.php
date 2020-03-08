@@ -35,7 +35,6 @@ class AjaxAddMore extends DemoBase {
       $num_names = 1;
     }
 
-
     $test = $form_state->get('test');
     if($test === NULL){
       // $form_state->set('test', array('0'=>'A', '1'=>'B', '2'=>'C', '3'=>'D', '4'=>'E'));
@@ -72,13 +71,12 @@ class AjaxAddMore extends DemoBase {
       $test = $form_state->get('test');
     }
     
-
-    // dpm('A');
-
     $form['#tree'] = TRUE;
     $form['names_fieldset'] = [
       '#type' => 'fieldset',
-      '#title' => $this->t('People coming to picnic 888'),
+      // '#tree' => TRUE,
+      '#open' => TRUE,
+      '#title' => $this->t('People coming to picnic'),
       '#prefix' => '<div id="names-fieldset-wrapper">',
       '#suffix' => '</div>',
     ];
@@ -88,6 +86,7 @@ class AjaxAddMore extends DemoBase {
       $form['names_fieldset'][$i] = [
         '#type' => 'details',
         '#open' => TRUE,
+        // '#tree' => TRUE,
         '#title' => $this->t('People coming to picnic : '. count($v) .' : '.$i ),
         '#prefix' => '<div id="fieldset-wrapper-'.$i.'">',
         '#suffix' => '</div>',
@@ -407,13 +406,35 @@ class AjaxAddMore extends DemoBase {
    * Reports what values were finally set.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $values = $form_state->getValue(['names_fieldset', 'name']);
+    // $values = $form_state->getValue(['names_fieldset', 'name']);
 
-    $output = $this->t('These people are coming to the picnic: @names', [
-      '@names' => implode(', ', $values),
-    ]
-    );
-    $this->messenger()->addMessage($output);
+    // $output = $this->t('These people are coming to the picnic: @names', [
+    //   '@names' => implode(', ', $values),
+    // ]
+    // );
+    // $this->messenger()->addMessage($output);
+
+    // $position_media = $form_state->getValue('names_fieldset');
+    
+    // dpm($form['names_fieldset']['#value']);
+
+    // $position_media = $form_state->get('position_media');
+    // dpm( $position_media );
+    // foreach ($form['names_fieldset'] as $key => $tid) {
+    //   dpm($key);
+    // }
+
+    dpm($form['names_fieldset']['#open']);  
+    $position_media = $form_state->getUserInput()['names_fieldset'];
+    dpm($position_media);
+    foreach ($position_media as $key => $values) {
+      
+      // dpm($values);
+      // dpm(t('@key, @values', array('@key'=>$key, '@values'=>$values))->__toString());
+      // $form['names_fieldset'][$i]
+      // $i = $form_state->getUserInput()[$key];
+      
+    }
   }
 
 }
