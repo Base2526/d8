@@ -205,7 +205,7 @@ class AjaxAddMore extends DemoBase {
     // $form['names_fieldset']['actions'] = [
     //   '#type' => 'actions',
     // ];
-    $form['names_fieldset']['add_new'] = [
+    $form['actions']['add_new'] = [
       '#type' => 'submit',
       '#name' => 'add_new',
       '#value' => $this->t('Add one more'),
@@ -314,7 +314,7 @@ class AjaxAddMore extends DemoBase {
   }
 
   public function add1SubmitCallback(array &$form, FormStateInterface $form_state) {
-    dpm('add1SubmitCallback');
+    // dpm('add1SubmitCallback');
     $last_nid = $form_state->getTriggeringElement()['#name'];
     
     $test = $form_state->get('test');
@@ -337,15 +337,13 @@ class AjaxAddMore extends DemoBase {
     }else if(strcmp($last_nid[0], 'remove_section') == 0){
       unset($test[$last_nid[1]]);
     }else if(strcmp($last_nid[0], 'add_new')  == 0){
-
-      
       $test[] = array(
                     array('name'=>'A'),
                     array('name'=>'B')
                   );
     }
 
-    dpm($last_nid);
+    // dpm($last_nid);
     // dpm($test);
 
     $form_state->set('test', $test);
