@@ -1,0 +1,4 @@
+modal_example.page:
+  title: 'Modal Example'
+  route_name: modal_example.page
+  expanded: TRUE

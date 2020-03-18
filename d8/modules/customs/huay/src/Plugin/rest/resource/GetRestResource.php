@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\mydata\Plugin\rest\resource;
+namespace Drupal\huay\Plugin\rest\resource;
 
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;

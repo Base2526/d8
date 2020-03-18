@@ -20,6 +20,7 @@ services:
       # - ./d8/vendor:/var/www/html/vendor
       # - ./d8/share:/var/www/html/share
       - ./d8/php.ini:/usr/local/etc/php/php.ini
+      - ./d8/callapi.php:/var/www/html/callapi.php
     restart: always
   nodejs:
     build: './nodejs'

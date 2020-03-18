@@ -5,7 +5,7 @@
  * Contains Drupal\custom_rest\Plugin\rest\resource\custom_rest.
  */
 
-namespace Drupal\mydata\Plugin\rest\resource;
+namespace Drupal\huay\Plugin\rest\resource;
 
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\rest\Plugin\ResourceBase;
