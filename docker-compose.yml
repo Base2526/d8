@@ -102,6 +102,19 @@ services:
       - ./es_data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
+  react-web:
+    container_name: react-web
+    build: './react-web'
+    environment:
+      env_file: .env
+      NODE_ENV: development
+    volumes:
+      - ./react-web:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '5555:3000'
+    environment:
+      - NODE_ENV=${NODE_ENV}
 
   # volumes:
   #   es_data:
