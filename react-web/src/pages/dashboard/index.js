@@ -1,9 +1,12 @@
 import React from 'react';
 // import axios from 'axios';
 
+import { connect } from 'react-redux'
+import { addTodo } from '../../actions'
+
 import { config } from '../../utils/Config';
 
-export default class Dashboard extends React.Component {
+class Dashboard extends React.Component {
 
 	constructor(props) {
 		super(props);
@@ -15,14 +18,27 @@ export default class Dashboard extends React.Component {
 
 		this.getSearchedPlaces();
 
+		this.addTodo = this.addTodo.bind(this);
+		this.addTodo2 = this.addTodo2.bind(this);
+
 		this.logout = this.logout.bind(this);
 		this.suggestLocations = this.suggestLocations.bind(this);
 	}
 
+	addTodo(e){
+		this.props.addTodo('addTodo');
+	}
+
+	addTodo2(e){
+		this.props.addTodo2('addTodo2', 'xxxx');
+	}
+
 	logout(e) {
-        e.preventDefault();
+		e.preventDefault();
+		
+		
         
-        this.props.authenticate({isLoggedIn: false});
+        // this.props.authenticate({isLoggedIn: false});
 
 		// axios.post(config.baseUrl + 'logout', {})
 		//     .then(response => {
@@ -89,11 +105,19 @@ export default class Dashboard extends React.Component {
 	}
 
 	render() {
-        console.log('Dashboard');
+
+		// this.props;
+		// this.state;
+		console.log('Dashboard');
+
+		let {user} = this.props
+		console.log(user);
 		return (
 			<div class="container-fluid">
 			    <div class="jumbotron">
 			        <p>
+						<button class="btn btn-primary" onClick={this.addTodo}>addTodo</button>
+						<button class="btn btn-primary" onClick={this.addTodo2}>addTodo 2</button>
 			            <button class="btn btn-primary" onClick={this.logout}>Logout</button>
 			        </p>
 			        <h1>Hello {this.props.user.name}</h1>
@@ -121,3 +145,29 @@ export default class Dashboard extends React.Component {
 		);
 	}
 }
+
+function mapStateToProps(state, ownProps) {
+	console.log(state);
+	return { user: 'somkid' };
+}
+
+// function mapDispatchToProps(state){
+// 	console.log(state);
+// 	return {addTodo}
+// };
+
+const mapDispatchToProps = (dispatch) => {
+	console.log(dispatch);
+
+	return {
+		addTodo: (id) => {
+							dispatch(addTodo(id))
+						},
+		addTodo2: (id, val) => {
+							dispatch(addTodo(val))
+						}
+
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard)

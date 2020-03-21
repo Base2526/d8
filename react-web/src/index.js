@@ -15,12 +15,36 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-const store = createStore(rootReducer, applyMiddleware(logger));
+// persist
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import { PersistGate } from 'redux-persist/integration/react'
+
+// const persistConfig = {
+//     key: 'authType',
+//     storage: storage,
+//     whitelist: ['authType'] // which reducer want to store
+// };
+const persistConfig = {
+    key: 'root',
+    storage,
+}
+
+const pReducer = persistReducer(persistConfig, rootReducer);
+// persist
+
+
+const store = createStore(pReducer, applyMiddleware(logger));
+
+const persistor = persistStore(store);
+
 
 ReactDOM.render((<Provider store={store}>
-                    <BrowserRouter>
-                        <App />
-                    </BrowserRouter>
+                    <PersistGate loading={null} persistor={persistor}>
+                        <BrowserRouter>
+                            <App />
+                        </BrowserRouter>
+                    </PersistGate>
                 </Provider>), document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
