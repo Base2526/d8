@@ -1,3 +1,11 @@
+import * as types from "../actions/types";
+
+const initialState = {
+  id: "",
+  text: "",
+  completed: false
+};
+
 const todos = (state = [], action) => {
   switch (action.type) {
     case 'persist/REHYDRATE':{

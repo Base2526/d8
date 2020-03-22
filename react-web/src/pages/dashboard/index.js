@@ -112,6 +112,7 @@ class Dashboard extends React.Component {
 
 		let {user} = this.props
 		console.log(user);
+		console.log(this.props);
 		return (
 			<div class="container-fluid">
 			    <div class="jumbotron">
@@ -146,16 +147,49 @@ class Dashboard extends React.Component {
 	}
 }
 
-function mapStateToProps(state, ownProps) {
+/*
+	จะเป็น function ที่จะถูกเรียกตลอดเมือ ข้อมูลเปลี่ยนแปลง
+	เราสามารถดึงข้อมูลทั้งหมดที่อยู่ใน redux ได้เลย
+*/
+const mapStateToProps = (state, ownProps) => {
 	console.log(state);
+
+	if(!state._persist.rehydrated){
+		return {};
+	}
 	return { user: 'somkid' };
 }
 
-// function mapDispatchToProps(state){
-// 	console.log(state);
-// 	return {addTodo}
-// };
+/*
+	การที่เราจะเรียก function ที่อยู่ใน actions ได้
+	การใช้
+	แบบที่ 1.
+	const mapDispatchToProps = (dispatch) => {
+		return {
+			function1: (id) => {
+								// function ที่อยู่ใน actions
+								dispatch(addTodo(param1))
+							},
+			function2: (id, val) => {
+								// function ที่อยู่ใน actions
+								dispatch(addTodo(param1, param2))
+							},
 
+		}
+	}
+
+	export default connect(null, mapDispatchToProps)(function)
+
+	แบบที่ 2.
+	export default connect(null, { doFunction1, doFunction2 })(function)
+
+	การเรียกใช้
+	แบบที่ 1 
+	this.props.addTodo(param1, param2);
+
+	แบบที่ 2
+	let {function1, function2} = this.props;
+*/
 const mapDispatchToProps = (dispatch) => {
 	console.log(dispatch);
 

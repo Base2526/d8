@@ -71,3 +71,7 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/tr
 
 Redux : 
 - ex. https://redux.js.org/basics/example/
+
+- ex. auth
+  * https://stackoverflow.com/questions/50900117/how-to-check-login-status-with-react-redux
+  * https://codesandbox.io/s/yk519xy7px
