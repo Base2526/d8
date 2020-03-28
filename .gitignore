@@ -30,3 +30,5 @@ d8/vendor
 # apps
 
 es_data
+
+client/node_modules
