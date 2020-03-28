@@ -6,11 +6,11 @@ import { Redirect } from 'react-router';
 import logo from './logo.svg';
 import './App.css';
 
-import { config } from './utils/Config';
-import Home from './pages/home';
-import Login from './pages/login';
-import Signup from './pages/signup';
-import Dashboard from './pages/dashboard'
+// import { config } from './utils/Config';
+// import Home from './pages/home';
+// import Login from './pages/login';
+// import Signup from './pages/signup';
+// import Dashboard from './pages/dashboard'
 
 class App extends Component {
 
@@ -51,18 +51,19 @@ class App extends Component {
 
   render() {
 
-    return(
-      <Switch>
-			    <Route exact path='/' component={Home} />
-			    <Route exact path='/login' render={() => <Login authenticate={this.authenticate} />} />
-			    <Route exact path='/signup' render={() => <Signup authenticate={this.authenticate} />} />
-			    <Route path='/dashboard' render={() => (
-			    	this.state.user.isLoggedIn ? 
-			    	        (<Dashboard authenticate={this.authenticate} user={this.state.user} />) : 
-			    	        (<Redirect to="/login" />)
-			    )} />
-			</Switch>
-    );
+	return(<div>return</div>);
+    // return(
+    //   <Switch>
+	// 		    <Route exact path='/' component={Home} />
+	// 		    <Route exact path='/login' render={() => <Login authenticate={this.authenticate} />} />
+	// 		    <Route exact path='/signup' render={() => <Signup authenticate={this.authenticate} />} />
+	// 		    <Route path='/dashboard' render={() => (
+	// 		    	this.state.user.isLoggedIn ? 
+	// 		    	        (<Dashboard authenticate={this.authenticate} user={this.state.user} />) : 
+	// 		    	        (<Redirect to="/login" />)
+	// 		    )} />
+	// 		</Switch>
+    // );
   }
 }
 export default App;
