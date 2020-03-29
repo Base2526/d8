@@ -85,24 +85,24 @@ services:
   #     - 6379:6379
 
   # elasticsearch:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
-    container_name: elasticsearch
-    environment:
-      - node.name=elasticsearch
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=elasticsearch
-      - cluster.initial_master_nodes=elasticsearch
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - ./es_data:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+  #   container_name: elasticsearch
+  #   environment:
+  #     - node.name=elasticsearch
+  #     - cluster.name=es-docker-cluster
+  #     - discovery.seed_hosts=elasticsearch
+  #     - cluster.initial_master_nodes=elasticsearch
+  #     - bootstrap.memory_lock=true
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - ./es_data:/usr/share/elasticsearch/data
+  #   ports:
+  #     - 9200:9200
 
   # reactjs:
   #   container_name: reactjs
@@ -120,17 +120,18 @@ services:
   #     - '8099:3000'
   #   environment:
   #     - NODE_ENV=${NODE_ENV}
-
   frontend:
     container_name: cfy_client
     build:
-        context: ./client
-        dockerfile: Dockerfile
+      context: ./client
+      dockerfile: Dockerfile
     image: aneeshmelkot/cfy_client
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     ports:
-        - "8099:3000"
+      - "8099:3000"
     volumes:
-        - ./client:/usr/src/app
+      - ./client:/usr/src/app
 
   # volumes:
   #   es_data:

@@ -24,7 +24,7 @@ function huay_page_attachments(array &$attachments) {
     */
 
     $configs= Drupal\config_pages\Entity\ConfigPages::config('config_nodejs');
-    $nodejs_url = $configs->get('field_nodejs_url')->value;
+    $nodejs_url = '';///$configs->get('field_nodejs_url')->value;
     $params = [
         'nodejs_url' => $nodejs_url,
     ];

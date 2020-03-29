@@ -62,3 +62,27 @@ huay.bank:
     _form: '\Drupal\huay\Form\AddbankForm'
   requirements:
     _access: 'TRUE'
+
+# api
+api.login:
+  path: '/api/login.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::login' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.register:
+  path: '/api/register.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::register' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.reset_password:
+  path: '/api/reset_password.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::reset_password' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+# api

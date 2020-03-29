@@ -1,14 +1,14 @@
 services:
     # Custom cache bin.
-    cache.huay:
-        class: Drupal\Core\Cache\CacheBackendInterface
-        tags:
-        - { name: cache.bin }
-        factory: cache_factory:get
-        arguments: [huay]
-    huay.cache:
-        class: Drupal\huay\Cache\MyCache
-        arguments: ['@cache.huay']
+    # cache.huay:
+    #     class: Drupal\Core\Cache\CacheBackendInterface
+    #     tags:
+    #     - { name: cache.bin }
+    #     factory: cache_factory:get
+    #     arguments: [huay]
+    # huay.cache:
+    #     class: Drupal\huay\Cache\MyCache
+    #     arguments: ['@cache.huay']
     # huay_event_subscriber_event_subscriber:
     #     class: Drupal\huay\EventSubscriber\CustomredirectSubscriber
     #     tags:

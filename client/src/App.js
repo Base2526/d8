@@ -30,6 +30,8 @@ state = {
       // this.setState({ users: data })
       console.log(data)
      })
+
+     console.log(process.env); 
   }  
 
   render() {    
