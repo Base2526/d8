@@ -1,8 +1,8 @@
 version: "3"
 services:
-  web:
-    build: './d8'
-    container_name: "d8_web"
+  drupal8:
+    build: './drupal8'
+    container_name: "drupal8"
     ports:
       - 80:80
     environment:
@@ -11,16 +11,16 @@ services:
       - DB_USER_NAME=postgres
       - DB_PASSWORD=postgres
     volumes:
-      - ./d8/modules:/var/www/html/sites/default/modules
-      - ./d8/themes:/var/www/html/sites/default/themes
-      - ./d8/info.php:/var/www/html/info.php
-      - ./d8/composer.json:/var/www/html/composer.json
-      # - ./d8/drupal-nodejs:/var/www/html/drupal-nodejs
-      - ./d8/settings.php:/var/www/html/sites/default/settings.php
-      # - ./d8/vendor:/var/www/html/vendor
-      # - ./d8/share:/var/www/html/share
-      - ./d8/php.ini:/usr/local/etc/php/php.ini
-      - ./d8/callapi.php:/var/www/html/callapi.php
+      - ./drupal8/modules:/var/www/html/sites/default/modules
+      - ./drupal8/themes:/var/www/html/sites/default/themes
+      - ./drupal8/info.php:/var/www/html/info.php
+      - ./drupal8/composer.json:/var/www/html/composer.json
+      # - ./drupal8/drupal-nodejs:/var/www/html/drupal-nodejs
+      - ./drupal8/settings.php:/var/www/html/sites/default/settings.php
+      # - ./drupal8/vendor:/var/www/html/vendor
+      # - ./drupal8/share:/var/www/html/share
+      - ./drupal8/php.ini:/usr/local/etc/php/php.ini
+      - ./drupal8/callapi.php:/var/www/html/callapi.php
     restart: always
   # nodejs:
   #   build: './nodejs'
@@ -120,6 +120,8 @@ services:
   #     - '8099:3000'
   #   environment:
   #     - NODE_ENV=${NODE_ENV}
+
+  # https://github.com/Base2526/cfu
   frontend:
     container_name: cfy_client
     build:
@@ -132,10 +134,20 @@ services:
       - "8099:3000"
     volumes:
       - ./client:/usr/src/app
-
+    restart: always
   # volumes:
   #   es_data:
   #     driver: es_data
+  backend:
+    container_name: cfy_server
+    build:
+        context: ./server
+        dockerfile: Dockerfile
+    image: aneeshmelkot/cfy_server
+    ports:
+        - "8100:5000"
+    volumes:
+        - ./server:/usr/src/app
     
 # docker run --name d8 -d -p 8080:80 drupal:8.6.17
 # docker run --name pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -d -p 5432:5432 postgres:10

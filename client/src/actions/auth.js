@@ -1,10 +1,11 @@
 import * as types from "./types";
 import { incrementProgress, decrementProgress } from "./progress";
-// import history from "../history";
+import history from "../history";
 
-const userLogin = username => ({
+const userLogin = (username, password) => ({
   type: types.AUTH_LOGIN,
   username,
+  password,
 });
 
 const userLogout = () => ({
@@ -18,17 +19,37 @@ const fakeLoginRequest = username =>
     }, 1000),
   );
 
-export const doLogin = username => async dispatch => {
-  dispatch(incrementProgress());
-  try {
-    const userResponse = await fakeLoginRequest(username);
-    dispatch(userLogin(userResponse));
-    // history.push("/dashboard");
-  } catch (error) {
-    alert(error);
-  } finally {
-    dispatch(decrementProgress());
-  }
+  // export const addTodo = text => ({
+  //   type: 'ADD_TODO',
+  //   id: nextTodoId++,
+  //   text
+  // })
+
+export const doLogin = (username, password)  => {
+
+  console.log(username, password);
+  // dispatch(userLogin(username, password));
+  // try {
+  //   console.log(username, password);
+  //   // const userResponse = await fakeLoginRequest(username);
+      // dispatch(userLogin(username, password));
+      // history.push("/");
+  // } catch (error) {
+  //   alert(error);
+  // } finally {
+  //   // dispatch(decrmentProgress());
+  // }
+
+  // dispatch(incrementProgress());
+  // try {
+  //   const userResponse = await fakeLoginRequest(username);
+  //   dispatch(userLogin(userResponse));
+  //   // history.push("/dashboard");
+  // } catch (error) {
+  //   alert(error);
+  // } finally {
+  //   dispatch(decrementProgress());
+  // }
 };
 
 export const doLogout = () => dispatch => {

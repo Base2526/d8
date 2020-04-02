@@ -29,7 +29,7 @@ export default function ButtonAppBar() {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            Cars For U
+            <Link  href="#" className={classes.linkStyle} to="/">HUAY</Link>
           </Typography>
           <Link  href="#" className={classes.linkStyle} to="/login">
         Login

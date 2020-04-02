@@ -5,6 +5,8 @@ import { Redirect } from 'react-router';
 
 import { config } from '../../utils/Config';
 
+
+
 export default class Login extends React.Component {
 
 	constructor(props) {

@@ -1,9 +1,18 @@
+import * as types from "./types";
+
 let nextTodoId = 0
 export const addTodo = text => ({
   type: 'ADD_TODO',
   id: nextTodoId++,
   text
 })
+
+
+export const userLogin = (username, password) => ({
+  type: types.AUTH_LOGIN,
+  username,
+  password,
+});
 
 export const setVisibilityFilter = filter => ({
   type: 'SET_VISIBILITY_FILTER',

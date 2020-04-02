@@ -23,6 +23,8 @@ RUN curl -sS https://getcomposer.org/installer | php && \
 # # Clean repository
 # RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
+
+
 # install memcached
 RUN apt-get update && \
     apt-get install -y libz-dev libmemcached-dev && \
@@ -30,6 +32,8 @@ RUN apt-get update && \
     docker-php-ext-enable memcached
 
 WORKDIR /var/www/html
+
+COPY services.yml sites/default/services.yml 
 
 RUN mkdir sites/default/files && \
     chmod 777 sites/default/files

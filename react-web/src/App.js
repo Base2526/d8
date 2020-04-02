@@ -37,7 +37,7 @@ class App extends Component {
 		};
 
 		this.authenticate = this.authenticate.bind(this);
-  }
+  	}
   
    // this function is called on login/logout
 	authenticate(user) {
