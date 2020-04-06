@@ -1,93 +1,165 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const path = require('path');
-const shortid = require('shortid');
+// refer : https://github.com/nathanpeck/socket.io-chat-fargate/blob/master/services/client/server.js#L40
 
-const Razorpay = require('razorpay');
+// const express = require("express");
+// const app = express();
+// const connectDb = require("./src/connection");
+// const User = require("./src/User.model");
 
-const key = "XXX";
-const secret = "XXX";
+const PORT = 5000;
 
-const instance = new Razorpay({
-  key_id: key,
-  key_secret: secret
+/*
+app.get('/', (req, res) => {
+  res.send('Chat Server is running on port 8080');
 });
 
-const app = express();
-const port = process.env.PORT || 5000;
+app.get("/users", async (req, res) => {
+  console.log(`/user`);
+  const users = await User.find();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-//Courtesy GOOGLE
-const blr_coordinates = {
-  lat: 12.9716,
-  lng: 77.5946
-};
-
-let driver_deets = [
-  { name: 'Driver 1', pricePerKM:"₹15/km", price:0, lingo:"Hindi", priceMod: 15 },
-  { name: 'Driver 2', pricePerKM:"₹18/km", price:0, lingo:"Kannada", priceMod: 18 },
-  { name: 'Driver 3', pricePerKM:"₹20/km", price:0, lingo:"English", priceMod: 20 },
-];
-
-// Using the Haversine function to calculate the distance between
-// as I dont want to be charged for a buttload of API Queries.
-function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-  var R = 6371; // Radius of the earth in km
-  var dLat = deg2rad(lat2-lat1);  // deg2rad below
-  var dLon = deg2rad(lon2-lon1); 
-  var a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2)
-    ; 
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-  var d = R * c; // Distance in km
-  return d;
-}
-
-function deg2rad(deg) {
-  return deg * (Math.PI/180);
-}
-
-app.get('/api/driver-deets', (req, res) => {
-  res.json(driver_deets);
+  res.json(users);
 });
 
-let distance = null;
-let days = null;
+app.get("/user-create", async (req, res) => {
+  console.log(`/user-create`);
+  const user = new User({ username: "userTest" });
 
-app.post('/api/price', (req, res) => {
-  distance = getDistanceFromLatLonInKm(blr_coordinates.lat, blr_coordinates.lng, req.body.lat, req.body.lng);
-  days = distance / 300;
+  await user.save().then(() => console.log("User created"));
 
-  res.json({
-    distance: Math.ceil(distance),
-    days: Math.ceil(days)
-  }
-  );
+  res.send("User created \n");
 });
 
-app.get('/api/v1/rzp_capture/:payment_id/:amount', (req, res) => {
-  const {payment_id } = req.params;
-  const amount = Number(req.params.amount*100);
-  instance.payments.capture(payment_id, amount).then((data) => {
-    res.json(data);
-    // console.log(data);
-  }).catch((error) => {
-    res.json(error);
+app.listen(PORT, function() {
+  console.log(`Listening on ${PORT}`);
+
+  connectDb().then(() => {
+    console.log("MongoDb connected");
   });
 });
+*/
 
-if (process.env.NODE_ENV === 'production') {
-  // Serve any static files
-  app.use(express.static(path.join(__dirname, 'client/build')));
+const connectDb = require("./src/connection");
+const User = require("./src/User.model");
+
+const app   = require('express')();
+app.get('/', (req, res) => {
+  res.send('OOP Chat Server is running on port 8080');
+});
+
+app.get("/users", async (req, res) => {
+  console.log(`/user`);
+  const users = await User.find();
+
+  res.json(users);
+});
+
+app.get("/user-create", async (req, res) => {
+  console.log(`/user-create`);
+  const user = new User({ username: "userTest" });
+
+  await user.save().then(() => console.log("User created"));
+
+  res.send("User created \n");
+});
+
+const http  = require('http');
+const server= http.createServer(app);
+let io = require('socket.io')(server);
+
+var request = require('request');
+io.on('connection', (socket) => { 
+  let handshake = socket.handshake;
+  console.log(socket);
+  console.log(handshake);
+  console.log(socket.id);
+  console.log(handshake.time);
+  console.log(handshake.query);
+  console.log(`Socket ${socket.id} connected.`);
+
+  console.log("user-agent: "+socket.request.headers['user-agent']);
+
+
+  // request('http://localhost/rest/api/get?_format=json', function (error, response, body) {
+  //     // if (!error && response.statusCode == 200) {
+  //         console.log(response) // Print the google web page.
+  //     // }
+  // })
+
+  // request.get("http://www.google.com", (error, response, body) => {
+  //     if(error) {
+  //       // return console.dir(error);
+  //       console.log(error) 
+  //     }
+  //     // console.dir(JSON.parse(body));
+
+  //     console.log(body) 
+  // });
+
+  // request('http://web/rest/api/get?_format=json', function (error, response, body) {
+  //      // if (!error && response.statusCode == 200) {
+  //      console.log(response) // Print the google web page.
+  //      console.log(body)
+  //      // }
+  // })
+
+  socket.conn.on('heartbeat', function() {
+    // console.log('#1');
+    if (!socket.authenticated) {
+      // Don't start counting as present until they authenticate.
+      return;
+    }
+
+    console.log('#2');
+    //Presence.upsert(socket.id, {
+    //  username: socket.username
+    //});
+  });
+
+  /*
+  สร้าง event ไว้รอรับข้อความจาก react-native
+  */
+  socket.on("chat_message", msg => {
+    // console.log(msg);
+    // io.emit("chat_message", 'bbu');
+
+    // socket.authenticated = true;
+
+    io.sockets.in('room1').emit('response_message', 'what is going on, party people?');
+  });
+
+  socket.on('create', function(room) {
+    socket.join(room);
+    console.log(this);
+  });
+  
+  socket.on('disconnect', () => {
     
-  // Handle React routing, return all requests to React app
-  app.get('*', function(req, res) {
-    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+    console.log(`Socket ${socket.id} disconnected.`);
   });
-}
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+  socket.on("get_list_of_clients_in_specific_room", msg => {
+
+    console.log(io.sockets.connected);
+    // var roster = io.sockets.clients('room1');
+
+    // roster.forEach(function(client) {
+    //     console.log('Username: ' + client.nickname);
+    // }); 
+  });
+
+
+  /*
+  
+  */
+});
+
+// io.on('disconnect', () => {
+//   console.log("disconnection");
+// });
+// server.listen(PORT);
+server.listen(PORT, function (err) {
+  console.log('listening on port 8080')
+
+  connectDb().then(() => {
+    console.log("MongoDb connected");
+  });
+})

@@ -24,11 +24,13 @@ class API extends ControllerBase {
   https://github.com/BoldizArt/D8_Register-Login/blob/master/src/Controller/RegisterLoginController.php
   */
   public function login(Request $request){
+    $time1 = microtime(true);
+
     if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
       $content = json_decode( $request->getContent(), TRUE );
 
-      $name = trim( $content['params']['name']);
-      $pass = trim( $content['params']['pass'] );
+      $name = trim( $content['name']);
+      $pass = trim( $content['pass'] );
   
       if(!(( empty($name) && empty($pass) ) ||
            empty($name) ||
@@ -59,8 +61,10 @@ class API extends ControllerBase {
                         'image_url'=>$image_url 
                         );
   
-          $response['result'] = TRUE;
-          $response['data']   = $data;
+          $response['result']           = TRUE;
+          $response['execution_time']   = microtime(true) - $time1;
+
+          $response['data']             = $data;
           return new JsonResponse( $response );
         }
       } 
@@ -70,56 +74,64 @@ class API extends ControllerBase {
     return new JsonResponse( $response );
   }
 
-  public function register(){
-    $name = trim( $_POST['name'] );
-    $pass = trim( $_POST['pass'] );
+  public function register(Request $request){
+    $time1 = microtime(true);
 
-    if(!(( empty($name) && empty($pass) ) ||
-          empty($name) ||
-          empty($pass)
-      )){
+    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+      $content = json_decode( $request->getContent(), TRUE );
 
-      /*
-        * case is email with use user_load_by_mail reture name
-      */
-      if(!\Drupal::service('email.validator')->isValid( $name )){
-        $response['result']   = FALSE;
-        $response['message']  = t('The email address @email invalid.', array('@email' => $name))->__toString();
+      $name = trim( $content['name']);
+      $pass = trim( $content['pass'] );
+
+      if(!(( empty($name) && empty($pass) ) ||
+            empty($name) ||
+            empty($pass)
+        )){
+
+        /*
+          * case is email with use user_load_by_mail reture name
+        */
+        if(!\Drupal::service('email.validator')->isValid( $name )){
+          $response['result']   = FALSE;
+          $response['message']  = t('The email address @email invalid.', array('@email' => $name))->__toString();
+          return new JsonResponse( $response );
+        }
+
+        $user = user_load_by_mail($name);
+        if(!empty($user)){
+          $response['result']   = FALSE;
+          $response['message']  = t('The email address @email is already taken.', array('@email' => $name))->__toString();
+          return new JsonResponse( $response );
+        }
+
+        // Create user
+        $user = User::create();
+
+        // Mandatory settings
+        $user->setPassword($pass);
+        $user->set("langcode", 'en');
+        $user->enforceIsNew();
+        $user->setEmail($name);
+        $user->setUsername(explode("@", $name)[0]);
+        $user->addRole('authenticated');
+        
+        // Optional settings
+        $user->activate();
+
+        // Save user
+        $user->save();
+
+        // User login
+        user_login_finalize($user);
+
+        _user_mail_notify('register_no_approval_required', $user, 'en');
+
+        $response['result']   = TRUE;
+        $response['execution_time']   = microtime(true) - $time1;
+
+        $response['data']      = $user;
         return new JsonResponse( $response );
       }
-
-      $user = user_load_by_mail($name);
-      if(!empty($user)){
-        $response['result']   = FALSE;
-        $response['message']  = t('The email address @email is already taken.', array('@email' => $name))->__toString();
-        return new JsonResponse( $response );
-      }
-
-      // Create user
-      $user = User::create();
-
-      // Mandatory settings
-      $user->setPassword($pass);
-      $user->set("langcode", 'en');
-      $user->enforceIsNew();
-      $user->setEmail($name);
-      $user->setUsername(explode("@", $name)[0]);
-      $user->addRole('authenticated');
-      
-      // Optional settings
-      $user->activate();
-
-      // Save user
-      $user->save();
-
-      // User login
-      user_login_finalize($user);
-
-      _user_mail_notify('register_no_approval_required', $user, 'en');
-
-      $response['result']   = TRUE;
-      $response['user']      = $user;
-      return new JsonResponse( $response );
     }
 
     $response['result']   = FALSE;
@@ -140,53 +152,64 @@ class API extends ControllerBase {
   *   - 'cancel_confirm': Account cancellation request.
   *   - 'status_canceled': Account canceled.
   */
-  public function reset_password(){
-    $name = trim( $_POST['name'] );
+  public function reset_password(Request $request){
+    $time1 = microtime(true);
 
-    if( empty($name) ){
-      $response['result'] = FALSE;
+    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+      $content = json_decode( $request->getContent(), TRUE );
+
+      $name = trim( $content['name']);
+
+      if( empty($name) ){
+        $response['result'] = FALSE;
+        return new JsonResponse( $response );
+      }
+
+      $user = NULL;
+      if(\Drupal::service('email.validator')->isValid( $name )){
+        $user = user_load_by_mail($name);
+        if(empty( $user )){
+          $response['result']   = FALSE;
+          $response['message']  = t('@email is not recognized an email address.', array('@email' => $name))->__toString();
+          return new JsonResponse( $response );
+        }
+      }else{
+        $user = user_load_by_name($name);
+        if(empty( $user )){
+          $response['result']   = FALSE;
+          $response['message']  = t('@email is not recognized as a username.', array('@email' => $name))->__toString();
+          return new JsonResponse( $response );
+        }
+      }
+
+      // $name = $this->requestStack->getCurrentRequest()->query->get('name');
+      // // TODO: Add destination.
+      // // $page_destination = $this->requestStack->getCurrentRequest()->query->get('destination');
+
+      // $langcode =  $this->languageManager->getCurrentLanguage()->getId();
+      // // Try to load by email.
+      // $users =  $this->entityTypeManager->getStorage('user')->loadByProperties(array('mail' => $name));
+      // if (empty($users)) {
+      //   // No success, try to load by name.
+      //   $users =  $this->entityTypeManager->getStorage('user')->loadByProperties(array('name' => $name));
+      // }
+      $account = reset($user);
+      // Mail one time login URL and instructions using current language.
+      $mail = _user_mail_notify('password_reset', $account, 'en');
+
+      // if (!empty($mail)) {
+      //   $this->logger->notice('Password reset instructions mailed to %name at %email.', ['%name' => $account->getAccountName(), '%email' => $account->getEmail()]);
+      //   $this->messenger->addStatus($this->t('Further instructions have been sent to your email address.'));
+      // }
+
+      $response['result']   = TRUE;
+      $response['execution_time']   = microtime(true) - $time1;
+      
+      // $response['message']  = t('@id | @name |  @email', array('@id'=>$user->id(), '@name' => $user->getUsername(), '@email' => $user->getEmail()))->__toString();
       return new JsonResponse( $response );
     }
 
-    $user = NULL;
-    if(\Drupal::service('email.validator')->isValid( $name )){
-      $user = user_load_by_mail($name);
-      if(empty( $user )){
-        $response['result']   = FALSE;
-        $response['message']  = t('@email is not recognized an email address.', array('@email' => $name))->__toString();
-        return new JsonResponse( $response );
-      }
-    }else{
-      $user = user_load_by_name($name);
-      if(empty( $user )){
-        $response['result']   = FALSE;
-        $response['message']  = t('@email is not recognized as a username.', array('@email' => $name))->__toString();
-        return new JsonResponse( $response );
-      }
-    }
-
-    // $name = $this->requestStack->getCurrentRequest()->query->get('name');
-    // // TODO: Add destination.
-    // // $page_destination = $this->requestStack->getCurrentRequest()->query->get('destination');
-
-    // $langcode =  $this->languageManager->getCurrentLanguage()->getId();
-    // // Try to load by email.
-    // $users =  $this->entityTypeManager->getStorage('user')->loadByProperties(array('mail' => $name));
-    // if (empty($users)) {
-    //   // No success, try to load by name.
-    //   $users =  $this->entityTypeManager->getStorage('user')->loadByProperties(array('name' => $name));
-    // }
-    $account = reset($user);
-    // Mail one time login URL and instructions using current language.
-    $mail = _user_mail_notify('password_reset', $account, 'en');
-
-    // if (!empty($mail)) {
-    //   $this->logger->notice('Password reset instructions mailed to %name at %email.', ['%name' => $account->getAccountName(), '%email' => $account->getEmail()]);
-    //   $this->messenger->addStatus($this->t('Further instructions have been sent to your email address.'));
-    // }
-
-    $response['result']   = TRUE;
-    $response['message']  = t('@id | @name |  @email', array('@id'=>$user->id(), '@name' => $user->getUsername(), '@email' => $user->getEmail()))->__toString();
+    $response['result']   = FALSE;
     return new JsonResponse( $response );
   }
 }

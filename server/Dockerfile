@@ -1,4 +1,5 @@
-FROM node:9.11
+# FROM node:9.11
+FROM node:lts-slim
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 

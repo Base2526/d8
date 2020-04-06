@@ -26,7 +26,7 @@ apps/node_modules
 apps/package-lock.json
 # d8
 d8/node_modules
-d8/vendor
+# d8/vendor
 # apps
 
 es_data

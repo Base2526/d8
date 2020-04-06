@@ -4,7 +4,7 @@ services:
     build: './drupal8'
     container_name: "drupal8"
     ports:
-      - 80:80
+      - 8055:80
     environment:
       - DB_HOST=postgres
       - DB_NAME=d8
@@ -22,19 +22,19 @@ services:
       - ./drupal8/php.ini:/usr/local/etc/php/php.ini
       - ./drupal8/callapi.php:/var/www/html/callapi.php
     restart: always
-  # nodejs:
-  #   build: './nodejs'
-  #   container_name: "nodejs_web"
-  #   ports:
-  #     - "3000:3000"
-  #     - "3001:3001"
-  #     - "9231:9229"
-  #   command:
-  #     - node
-  #     - "--inspect-brk=0.0.0.0"
-  #     - "." 
-  #   volumes:
-  #     - ./nodejs:/usr/src/app
+  nodejs:
+    build: './nodejs'
+    container_name: "nodejs"
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "9231:9229"
+    command:
+      - node
+      - "--inspect-brk=0.0.0.0"
+      - "." 
+    volumes:
+      - ./nodejs:/usr/src/app
   postgres:
     image: postgres:10
     environment:
@@ -74,8 +74,8 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
 
-  wmcached:
-    image: wodby/memcached:1.4-2.0.0
+  # wmcached:
+  #   image: wodby/memcached:1.4-2.0.0
 
   # redis:
   #   image: redis
@@ -138,16 +138,17 @@ services:
   # volumes:
   #   es_data:
   #     driver: es_data
-  backend:
-    container_name: cfy_server
-    build:
-        context: ./server
-        dockerfile: Dockerfile
-    image: aneeshmelkot/cfy_server
-    ports:
-        - "8100:5000"
-    volumes:
-        - ./server:/usr/src/app
+  # backend:
+  #   container_name: cfy_server
+  #   build:
+  #       context: ./server
+  #       dockerfile: Dockerfile
+  #   image: aneeshmelkot/cfy_server
+  #   ports:
+  #       - "8100:5000"
+  #   volumes:
+  #       - ./server:/usr/src/app
+  #   restart: always
     
 # docker run --name d8 -d -p 8080:80 drupal:8.6.17
 # docker run --name pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -d -p 5432:5432 postgres:10

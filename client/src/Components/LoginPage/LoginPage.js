@@ -39,15 +39,23 @@ const useStyles = {
 class LoginPage extends Component {
   constructor(props) {
     super(props);
-    let loggedIn = false;
+
     this.state = {
-      username: '',
-      password:'',
-      loggedIn
+      name: '',
+      pass: '',
+      loggedIn: false,
+      error: false,
+      error_message:'';
     };
 
     this.onChange = this.onChange.bind(this);
     this.submitForm = this.submitForm.bind(this);
+  }
+
+  componentDidMount() {
+    this.callApi()
+      .then(res => console.log(res.express) )
+      .catch(err => console.log(err));
   }
 
   onChange(e) {
@@ -56,9 +64,46 @@ class LoginPage extends Component {
     });
   }
 
-  submitForm(e) {
+  callApi = async () => {
+    const response = await fetch('/api/hello');
+    const body = await response.json();
+    if (response.status !== 200) throw Error(body.message);
+    
+    return body;
+  };
+
+  // submitForm(e) {
+  submitForm = async e => {
     e.preventDefault();
-    const { username, password } = this.state;
+    console.log('submitForm');
+    const { user, pass } = this.state;
+
+    if(user.trim() == "" && pass.trim() == "" ){
+      this.setState({
+        error: true,
+        error_message: "Username && Pass is empty."
+          });
+    }else if(user.trim() == ""){
+      this.setState({
+        error: true,
+        error_message: "Username is empty."
+          });
+    }else if(pass.trim() == ""){
+      this.setState({
+        error: true,
+        error_message: "Password is empty."
+          });
+    }
+ 
+    const response = await fetch('/api/world', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user, pass}),
+    });
+    const body = await response.text();
+    console.log(body);
     // if(username === "admin" && password === "admin") {
     //   ls.set("token", "56@cysXs");
     //   this.setState({
@@ -68,7 +113,7 @@ class LoginPage extends Component {
     //   return <p>Invalid Creds</p>
     // }
 
-    this.props.userLogin('username', 'password');
+    // this.props.userLogin('username', 'password');
 
     // this.props.addTodo('4');
     /*
@@ -96,6 +141,11 @@ class LoginPage extends Component {
     if(this.state.loggedIn){
       return <Redirect to="/" />
     }
+
+    let message_error = <div></div>;
+    if(this.state.error){
+      message_error = <div>{this.state.error_message}</div>;
+    }
     return (
       <div>
         <Container>
@@ -105,6 +155,7 @@ class LoginPage extends Component {
                 Login
             </Typography>
             <br />
+          {message_error}
           <form onSubmit={this.submitForm}>
             <TextField
               margin="normal"
@@ -113,7 +164,7 @@ class LoginPage extends Component {
               id="outlined-size-normal"
               // defaultValue={this.state.userName}
               variant="outlined"
-              name="username"
+              name="user"
             />
             <br />
               <TextField
@@ -123,7 +174,7 @@ class LoginPage extends Component {
               id="outlined-size-normal"
               variant="outlined"
               type="password"
-              name="password"
+              name="pass"
             />
             <br />
             <Button type="submit" size="large" variant="contained" color="primary">

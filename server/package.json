@@ -11,9 +11,12 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "dotenv": "^4.0.0",
-    "express": "^4.16.4",
+    "express": "^4.17.1",
+    "mongodb-topology-manager": "^2.1.0",
+    "mongoose": "^5.9.7",
     "razorpay": "^2.0.6",
-    "shortid": "^2.2.15"
+    "shortid": "^2.2.15",
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
     "concurrently": "^4.0.1"

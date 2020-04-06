@@ -37,12 +37,53 @@ app.listen(PORT, function() {
 });
 */
 
+const fetch = require('node-fetch');
+
+const bodyParser = require('body-parser');
+
 const connectDb = require("./src/connection");
 const User = require("./src/User.model");
 
 const app   = require('express')();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.get('/api/hello', (req, res) => {
+  res.send({ express: 'Hello From Express' });
+});
+
 app.get('/', (req, res) => {
   res.send('OOP Chat Server is running on port 8080');
+
+  // fetch('http://localhost:8055/api/login.json', {method: 'GET', body: 'a=1'})
+	// .then(res => res.json()) // expecting a json response
+  // .then(json => console.log(json));
+  
+  var url ='http://drupal8/api/login.json';
+  var headers = {
+    "Content-Type": "application/json",
+    // "client_id": "1001125",
+    // "client_secret": "876JHG76UKFJYGVHf867rFUTFGHCJ8JHV"
+  }
+  var data = {
+    "name": "admin",
+    "pass": "ๅ/_ภ"
+  }
+  fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(data)})
+    .then((res) => {
+       return res.json()
+  })
+  .then((json) => {
+    console.log(json);
+    // Do something with the returned data.
+  });
+});
+
+app.post('/api/world', (req, res) => {
+  console.log(req.body);
+  res.send(
+    `I received your POST request. This is what you sent me: ${req.body.post}`,
+  );
 });
 
 app.get("/users", async (req, res) => {
@@ -65,7 +106,7 @@ const http  = require('http');
 const server= http.createServer(app);
 let io = require('socket.io')(server);
 
-var request = require('request');
+// var request = require('request');
 io.on('connection', (socket) => { 
   let handshake = socket.handshake;
   console.log(socket);
@@ -75,9 +116,7 @@ io.on('connection', (socket) => {
   console.log(handshake.query);
   console.log(`Socket ${socket.id} connected.`);
 
-  console.log("user-agent: "+socket.request.headers['user-agent']);
-
-
+  // console.log("user-agent: "+socket.request.headers['user-agent']);
   // request('http://localhost/rest/api/get?_format=json', function (error, response, body) {
   //     // if (!error && response.statusCode == 200) {
   //         console.log(response) // Print the google web page.
