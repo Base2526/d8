@@ -45,7 +45,7 @@ class LoginPage extends Component {
       pass: '',
       loggedIn: false,
       error: false,
-      error_message:'';
+      error_message:'',
     };
 
     this.onChange = this.onChange.bind(this);

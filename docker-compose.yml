@@ -22,9 +22,9 @@ services:
       - ./drupal8/php.ini:/usr/local/etc/php/php.ini
       - ./drupal8/callapi.php:/var/www/html/callapi.php
     restart: always
-  nodejs:
+  backend:
     build: './nodejs'
-    container_name: "nodejs"
+    container_name: "backend"
     ports:
       - "3000:3000"
       - "3001:3001"
