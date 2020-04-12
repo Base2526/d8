@@ -37,7 +37,7 @@ const useStyles = {
   }
 };
 
-class LoginPage extends Component {
+class ForgetPasswordPage extends Component {
   constructor(props) {
     super(props);
 
@@ -144,10 +144,6 @@ class LoginPage extends Component {
     */
   }
 
-  nextPath(path) {
-    this.props.history.push(path);
-  }
-
   render() {
     console.log(this.props);
     if(this.props.loggedIn){
@@ -167,7 +163,7 @@ class LoginPage extends Component {
               CCCCC
             </Link> */}
             <Typography variant="h5" component="h2">
-                Login
+                Forget password
             </Typography>
             <br />
           {message_error}
@@ -192,19 +188,15 @@ class LoginPage extends Component {
               name="pass"
             />
             <br />
-            <Button type="submit" size="large" variant="contained" color="primary" style={{paddingLeft: '5px'}}>
+            <Button type="submit" size="large" variant="contained" color="primary">
               Login
             </Button>
             {/* <Button type="submit" size="large" variant="contained" color="primary">
               Forgot password
             </Button> */}
-            {/* <Link style={{color: 'black', paddingLeft: '5px'}} href="#" to="/forget-password-page" >
-              Forget password
-            </Link> */}
-            <Button type="primary" size="large"  variant="contained" color="primary" onClick={ () => this.nextPath('/forget-password-page')}>
+            <Link style={{color: 'white'}} href="#" to="/forget_password" >
             Forget password
-            </Button>
-
+            </Link>
           </form>
           </CardContent>
         </Card>
@@ -281,4 +273,4 @@ const mapDispatchToProps = (dispatch) => {
 	}
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginPage)
+export default connect(mapStateToProps, mapDispatchToProps)(ForgetPasswordPage)

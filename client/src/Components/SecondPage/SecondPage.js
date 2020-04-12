@@ -15,7 +15,7 @@ class DriverType extends Component {
 
         const token = ls.get('token');
         let loggedIn = true;
-        token === null ? loggedIn = false : loggedIn = true;
+        // token === null ? loggedIn = false : loggedIn = true;
 
         this.state = {
             rideType: '',

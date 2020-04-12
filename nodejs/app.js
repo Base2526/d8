@@ -44,6 +44,8 @@ const bodyParser = require('body-parser');
 const connectDb = require("./src/connection");
 const User = require("./src/User.model");
 
+var config = require("./src/utils/config")
+
 const app   = require('express')();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -59,31 +61,36 @@ app.get('/', (req, res) => {
 	// .then(res => res.json()) // expecting a json response
   // .then(json => console.log(json));
   
-  var url ='http://drupal8/api/login.json';
-  var headers = {
-    "Content-Type": "application/json",
-    // "client_id": "1001125",
-    // "client_secret": "876JHG76UKFJYGVHf867rFUTFGHCJ8JHV"
-  }
+  
+});
+
+app.post('/api/login', (req, res) => {
+  console.log(req.body);
+  console.log(config.d8.headers);
+  // res.send(
+  //   `I received your POST request. This is what you sent me: ${req.body} ${config.redis.host}`,
+  // );
+
+  // var url ='http://drupal8/api/login.json';
+  // var headers = {
+  //   "Content-Type": "application/json",
+  //   // "client_id": "1001125",
+  //   // "client_secret": "876JHG76UKFJYGVHf867rFUTFGHCJ8JHV"
+  // }
   var data = {
-    "name": "admin",
-    "pass": "ๅ/_ภ"
+    "name": req.body.name,
+    "pass": req.body.pass
   }
-  fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(data)})
+  fetch(config.d8.api_login, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
     .then((res) => {
-       return res.json()
+      return res.json()
   })
   .then((json) => {
     console.log(json);
     // Do something with the returned data.
-  });
-});
 
-app.post('/api/world', (req, res) => {
-  console.log(req.body);
-  res.send(
-    `I received your POST request. This is what you sent me: ${req.body.post}`,
-  );
+    res.send(json);
+  });
 });
 
 app.get("/users", async (req, res) => {

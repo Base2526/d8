@@ -65,4 +65,37 @@ class Utils extends ControllerBase {
       // drupal_set_message(t('Your message has been sent.'));
     }
   }
+
+  public static function encode($string) {
+    $key    = sha1(\Drupal\config_pages\Entity\ConfigPages::config('config_global')->get('field_key_ende')->value);
+    $strLen = strlen($string);
+    $keyLen = strlen($key);
+    $j      = 0;
+    $hash   = '';
+    for ($i = 0; $i < $strLen; $i++) {
+        $ordStr = ord(substr($string,$i,1));
+        if ($j == $keyLen) { $j = 0; }
+        $ordKey = ord(substr($key,$j,1));
+        $j++;
+        $hash .= strrev(base_convert(dechex($ordStr + $ordKey),16,36));
+    }
+    return $hash;
+  }
+
+  public static  function decode($string) {
+    $key    = sha1(\Drupal\config_pages\Entity\ConfigPages::config('config_global')->get('field_key_ende')->value);
+    $strLen = strlen($string);
+    $keyLen = strlen($key);
+    $j      = 0;
+    $hash   = '';
+    for ($i = 0; $i < $strLen; $i+=2) {
+        $ordStr = hexdec(base_convert(strrev(substr($string,$i,2)),36,16));
+        if ($j == $keyLen) { $j = 0; }
+        $ordKey = ord(substr($key,$j,1));
+        $j++;
+        $hash .= chr($ordStr - $ordKey);
+    }
+    return $hash;
+  }
+
 }

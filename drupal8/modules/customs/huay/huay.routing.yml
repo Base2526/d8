@@ -71,6 +71,13 @@ api.login:
   requirements:
     _access: 'TRUE'
 
+api.logout:
+  path: '/api/logout.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::logout' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
 api.register:
   path: '/api/register.json'
   defaults: { _controller: '\Drupal\huay\Controller\API::register' }

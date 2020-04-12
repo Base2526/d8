@@ -42,8 +42,8 @@ export default class FinalPage extends Component{
     super(props);
 
     const token = ls.get('token');
-        let loggedIn = true;
-        token === null ? loggedIn = false : loggedIn = true;
+    let loggedIn = true;
+    // token === null ? loggedIn = false : loggedIn = true;
 
     this.state = {
       confirmedDriver: null,
@@ -109,6 +109,12 @@ export default class FinalPage extends Component{
     if(this.state.loggedIn === false) {
       return <Redirect to="/login"/>
     }
+
+    return (
+      <div>
+        FinalPage
+      </div>
+    )
 
     return (
         <div>

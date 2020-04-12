@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 use Drupal\user\Entity\User;
 
+use Drupal\huay\Utils\Utils;
 /**
  * Controller routines for test_api routes.
  * https://www.chapterthree.com/blog/custom-restful-api-drupal-8
@@ -58,7 +59,9 @@ class API extends ControllerBase {
                         'name'     =>$user->getUsername(),
                         'email'    =>$user->getEmail(),
                         'roles'    =>$user->getRoles(),
-                        'image_url'=>$image_url 
+                        'image_url'=>$image_url,
+                        // 'session'  =>\Drupal::service('session')->getId(),
+                        'token'    =>Utils::encode('uid='.$uid."&time=".\Drupal::time()->getCurrentTime()),
                         );
   
           $response['result']           = TRUE;
@@ -71,6 +74,50 @@ class API extends ControllerBase {
     }
 
     $response['result']   = FALSE;
+    $response['message']  = 'login';
+    return new JsonResponse( $response );
+  }
+
+  /*
+  https://api.drupal.org/api/drupal/core!modules!user!user.module/function/user_logout/8.2.x
+  */
+  public function logout(Request $request){
+    $time1 = microtime(true);
+
+    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+      $content = json_decode( $request->getContent(), TRUE );
+
+      $uid = trim( $content['uid']);
+
+      if(!empty($uid)){
+        // $user = \Drupal::currentUser();
+        $user = User::load($uid);
+        \Drupal::logger('user')
+          ->notice('Session closed for %name.', array(
+          '%name' => $user
+            ->getAccountName(),
+        ));
+        \Drupal::moduleHandler()
+          ->invokeAll('user_logout', array(
+          $user,
+        ));
+
+        // Destroy the current session, and reset $user to the anonymous user.
+        // Note: In Symfony the session is intended to be destroyed with
+        // Session::invalidate(). Regrettably this method is currently broken and may
+        // lead to the creation of spurious session records in the database.
+        // @see https://github.com/symfony/symfony/issues/12375
+        \Drupal::service('session_manager')->destroy();
+        $user->setAccount(new AnonymousUserSession());
+
+        $response['result']           = TRUE;
+        $response['execution_time']   = microtime(true) - $time1; 
+        return new JsonResponse( $response );
+      }
+    }
+    $response['result']   = FALSE;
+    $response['message']  = 'logout';
+    $response['execution_time']   = microtime(true) - $time1; 
     return new JsonResponse( $response );
   }
 
@@ -135,6 +182,7 @@ class API extends ControllerBase {
     }
 
     $response['result']   = FALSE;
+    $response['message']  = 'register';
     return new JsonResponse( $response );
   }
 
@@ -210,6 +258,7 @@ class API extends ControllerBase {
     }
 
     $response['result']   = FALSE;
+    $response['message']  = 'reset_password';
     return new JsonResponse( $response );
   }
 }

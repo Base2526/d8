@@ -2,13 +2,12 @@ import * as types from "./types";
 import { incrementProgress, decrementProgress } from "./progress";
 import history from "../history";
 
-const userLogin = (username, password) => ({
+export const userLogin = (user) => ({
   type: types.AUTH_LOGIN,
-  username,
-  password,
+  user
 });
 
-const userLogout = () => ({
+export const userLogout = () => ({
   type: types.AUTH_LOGOUT,
 });
 

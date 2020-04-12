@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button';
 import { Redirect, Link} from 'react-router-dom';
 
 import { connect } from 'react-redux'
-import { userLogin } from '../../actions/auth'
+import { addTodo, userLogin } from '../../actions'
 
 import history from "../../history";
 // import { doLogin, doLogout } from "../../actions/auth";
@@ -37,7 +37,7 @@ const useStyles = {
   }
 };
 
-class LoginPage extends Component {
+class RegisterPage extends Component {
   constructor(props) {
     super(props);
 
@@ -112,7 +112,7 @@ class LoginPage extends Component {
       let data = body.data;
       console.log(data);
 
-      this.props.userLogin(data);
+      this.props.userLogin();
     }
 
     // if(username === "admin" && password === "admin") {
@@ -144,71 +144,11 @@ class LoginPage extends Component {
     */
   }
 
-  nextPath(path) {
-    this.props.history.push(path);
-  }
-
   render() {
-    console.log(this.props);
-    if(this.props.loggedIn){
-      return <Redirect to="/" />
-    }
-
-    let message_error = <div></div>;
-    if(this.state.error){
-      message_error = <div>{this.state.error_message}</div>;
-    }
+  
     return (
       <div>
-        <Container>
-        <Card>
-          <CardContent>
-          {/* <Link style={{color: 'black'}} onClick={this.handleLogout}  >
-              CCCCC
-            </Link> */}
-            <Typography variant="h5" component="h2">
-                Login
-            </Typography>
-            <br />
-          {message_error}
-          <form onSubmit={this.submitForm}>
-            <TextField
-              margin="normal"
-              onChange={this.onChange}
-              label="Username"
-              id="outlined-size-normal"
-              // defaultValue={this.state.userName}
-              variant="outlined"
-              name="user"
-            />
-            <br />
-            <TextField
-              margin="normal"
-              onChange={this.onChange}
-              label="Password"
-              id="outlined-size-normal"
-              variant="outlined"
-              type="password"
-              name="pass"
-            />
-            <br />
-            <Button type="submit" size="large" variant="contained" color="primary" style={{paddingLeft: '5px'}}>
-              Login
-            </Button>
-            {/* <Button type="submit" size="large" variant="contained" color="primary">
-              Forgot password
-            </Button> */}
-            {/* <Link style={{color: 'black', paddingLeft: '5px'}} href="#" to="/forget-password-page" >
-              Forget password
-            </Link> */}
-            <Button type="primary" size="large"  variant="contained" color="primary" onClick={ () => this.nextPath('/forget-password-page')}>
-            Forget password
-            </Button>
-
-          </form>
-          </CardContent>
-        </Card>
-        </Container>
+        RegisterPage
       </div>
     );
   }
@@ -268,17 +208,17 @@ const mapDispatchToProps = (dispatch) => {
 	console.log(dispatch);
 
 	return {
-		// addTodo: (id) => {
-		// 					dispatch(addTodo(id))
-		// 				},
-		// addTodo2: (id, val) => {
-		// 					dispatch(addTodo(val))
-    //         },
-    userLogin: (data) =>{
-      dispatch(userLogin(data))
+		addTodo: (id) => {
+							dispatch(addTodo(id))
+						},
+		addTodo2: (id, val) => {
+							dispatch(addTodo(val))
+            },
+    userLogin: () =>{
+      dispatch(userLogin())
     }
 
 	}
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginPage)
+export default connect(mapStateToProps, mapDispatchToProps)(RegisterPage)

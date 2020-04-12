@@ -3,11 +3,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import InputAutocomplete from './InputAutocomplete/InputAutocomplete';
+// import InputAutocomplete from './InputAutocomplete/InputAutocomplete';
 import { Input, DatePicker, Radio, Button, Row, Col } from 'antd';
 import { RightCircleOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
-import './RideSelect.css';
+import '../RideSelect/RideSelect.css';
 import ls from 'local-storage';
 import history from '../../history';
 import { Redirect, Link} from 'react-router-dom';
@@ -27,7 +27,7 @@ const useStyles = makeStyles({
   }
 });
 
-class RideSelect extends Component {
+class LotteryPage extends Component {
   constructor(props) {
     super(props);
     
@@ -47,6 +47,9 @@ class RideSelect extends Component {
   componentDidMount() {
     ls.set('rideType', this.state.type);
     ls.set('origin', this.state.from);
+
+
+    this.handleClick = this.handleClick.bind(this);
   }
 
   destinationChangeHandler(event) {
@@ -94,8 +97,19 @@ class RideSelect extends Component {
     }
   }
 
-  nextPath2(path) {
-    this.props.history.push(path);
+  handleClick = (i) => {
+    console.log('this is:', i);
+  }
+
+ 
+  getrDivList () {
+    var divList = [];
+    for (var i = 0; i < 10; i++) {
+        divList.push(<button data-id={i} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>
+                      {i}
+                    </button>);
+    }
+    return divList;
   }
 
   render() {
@@ -103,10 +117,8 @@ class RideSelect extends Component {
     return (
       <Card className={ useStyles.root }>
         <CardContent>
-          <Button type="primary" size="large" onClick={ () => this.nextPath2('/lottery')}>
-            Lottery page
-          </Button>
 
+          { this.getrDivList() }
           <Typography variant="h5" component="h2">
               Chauffeur Driven, On Demand
           </Typography>
@@ -130,9 +142,9 @@ class RideSelect extends Component {
             <Col span={6}>
               <Input className={ useStyles.box_width } size="large" value={this.state.from} disabled="True" placeholder="Select Origin" prefix={<RightCircleOutlined />} />
             </Col>
-            <Col span={6}>
+            {/* <Col span={6}>
               <InputAutocomplete getVal={this.getDestVal}></InputAutocomplete>
-            </Col>
+            </Col> */}
             <Col span={6}>
               <DatePicker style={{width : 295}} onChange={(date, dateStr) => this.dateChangeHandler(date, dateStr)} size="large" showToday="True"/>
             </Col>
@@ -150,4 +162,4 @@ class RideSelect extends Component {
   }
 }
 
-export default RideSelect;
+export default LotteryPage;
