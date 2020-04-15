@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import InputAutocomplete from './InputAutocomplete/InputAutocomplete';
+// import InputAutocomplete from './InputAutocomplete/InputAutocomplete';
 import { Input, DatePicker, Radio, Button, Row, Col } from 'antd';
 import { RightCircleOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
@@ -103,10 +103,28 @@ class RideSelect extends Component {
     return (
       <Card className={ useStyles.root }>
         <CardContent>
-          <Button type="primary" size="large" onClick={ () => this.nextPath2('/lottery')}>
-            Lottery page
-          </Button>
+          <div style={{padding:'5px'}}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath2('/deposit')}>
+              ฝากเงิน
+            </Button>
+          </div>
+          <div style={{padding:'5px'}}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath2('/withdraw')}>
+              ถอดเงิน
+            </Button>
+          </div>
+          <div style={{padding:'5px'}}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath2('/add-bank')}>
+            เพิ่มบัญชีธนาคาร
+            </Button>
+          </div>
+          <div style={{padding:'5px'}}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath2('/lottery-list')}>
+              แทงหวย
+            </Button>
+          </div>
 
+          {/*  
           <Typography variant="h5" component="h2">
               Chauffeur Driven, On Demand
           </Typography>
@@ -130,9 +148,7 @@ class RideSelect extends Component {
             <Col span={6}>
               <Input className={ useStyles.box_width } size="large" value={this.state.from} disabled="True" placeholder="Select Origin" prefix={<RightCircleOutlined />} />
             </Col>
-            <Col span={6}>
-              <InputAutocomplete getVal={this.getDestVal}></InputAutocomplete>
-            </Col>
+           
             <Col span={6}>
               <DatePicker style={{width : 295}} onChange={(date, dateStr) => this.dateChangeHandler(date, dateStr)} size="large" showToday="True"/>
             </Col>
@@ -143,6 +159,7 @@ class RideSelect extends Component {
             </Col>
           </Row>
           <br />
+          */}
           
         </CardContent>
       </Card>

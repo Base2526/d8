@@ -9,6 +9,11 @@ import { RightCircleOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import '../RideSelect/RideSelect.css';
 import ls from 'local-storage';
+
+
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
+
 import history from '../../history';
 import { Redirect, Link} from 'react-router-dom';
 
@@ -27,7 +32,7 @@ const useStyles = makeStyles({
   }
 });
 
-class LotteryPage extends Component {
+class LotteryListPage extends Component {
   constructor(props) {
     super(props);
     
@@ -40,8 +45,13 @@ class LotteryPage extends Component {
       lng:null,
       distance: null,
       journeyTime: null,
-      
+      selected: [],
+
+
+
+      tabIndex: 1
     };
+
   }
 
   componentDidMount() {
@@ -98,68 +108,39 @@ class LotteryPage extends Component {
   }
 
   handleClick = (i) => {
-    console.log('this is:', i);
-  }
-
- 
-  getrDivList () {
-    var divList = [];
-    for (var i = 0; i < 10; i++) {
-        divList.push(<button data-id={i} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>
-                      {i}
-                    </button>);
+    // console.log('this is:', i);
+    let find = this.state.selected.find(element => element == i);
+    if(!find){
+        var newArray = this.state.selected.slice();    
+        newArray.push(i);   
+        this.setState({selected:newArray})
+    }else{
+        let filter = this.state.selected.filter(j => i != j);
+        this.setState({selected:filter})
     }
-    return divList;
   }
 
   render() {
 
-    return (
-      <Card className={ useStyles.root }>
-        <CardContent>
+    console.log(this.state.selected);
 
-          { this.getrDivList() }
-          <Typography variant="h5" component="h2">
-              Chauffeur Driven, On Demand
-          </Typography>
-          <br />
-          <div className="centerAlign">
-            <Typography className={ useStyles.pos } color="textSecondary">
-              Where to?
-            </Typography>
-            <Radio.Group defaultValue="ow" buttonStyle="solid">
-              <Radio.Button value="ow">One Way</Radio.Button>
-              <Radio.Button disabled value="rt">Round Trip</Radio.Button>
-              <Radio.Button disabled value="m">Multicity</Radio.Button>
-              <Radio.Button disabled value="a">Airport</Radio.Button>
-            </Radio.Group>
+    let {history} = this.props
+    return (
+    //   <Card className={ useStyles.root }>
+    //     <CardContent>
+
+        <div style={{minWidth: 275}}>
+          <div>
+            <button data-id='9' onClick={ () => history.push('/government')}>Government page</button>
           </div>
-          <br />
-          <Typography className={ useStyles.pos } color="textSecondary">
-            Select your journey deets
-          </Typography>
-          <Row>
-            <Col span={6}>
-              <Input className={ useStyles.box_width } size="large" value={this.state.from} disabled="True" placeholder="Select Origin" prefix={<RightCircleOutlined />} />
-            </Col>
-            {/* <Col span={6}>
-              <InputAutocomplete getVal={this.getDestVal}></InputAutocomplete>
-            </Col> */}
-            <Col span={6}>
-              <DatePicker style={{width : 295}} onChange={(date, dateStr) => this.dateChangeHandler(date, dateStr)} size="large" showToday="True"/>
-            </Col>
-            <Col span={6}>
-            <Button type="primary" size="large" onClick={ () => this.nextPath('/second-page')}>
-            Continue
-          </Button>
-            </Col>
-          </Row>
-          <br />
-          
-        </CardContent>
-      </Card>
+          <div>
+            <button data-id='9' onClick={ () => history.push('/yeekee-list')}>Yeekee list page</button>
+          </div>  
+        </div>
+    //     </CardContent>
+    //   </Card>
     );
   }
 }
 
-export default LotteryPage;
+export default LotteryListPage;
