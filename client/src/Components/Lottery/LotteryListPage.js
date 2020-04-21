@@ -1,145 +1,106 @@
 import React, { Component } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-// import InputAutocomplete from './InputAutocomplete/InputAutocomplete';
-import { Input, DatePicker, Radio, Button, Row, Col } from 'antd';
-import { RightCircleOutlined } from '@ant-design/icons';
-import 'antd/dist/antd.css';
-import '../RideSelect/RideSelect.css';
-import ls from 'local-storage';
 
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css';
-
-import history from '../../history';
-import { Redirect, Link} from 'react-router-dom';
-
-const useStyles = makeStyles({
+var styles = {
   root: {
-    minWidth: 275,
+    display: "block"
   },
-  title: {
-    fontSize: 14,
+  pStyle: {
+      fontSize: '30px',
+      textAlign: 'center',
+      backgroundColor: 'red',
+      padding: '20px',
+      borderStyle: 'ridge',
+      borderWidth: '1px',
+      borderColor: 'coral',
+      marginBottom: '10px'
   },
-  pos: {
-    marginBottom: 12,
+  item: {
+    color: "black",
+    complete: {
+      textDecoration: "line-through"
+    },
+    due: {
+      color: "red"
+    }
   },
-  box_width: {
-    maxWidth: 300,
-  }
-});
+}
 
 class LotteryListPage extends Component {
   constructor(props) {
     super(props);
-    
-    this.state = {
-      type: 'ow',
-      from : 'Bangalore',
-      journeyDate: null,
-      destination: null,
-      lat:null,
-      lng:null,
-      distance: null,
-      journeyTime: null,
-      selected: [],
-
-
-
-      tabIndex: 1
-    };
-
   }
 
   componentDidMount() {
-    ls.set('rideType', this.state.type);
-    ls.set('origin', this.state.from);
-
-
-    this.handleClick = this.handleClick.bind(this);
-  }
-
-  destinationChangeHandler(event) {
-    this.setState({ to: event.target.value });
-  }
-
-  dateChangeHandler(date, dateStr) {
-    ls.set('journeyDate', dateStr);
-    this.setState({ journeyDate: dateStr });
-  }
-
-  handleBooking = async e => {
-    // e.preventDefault();
-    const response = await fetch('/api/price', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ lat: this.state.lat, lng: this.state.lng }),
-    });
-    const body = await response.json();
-    
-    ls.set('distance', body.distance);
-    ls.set('journeyTime', body.days);
-  };
-
-  continueHandler = () => {
-    history.push('/second-page')
-  }
-
-  getDestVal = (val) => {
-    this.setState({destination : val[0], lat : val[1].lat, lng : val[1].lng})
-    ls.set('destination', this.state.destination)
-    ls.set('lat', this.state.lat)
-    ls.set('lng', this.state.lng)
-      
-    console.log(this.state.destination);
-  }
-
-  nextPath(path) {
-    
-    if(this.state.destination != null) {
-      this.handleBooking();
-      this.props.history.push(path);
-    }
   }
 
   handleClick = (i) => {
-    // console.log('this is:', i);
-    let find = this.state.selected.find(element => element == i);
-    if(!find){
-        var newArray = this.state.selected.slice();    
-        newArray.push(i);   
-        this.setState({selected:newArray})
-    }else{
-        let filter = this.state.selected.filter(j => i != j);
-        this.setState({selected:filter})
+    let {history} = this.props
+    console.log(i);
+
+    switch(parseInt(i)){
+      case 1:{
+        history.push('/lottery-list/government')
+        break;
+      }
+      case 2:{
+        history.push('/lottery-list/yeekee-list')
+        break;
+      }
     }
+
+    
+  }
+
+  getItemList (items) {
+    var divList = [];
+    for (var i = 1; i <= items.length; i++) {
+      divList.push(<Col xs={6} md={3} key={i}>
+                  <div >
+                    <button data-id={i} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>รอบที่ {i}</button>
+                  </div>
+                </Col>);
+    }
+    return divList;
   }
 
   render() {
-
-    console.log(this.state.selected);
-
     let {history} = this.props
-    return (
-    //   <Card className={ useStyles.root }>
-    //     <CardContent>
+    // return (<div style={{minWidth: 275}}>
+    //           <div>
+    //             <button data-id='9' onClick={ () => history.push('/lottery-list/government')}>Government page</button>
+    //           </div>
+    //           <div>
+    //             <button data-id='9' onClick={ () => history.push('/lottery-list/yeekee-list')}>Yeekee list page</button>
+    //           </div>  
+    //         </div>);
 
-        <div style={{minWidth: 275}}>
-          <div>
-            <button data-id='9' onClick={ () => history.push('/government')}>Government page</button>
-          </div>
-          <div>
-            <button data-id='9' onClick={ () => history.push('/yeekee-list')}>Yeekee list page</button>
-          </div>  
-        </div>
-    //     </CardContent>
-    //   </Card>
-    );
+    let lotterys = [{'id':1, 'name': 'หวยรัฐบาลไทย'}, 
+                    {'id':2, 'name': 'จับยี่กี VIP'}, 
+                    /*{'id':3, 'name': 'หวยลาว'}, 
+                    {'id':4, 'name': 'หวยฮานอย'}, 
+                    {'id':5, 'name': 'หวยฮานอย VIP'}, 
+                    {'id':6, 'name': 'หวยมาเลย์'}, 
+                    {'id':7, 'name': 'หวย ธกส.'}, 
+                    {'id':8, 'name': 'หวย ออมสิน'}*/ ];
+
+    return( <Container>
+              <div>หวย</div>
+              <Row style={styles.pStyle}>
+                {
+                lotterys.map((item, i) => {
+                  return  <Col xs={6} md={3} key={item.id}>
+                            <div >
+                              <button data-id={item.id} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>{item.name}</button>
+                            </div>
+                          </Col>
+                })
+                }
+              </Row>
+            </Container>);
   }
 }
 

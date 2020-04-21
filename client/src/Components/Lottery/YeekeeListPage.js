@@ -4,11 +4,13 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 // import InputAutocomplete from './InputAutocomplete/InputAutocomplete';
-import { Input, DatePicker, Radio, Button, Row, Col } from 'antd';
+import { Input, DatePicker, Radio, Button} from 'antd';
 import { RightCircleOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import '../RideSelect/RideSelect.css';
 import ls from 'local-storage';
+
+import { Grid, Row, Col } from 'react-flexbox-grid';
 
 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
@@ -22,18 +24,40 @@ class YeekeeListPage extends Component {
     super(props);
     
     this.state = {};
+
+    this.handleClick = this.handleClick.bind(this);
   }
 
   componentDidMount() {
   }
 
-  render() {
+  handleClick = (i) => {
+    let {history} = this.props
+    // console.log(i);
 
+    history.push('/lottery-list/yeekee-list/' + i)
+  }
+
+  getItemList () {
+    var divList = [];
+    for (var i = 1; i <= 88; i++) {
+      divList.push(<Col xs={6} md={3} key={i}>
+                  <div >
+                    <button data-id={i} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>รอบที่ {i}</button>
+                  </div>
+                </Col>);
+    }
+    return divList;
+  }
+
+  render() {
     console.log(this.state.selected);
     return (
-        <div style={{minWidth: 275}}>
-          YeekeeListPage
-        </div>
+      <Grid fluid>
+        <Row>
+         {this.getItemList()}
+        </Row>
+      </Grid>
     );
   }
 }

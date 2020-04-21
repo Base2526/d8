@@ -43,8 +43,8 @@ class ButtonAppBar extends Component {
   render() {
     console.log(this.props);
     let v = <div>
-              <Link  href="#" style={{color: 'white', paddingRight:'5px'}} to="/login">Login</Link>
-              <Link  href="#" style={{color: 'white'}} to="/register-page">Register</Link>
+              <Link  href="#" style={{color: 'white', paddingRight:'5px'}} to="/login">เข้าสู่ระบบ</Link>
+              <Link  href="#" style={{color: 'white'}} to="/register">สมัครสมาชิก</Link>
             </div>;
     if(this.props.loggedIn){
       v = <div>
@@ -55,7 +55,7 @@ class ButtonAppBar extends Component {
               {this.props.user.name}
             </Link>
             <Link style={{color: 'white'}} href="#" to="/login" onClick={this.handleLogout} >
-              Logout
+              ออกจากระบบ
             </Link>
           </div>;
     }

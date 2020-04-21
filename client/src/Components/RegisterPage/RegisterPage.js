@@ -4,52 +4,31 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import Button from '@material-ui/core/Button';
 import { Redirect, Link} from 'react-router-dom';
 
 import { connect } from 'react-redux'
-import { addTodo, userLogin } from '../../actions'
+import { userLogin } from '../../actions/auth'
 
-import history from "../../history";
-// import { doLogin, doLogout } from "../../actions/auth";
-
-import ls from 'local-storage';
-
-import axios from 'axios';
-
-const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 8 },
-};
-
-const useStyles = {
-  root: {
-    minWidth: 275,
-  },
-  title: {
-    fontSize: 14,
-  },
-  pos: {
-    marginBottom: 12,
-  },
-  box_width: {
-    maxWidth: 300,
-  }
-};
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
 
 class RegisterPage extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      name: '',
-      pass: '',
+      validated: false,
+      email: '',
+      password: '',
+
       error: false,
       error_message:'',
     };
 
     this.onChange = this.onChange.bind(this);
     this.submitForm = this.submitForm.bind(this);
+
+    this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
@@ -57,6 +36,10 @@ class RegisterPage extends Component {
       .then(res => console.log(res.express) )
       .catch(err => console.log(err));
   }
+
+  handleChange(event) {
+    this.setState({[event.target.id]: event.target.value});
+  }    
 
   onChange(e) {
     this.setState({
@@ -112,7 +95,7 @@ class RegisterPage extends Component {
       let data = body.data;
       console.log(data);
 
-      this.props.userLogin();
+      this.props.userLogin(data);
     }
 
     // if(username === "admin" && password === "admin") {
@@ -144,25 +127,78 @@ class RegisterPage extends Component {
     */
   }
 
-  render() {
-  
-    return (
-      <div>
-        RegisterPage
-      </div>
+  handleSubmit = (event) => {
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      this.setState({validated:true});
+    }
+    let { email, password } = this.state;
+
+    console.log(email);
+    console.log(password);
+  }
+
+  nextPath(path) {
+    this.props.history.push(path);
+  }
+
+  render(){
+    let {validated, email, password} = this.state;
+
+    if(this.props.loggedIn){
+      return <Redirect to="/" />
+    }
+
+    return( <Form noValidate validated={validated} onSubmit={this.handleSubmit}>
+              <Form.Group controlId="email">
+                <Form.Label>อีเมลล์</Form.Label>
+                <Form.Control 
+                  type="email" 
+                  placeholder="อีเมลล์" 
+                  required 
+                  value={email} onChange={this.handleChange}/>
+                <Form.Control.Feedback type="invalid">
+                    กรุณากรอบอีเมลล์ หรือ invalid email address.
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group controlId="password">
+                <Form.Label>รหัสผ่าน</Form.Label>
+                <Form.Control 
+                  type="password" 
+                  placeholder="รหัสผ่าน" 
+                  required
+                  value={password} onChange={this.handleChange}/>
+                <Form.Control.Feedback type="invalid">
+                    กรุณากรอบรหัสผ่าน.
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group controlId="password_confirm">
+                <Form.Label>ยืนยันรหัสผ่าน</Form.Label>
+                <Form.Control 
+                  type="password" 
+                  placeholder="ยืนยันรหัสผ่าน" 
+                  required
+                  value={password} onChange={this.handleChange}/>
+                <Form.Control.Feedback type="invalid">
+                    กรุณากรอบยืนยันรหัสผ่าน.
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Button variant="primary" type="submit">
+                สมัครสมาชิก
+              </Button>
+            </Form>
     );
   }
 };
-
 
 /*
 	จะเป็น function ที่จะถูกเรียกตลอดเมือ ข้อมูลเปลี่ยนแปลง
 	เราสามารถดึงข้อมูลทั้งหมดที่อยู่ใน redux ได้เลย
 */
 const mapStateToProps = (state, ownProps) => {
-  console.log(state);
-  console.log(ownProps);
-
 	if(!state._persist.rehydrated){
 		return {};
   }
@@ -205,19 +241,10 @@ const mapStateToProps = (state, ownProps) => {
 	let {function1, function2} = this.props;
 */
 const mapDispatchToProps = (dispatch) => {
-	console.log(dispatch);
-
 	return {
-		addTodo: (id) => {
-							dispatch(addTodo(id))
-						},
-		addTodo2: (id, val) => {
-							dispatch(addTodo(val))
-            },
-    userLogin: () =>{
-      dispatch(userLogin())
+    userLogin: (data) =>{
+      dispatch(userLogin(data))
     }
-
 	}
 }
 

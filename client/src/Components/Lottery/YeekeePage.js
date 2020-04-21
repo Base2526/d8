@@ -58,7 +58,9 @@ class YeekeePage extends Component {
     ls.set('rideType', this.state.type);
     ls.set('origin', this.state.from);
 
-
+    let params = this.props.match.params;
+    console.log(params.id);
+    
     this.handleClick = this.handleClick.bind(this);
   }
 
@@ -123,7 +125,7 @@ class YeekeePage extends Component {
   getrSelectedList () {
     var divList = [];
     for (var i = 0; i < this.state.selected.length; i++) {
-        divList.push(<button data-id={i} style={{backgroundColor: 'red'}} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>
+        divList.push(<button key={i} data-id={i} style={{backgroundColor: 'red'}} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>
                         selected : {this.state.selected[i]}
                     </button>);
     }
@@ -135,11 +137,11 @@ class YeekeePage extends Component {
     for (var i = 0; i < 40; i++) {
         let find = this.state.selected.find(element => element == i);
         if(find){
-            divList.push(<button data-id={i} style={{backgroundColor: 'blue'}} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>
+            divList.push(<button key={i} data-id={i} style={{backgroundColor: 'blue'}} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>
                                 {i}
                             </button>);
         }else{
-            divList.push(<button data-id={i} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>
+            divList.push(<button key={i} data-id={i} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>
                             {i}
                         </button>);
         }
@@ -276,6 +278,9 @@ class YeekeePage extends Component {
   }
 
   render() {
+
+    // 
+
 
     console.log(this.state.selected);
     return (

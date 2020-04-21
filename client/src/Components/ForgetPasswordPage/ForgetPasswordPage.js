@@ -4,7 +4,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import Button from '@material-ui/core/Button';
+// import Button from '@material-ui/core/Button';
 import { Redirect, Link} from 'react-router-dom';
 
 import { connect } from 'react-redux'
@@ -16,6 +16,9 @@ import history from "../../history";
 import ls from 'local-storage';
 
 import axios from 'axios';
+
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
 
 const layout = {
   labelCol: { span: 8 },
@@ -42,14 +45,12 @@ class ForgetPasswordPage extends Component {
     super(props);
 
     this.state = {
-      name: '',
-      pass: '',
-      error: false,
-      error_message:'',
+      validated: false,
+      email: '',
     };
 
-    this.onChange = this.onChange.bind(this);
     this.submitForm = this.submitForm.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
@@ -144,68 +145,48 @@ class ForgetPasswordPage extends Component {
     */
   }
 
+  handleChange(event) {
+    this.setState({[event.target.id]: event.target.value});
+  }   
+
+  handleSubmit = (event) => {
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      this.setState({validated:true});
+    }
+    let { email } = this.state;
+    console.log(email);
+  }
+
   render() {
-    console.log(this.props);
-    if(this.props.loggedIn){
+    let {loggedIn}          = this.props
+    let {validated, email}  = this.state;
+    if(loggedIn){
       return <Redirect to="/" />
     }
 
-    let message_error = <div></div>;
-    if(this.state.error){
-      message_error = <div>{this.state.error_message}</div>;
-    }
-    return (
-      <div>
-        <Container>
-        <Card>
-          <CardContent>
-          {/* <Link style={{color: 'black'}} onClick={this.handleLogout}  >
-              CCCCC
-            </Link> */}
-            <Typography variant="h5" component="h2">
-                Forget password
-            </Typography>
-            <br />
-          {message_error}
-          <form onSubmit={this.submitForm}>
-            <TextField
-              margin="normal"
-              onChange={this.onChange}
-              label="Username"
-              id="outlined-size-normal"
-              // defaultValue={this.state.userName}
-              variant="outlined"
-              name="user"
-            />
-            <br />
-            <TextField
-              margin="normal"
-              onChange={this.onChange}
-              label="Password"
-              id="outlined-size-normal"
-              variant="outlined"
-              type="password"
-              name="pass"
-            />
-            <br />
-            <Button type="submit" size="large" variant="contained" color="primary">
-              Login
-            </Button>
-            {/* <Button type="submit" size="large" variant="contained" color="primary">
-              Forgot password
-            </Button> */}
-            <Link style={{color: 'white'}} href="#" to="/forget_password" >
-            Forget password
-            </Link>
-          </form>
-          </CardContent>
-        </Card>
-        </Container>
-      </div>
-    );
+    return( <Form noValidate validated={validated} onSubmit={this.handleSubmit}>
+              <Form.Group controlId="email">
+                <Form.Label>อีเมลล์</Form.Label>
+                <Form.Control 
+                  type="email" 
+                  placeholder="อีเมลล์" 
+                  required 
+                  value={email} onChange={this.handleChange}/>
+                <Form.Control.Feedback type="invalid">
+                    กรุณากรอบอีเมลล์ หรือ invalid email address.
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Button variant="primary" type="submit">
+                ส่งรหัสผ่านใหม่
+              </Button>
+            </Form>
+          )
   }
-};
-
+}
 
 /*
 	จะเป็น function ที่จะถูกเรียกตลอดเมือ ข้อมูลเปลี่ยนแปลง

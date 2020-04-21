@@ -1,40 +1,75 @@
 import React, { Component } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-// import InputAutocomplete from './InputAutocomplete/InputAutocomplete';
-import { Input, DatePicker, Radio, Button, Row, Col } from 'antd';
-import { RightCircleOutlined } from '@ant-design/icons';
-import 'antd/dist/antd.css';
-import '../RideSelect/RideSelect.css';
-import ls from 'local-storage';
+import Alert from 'react-bootstrap/Alert'
+import Button from 'react-bootstrap/Button'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 
-
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css';
-
-import history from '../../history';
-import { Redirect, Link} from 'react-router-dom';
+import Form from 'react-bootstrap/Form'
+import InputGroup from 'react-bootstrap/InputGroup'
 
 class WithdrawPage extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      validated:false
+    }
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
-   
   }
+
+  handleSubmit = (event) => {
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.setState({validated:true});
+  };
   
   render() {
-    return (
-        <div style={{minWidth: 275}}>
-            <div>
-            WithdrawPage
-            </div>
-        </div>
-    );
+    let { validated, 
+          number_withdraw} = this.state;
+
+    return (<Form noValidate validated={validated} onSubmit={this.handleSubmit}>
+              <Container>
+                <Row>
+                  <div>เลือกบัญชีธนาคารของท่าน</div>
+                  <div>*กรุณากดคลิกบัญชีด้านล่างตามที่ท่านต้องการ</div>
+                </Row>
+                <Row>
+                  <div>จำนวนเงินที่ถอนได้</div>
+                  <div>3000.00 บาท</div>
+                </Row>
+                <Row>
+                  <Form.Group controlId="number_withdraw">
+                    <Form.Label>จำนวนเงินที่ต้องการถอน</Form.Label>
+                    <Form.Control 
+                      type="number" 
+                      placeholder="0.00" 
+                      required 
+                      value={number_withdraw} onChange={this.handleChange} />
+                    <Form.Control.Feedback type="invalid">
+                    จำนวนเงินที่ต้องการถอน
+                    </Form.Control.Feedback>
+                  </Form.Group>
+                </Row>    
+                <Row>
+                  <Form.Group controlId="annotation">
+                    <Form.Label>หมายเหตุ</Form.Label>
+                      <Form.Control 
+                        as="textarea" 
+                        rows="3" 
+                        onChange={this.handleChange} />
+                  </Form.Group>
+                </Row>
+                <Row>
+                  <Button type="submit">ถอนเงิน</Button>
+                </Row>
+              </Container>
+            </Form>);
   }
 }
 

@@ -110,7 +110,7 @@ class RideSelect extends Component {
           </div>
           <div style={{padding:'5px'}}>
             <Button type="primary" size="large" onClick={ () => this.nextPath2('/withdraw')}>
-              ถอดเงิน
+              ถอนเงิน
             </Button>
           </div>
           <div style={{padding:'5px'}}>
@@ -121,6 +121,30 @@ class RideSelect extends Component {
           <div style={{padding:'5px'}}>
             <Button type="primary" size="large" onClick={ () => this.nextPath2('/lottery-list')}>
               แทงหวย
+            </Button>
+          </div>
+
+          <div style={{padding:'5px'}}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath2('/affiliate-page')}>
+              แนะนําเพือน
+            </Button>
+          </div>
+
+          <div style={{padding:'5px'}}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath2('/statement')}>
+              รายงานการเงิน
+            </Button>
+          </div>
+
+          <div style={{padding:'5px'}}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath2('/request-all')}>
+              สถานะ ฝากเงิน
+            </Button>
+          </div>
+
+          <div style={{padding:'5px'}}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath2('/contact-us')}>
+              ติดต่อเรา
             </Button>
           </div>
 

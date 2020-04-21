@@ -4,59 +4,72 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import Button from '@material-ui/core/Button';
 import { Redirect, Link} from 'react-router-dom';
 
 import { connect } from 'react-redux'
 import { userLogin } from '../../actions/auth'
 
-import history from "../../history";
-// import { doLogin, doLogout } from "../../actions/auth";
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
+import Alert from 'react-bootstrap/Alert'
 
-import ls from 'local-storage';
+import * as types from "../../actions/types";
 
-import axios from 'axios';
-
-const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 8 },
-};
-
-const useStyles = {
-  root: {
-    minWidth: 275,
-  },
-  title: {
-    fontSize: 14,
-  },
-  pos: {
-    marginBottom: 12,
-  },
-  box_width: {
-    maxWidth: 300,
-  }
-};
+const axios = require('axios');
 
 class LoginPage extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      name: '',
-      pass: '',
+      validated: false,
+      email: '',
+      password: '',
+
       error: false,
       error_message:'',
     };
 
     this.onChange = this.onChange.bind(this);
-    this.submitForm = this.submitForm.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+
+    this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
-    this.callApi()
-      .then(res => console.log(res.express) )
-      .catch(err => console.log(err));
+    // this.callApi()
+    //   .then(res => console.log(res.express) )
+    //   .catch(err => console.log(err));
+
+    /*
+    var self = this;
+    axios.post('/api/login', {
+      name: 'admin', 
+      pass: 'ๅ/_ภ'
+    })
+    .then(function (response) {
+      if( response.status==200 && response.statusText == "OK"){
+        if(response.data.result){
+          // self.props.userLogin(response.data.data);
+        }
+      }
+      // console.log(response);
+
+      // self.setState({
+      //   error: true,
+      //   error_message: "xxxxx."
+      // });
+
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    */
   }
+
+  handleChange(event) {
+    this.setState({[event.target.id]: event.target.value});
+  }    
 
   onChange(e) {
     this.setState({
@@ -144,76 +157,142 @@ class LoginPage extends Component {
     */
   }
 
+  handleSubmit = async (event) => {
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      this.setState({validated: true});
+
+      const response  = await axios.post('/api/login', {name: 'admin', pass: 'ๅ/_ภ'});
+      // const { data }  = await res;
+      // const data      = await response.json();
+      console.log(response);
+
+    }else{
+
+      let { email, password } = this.state;
+
+      console.log(email);
+      console.log(password);
+      
+      let response  = await axios.post('/api/login', {name: email, pass: password});
+      if( response.status==200 && response.statusText == "OK" ){
+        if(response.data.result){
+          this.props.userLogin(response.data.data);
+
+          // this.props.dispatch({
+          //   type: types.AUTH_LOGIN,
+          //   user:response.data.data
+          // });
+          return;
+        }
+      }
+
+      this.setState({
+        error: true,
+        error_message: "Username && password is empty."
+      });
+
+
+    //  async getData(){
+    //   const res = await axios.get('url-to-get-the-data');
+    //   const { data } = await res;
+    //   this.setState({serverResponse: data})
+    // }
+    }
+
+    /*
+    let { email, password } = this.state;
+    if(email.trim() == "" && password.trim() == "" ){
+      this.setState({
+        error: true,
+        error_message: "Username && password is empty."
+          });
+    }else if(email.trim() == ""){
+      this.setState({
+        error: true,
+        error_message: "Username is empty."
+          });
+    }else if(password.trim() == ""){
+      this.setState({
+        error: true,
+        error_message: "Password is empty."
+          });
+    }
+    */
+
+    // event.preventDefault();
+    // event.stopPropagation();
+
+    // this.setState({validated:false});
+ 
+    // const response = await fetch('/api/login', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ name:email, pass:password}),
+    // });
+
+    // let body = await response.text();
+
+    // body = JSON.parse(body);
+    // if(!body.result){
+    //   console.log(body.message);
+    // }else{
+    //   let data = body.data;
+    //   console.log(data);
+    //   this.props.userLogin(data);
+    // }
+    // this.nextPath('/deposit');
+
+  }
+
   nextPath(path) {
     this.props.history.push(path);
   }
 
-  render() {
-    console.log(this.props);
-    if(this.props.loggedIn){
+  render(){
+    let {validated, email, password, error, error_message} = this.state;
+    let {logged_in} = this.props;
+    if(logged_in){
       return <Redirect to="/" />
     }
 
-    let message_error = <div></div>;
-    if(this.state.error){
-      message_error = <div>{this.state.error_message}</div>;
-    }
-    return (
-      <div>
-        <Container>
-        <Card>
-          <CardContent>
-          {/* <Link style={{color: 'black'}} onClick={this.handleLogout}  >
-              CCCCC
-            </Link> */}
-            <Typography variant="h5" component="h2">
-                Login
-            </Typography>
-            <br />
-          {message_error}
-          <form onSubmit={this.submitForm}>
-            <TextField
-              margin="normal"
-              onChange={this.onChange}
-              label="Username"
-              id="outlined-size-normal"
-              // defaultValue={this.state.userName}
-              variant="outlined"
-              name="user"
-            />
-            <br />
-            <TextField
-              margin="normal"
-              onChange={this.onChange}
-              label="Password"
-              id="outlined-size-normal"
-              variant="outlined"
-              type="password"
-              name="pass"
-            />
-            <br />
-            <Button type="submit" size="large" variant="contained" color="primary" style={{paddingLeft: '5px'}}>
-              Login
-            </Button>
-            {/* <Button type="submit" size="large" variant="contained" color="primary">
-              Forgot password
-            </Button> */}
-            {/* <Link style={{color: 'black', paddingLeft: '5px'}} href="#" to="/forget-password-page" >
-              Forget password
-            </Link> */}
-            <Button type="primary" size="large"  variant="contained" color="primary" onClick={ () => this.nextPath('/forget-password-page')}>
-            Forget password
-            </Button>
-
-          </form>
-          </CardContent>
-        </Card>
-        </Container>
-      </div>
+    return( <Form noValidate validated={validated} onSubmit={this.handleSubmit}>   
+              { error ? <Alert variant={'danger'}>{error_message}</Alert> : '' }
+              <Form.Group controlId="email">
+                <Form.Label>อีเมลล์</Form.Label>
+                <Form.Control 
+                  type="email" 
+                  placeholder="อีเมลล์" 
+                  required 
+                  value={email} onChange={this.handleChange}/>
+                <Form.Control.Feedback type="invalid">
+                    กรุณากรอบอีเมลล์ หรือ invalid email address.
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group controlId="password">
+                <Form.Label>รหัสผ่าน</Form.Label>
+                <Form.Control 
+                  type="password" 
+                  placeholder="รหัสผ่าน" 
+                  required
+                  value={password} onChange={this.handleChange}/>
+                <Form.Control.Feedback type="invalid">
+                    กรุณากรอบรหัสผ่าน.
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Button variant="primary" type="submit">
+                เข้าสู่ระบบ
+              </Button>
+              <Button variant="light" onClick={()=>this.nextPath('/forget-password')}>ลืมรหัสผ่าน</Button>
+            </Form>
     );
   }
 };
-
 
 /*
 	จะเป็น function ที่จะถูกเรียกตลอดเมือ ข้อมูลเปลี่ยนแปลง
@@ -228,9 +307,9 @@ const mapStateToProps = (state, ownProps) => {
   }
   
   if(state.auth.isLoggedIn){
-    return { loggedIn: true };
+    return { logged_in: true };
   }else{
-    return { loggedIn: false };
+    return { logged_in: false };
   }
 }
 
@@ -281,4 +360,4 @@ const mapDispatchToProps = (dispatch) => {
 	}
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginPage)
+export default connect(mapStateToProps, {userLogin})(LoginPage)

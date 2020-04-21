@@ -1,65 +1,219 @@
 import React, { Component } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-// import InputAutocomplete from './InputAutocomplete/InputAutocomplete';
-import { Input, DatePicker, Radio, Button, Row, Col } from 'antd';
-import { RightCircleOutlined } from '@ant-design/icons';
-import 'antd/dist/antd.css';
-import '../RideSelect/RideSelect.css';
-import ls from 'local-storage';
 
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
-import TextField from '@material-ui/core/TextField';
+import Alert from 'react-bootstrap/Alert'
+import Button from 'react-bootstrap/Button'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
+
+import Form from 'react-bootstrap/Form'
+import InputGroup from 'react-bootstrap/InputGroup'
 
 
-
-import { withStyles } from '@material-ui/styles';
-
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css';
-
-import history from '../../history';
-import { Redirect, Link} from 'react-router-dom';
-
-const useStyles = makeStyles((theme) => ({
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
-  },
-}));
-
+import DatePicker from "react-datepicker";
+ import "react-datepicker/dist/react-datepicker.css";
 
 class DepositPage extends Component {
   constructor(props) {
     super(props);
-    this.state = {bank:""};
 
-    this.handleSelectChange = this.handleSelectChange.bind(this);
+    this.state = {
+      validated:false
+    }
+
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
-   
   }
 
-  submitForm = async e => {
-    e.preventDefault();
-    console.log('submitForm');
-    // const { user, pass } = this.state;
-    console.log(this.state);
-  }
-  
-  handleSelectChange = (event) => {
-    this.setState({bank:event.target.value});
+  handleSubmit = (event) => {
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.setState({validated:true});
+  };
+
+  render() {
+    let { validated, 
+          select_bank, 
+          select_bank_customer,
+          amount_transferred,
+          annotation} = this.state
+    return (<Form noValidate validated={validated} onSubmit={this.handleSubmit}>
+              <Container>
+                <Row>
+                  <div>
+                    <div>Step 1 : เลือกบัญชีธนาคารของเว็บฯ</div>
+                    <div>
+                      <Form.Group controlId="select_bank">
+                        <Form.Label>เลือกธนาคาร</Form.Label>
+                        <Form.Control 
+                            as="select" 
+                            required 
+                            value={select_bank}  
+                            onChange={this.handleChange}>
+                            <option value="">--เลือก--</option>
+                            <option value="10">ธ. กรุงเทพ</option>
+                            <option value="20">ธ. กสิกรไทย</option>
+                            <option value="30">ธ. กรุงไทย</option>
+                        </Form.Control>
+                        <Form.Control.Feedback type="invalid">
+                            กรุณาเลือกธนาคาร
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </div>
+                  </div>
+                </Row>
+                <Row>
+                  <div>
+                    <div>Step 2 : โอนเงินเพื่อเติมเครดิต</div>
+                    <div>
+                      โอนขั้นตํ่า "ครั้งละ 20 บาท" ถ้าโอนตํ่ากว่า 20 บาทเงินของท่านจะไม่เข้าระบบ
+                      และไม่สามารถคืนได้
+                    </div>
+
+                    <div>
+                      คำเตือน! กรุณาใช้บัญชีที่ท่านผูกกับ XXX ในการโอนเงินเท่านั้น
+                    </div>
+
+                    <div>
+                      เมือท่านทำการโอนเงินไปยังบัญชีข้างต้นเรียบร้อยแล้ว (เก็บสลิปการโอนไว้ทุกครั้ง)
+                      "คลิกปุ่มด้านล่าง" เพือแจ้งการโอนเงิน
+                    </div>
+
+                  </div>
+                </Row>
+                <Row>
+                  <div>
+                    <div>Step 3 : แจ้งรายละเอียดการโอนเงิน</div>
+                    <div>กรุณาโอนเงินเข้าบัญชีด้านบน ภาญใน 5 นาที</div>
+                    <div>เลือกบัญชีธนาคารของลูกค้า</div>
+                    <div>
+                      <Form.Group controlId="select_bank_customer">
+                        <Form.Label>เลือกธนาคาร</Form.Label>
+                        <Form.Control 
+                            as="select" 
+                            required 
+                            value={select_bank_customer}  
+                            onChange={this.handleChange}>
+                            <option value="">--เลือก--</option>
+                            <option value="10">ธ. กรุงเทพ</option>
+                            <option value="20">ธ. กสิกรไทย</option>
+                            <option value="30">ธ. กรุงไทย</option>
+                        </Form.Control>
+                        <Form.Control.Feedback type="invalid">
+                            กรุณาเลือกธนาคาร
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </div>
+                    
+                    <div>
+                      <Form.Group controlId="select_function">
+                        <Form.Label>กรุณาเลือกช่องทางการโอน</Form.Label>
+                        <Form.Control 
+                            as="select" 
+                            required 
+                            value={select_bank_customer}  
+                            onChange={this.handleChange}>
+                            <option value="">--เลือก--</option>
+                            <option value="10">ATM โอนจากตู้กดเงินสด</option>
+                            <option value="20">CDM</option>
+                            <option value="30">Counter Cashier</option>
+                            <option value="30">Internet Banking</option>
+                            <option value="30">Mobile Banking</option>
+                        </Form.Control>
+                        <Form.Control.Feedback type="invalid">
+                        กรุณาเลือกช่องทางการโอน
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </div>
+                    <div>
+                      <Form.Group controlId="select_function">
+                        <Form.Label>จำนวนเงินที่โอน</Form.Label>
+                        <Form.Control 
+                          type="number" 
+                          placeholder="จำนวนเงินที่โอน" 
+                          required 
+                          value={amount_transferred} onChange={this.handleChange} />
+                        <Form.Control.Feedback type="invalid">
+                        จำนวนเงินที่โอน
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </div>
+
+                    <div>
+                      <Form.Group controlId="select_function">
+                        <Form.Label>วันที่โอน</Form.Label>
+                        {/* <Form.Control 
+                          type="number" 
+                          placeholder="จำนวนเงินที่โอน" 
+                          required 
+                          value={amount_transferred} onChange={this.handleChange} /> */}
+
+                        {/* <DatePicker id="example-datepicker" value={new Date().toISOString()} onChange={this.handleChange} /> */}
+                        
+                        <DatePicker
+                            selected={new Date()}
+                            onChange={this.handleChange}
+                            class="form-control"
+                          />
+                        <Form.Control.Feedback type="invalid">
+                        วันที่โอน
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </div>
+
+                    <div>
+                      <Form.Group controlId="select_function">
+                        <Form.Label>เวลาที่โอน</Form.Label>
+                        {/* <Form.Control 
+                          type="number" 
+                          placeholder="จำนวนเงินที่โอน" 
+                          required 
+                          value={amount_transferred} onChange={this.handleChange} /> */}
+
+                        {/* <DatePicker id="example-datepicker" value={new Date().toISOString()} onChange={this.handleChange} /> */}
+                        
+                        <DatePicker
+                          selected={new Date()}
+                          // onChange={date => setStartDate(date)}
+                          showTimeSelect
+                          showTimeSelectOnly
+                          timeIntervals={15}
+                          timeCaption="Time"
+                          dateFormat="h:mm aa"
+                        />
+                        <Form.Control.Feedback type="invalid">
+                        เวลาที่โอน
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </div>
+                    <div>
+                      <Form.Group controlId="annotation">
+                        <Form.Label>หมายเหตุ</Form.Label>
+                          <Form.Control 
+                            as="textarea" 
+                            rows="3" 
+                            value={annotation} 
+                            onChange={this.handleChange} />
+                        <Form.Control.Feedback type="invalid">
+                        วันที่โอน
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </div>
+                  </div>
+                </Row>
+                <Row>
+                  <Button type="submit">ยืนยันการแจ้งโอนเงิน</Button>
+                </Row>
+              </Container>
+            </Form>);
   }
 
+  /*
   render() {
     const { history, classes } = this.props;
     let {bank} = this.state;
@@ -149,7 +303,6 @@ class DepositPage extends Component {
                   </FormControl>
                 </div>
                 <div>
-                  {/* <div>จำนวนเงินที่โอน</div> */}
                   <TextField id="outlined-basic" label="จำนวนเงินที่โอน" variant="outlined" />
                 </div>
               </div>
@@ -158,6 +311,7 @@ class DepositPage extends Component {
         </form>
     );
   }
+  */
 }
 
-export default withStyles(useStyles)(DepositPage);
+export default DepositPage;
