@@ -78,18 +78,43 @@ function huay_page_attachments(array &$attachments) {
  * Implements hook_theme()
 */
 function huay_theme($existing, $type, $theme, $path) {  
-    return [
-      'front-page' => [
-        'variables' => [
-          'role' => '',
-          'params' => array(),
-        ],
-      ],   
-      'lottery-page' => [
-        'variables' => [
-          'role' => '',
-          'params' => array(),
-        ],
+  return [
+    'front-page' => [
+      'variables' => [
+        'role' => '',
+        'params' => array(),
       ],
-    ];
-  }
+    ],   
+    'lottery-page' => [
+      'variables' => [
+        'role' => '',
+        'params' => array(),
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert() for node entities.
+ * 
+ * กรณีที่เรา เพิ่ม taxonomy_term ใหม่ เราจะต้อง เพิ่มข้อมูลฟิลล์ field_id_term == $entity->id() แก้ปัญหา id ไม่เหมือนกัน dev, uat, prod
+ */
+function huay_taxonomy_term_insert(Drupal\Core\Entity\EntityInterface $entity) {
+    $vocabularys = \Drupal\config_pages\Entity\ConfigPages::config('config_global')->get('field_taxonomy_term')->value;
+    $vocabularys = explode(",", $vocabularys);
+
+    if (in_array($entity->bundle(), $vocabularys)) {
+        $id_term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($entity->id())->get('field_tid_code')->getValue()[0]['value'];
+
+        if(empty($id_term)){
+            $term = \Drupal\taxonomy\Entity\Term::load($entity->id());
+            if (!empty($term)) {
+                $term->field_tid_code = $entity->id();
+                $term->save();
+            }
+        }
+        
+        // dpm(t('oop > @tid ',array('@tid'=>$tid))->__toString());
+    }
+}
+

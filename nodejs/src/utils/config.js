@@ -20,6 +20,10 @@ config.d8.api_login         = config.d8.host + '/api/login.json';
 config.d8.api_register      = config.d8.host + '/api/register.json';
 config.d8.api_reset_password= config.d8.host + '/api/reset_password.json';
 
+config.d8.api_list_bank     = config.d8.host + '/api/list_bank.json';
+config.d8.api_add_bank      = config.d8.host + '/api/add_bank.json';
+config.d8.api_delete_bank   = config.d8.host + '/api/delete_bank.json';
+
 config.d8.headers = {
                         "Content-Type": "application/json",
                         // "client_id": "1001125",

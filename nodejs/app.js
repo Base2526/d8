@@ -50,11 +50,28 @@ const app   = require('express')();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
+const Product = require('./models/product')
+
+const mongo = require('mongodb').MongoClient
+
 app.get('/api/hello', (req, res) => {
   res.send({ express: 'Hello From Express' });
 });
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+
+  // console.log(mongo)
+
+  var payload = {
+                  "name": "My Product from Postman",
+                  "category": "Tool",
+                  "price": 0,
+                  "tags": ["test1", "test2", "tag1"]
+                };
+  const product = new Product(payload)
+  await product.save()
+
   res.send('OOP Chat Server is running on port 8080');
 
   // fetch('http://localhost:8055/api/login.json', {method: 'GET', body: 'a=1'})
@@ -67,21 +84,70 @@ app.get('/', (req, res) => {
 app.post('/api/login', (req, res) => {
   console.log(req.body);
   console.log(config.d8.headers);
-  // res.send(
-  //   `I received your POST request. This is what you sent me: ${req.body} ${config.redis.host}`,
-  // );
-
-  // var url ='http://drupal8/api/login.json';
-  // var headers = {
-  //   "Content-Type": "application/json",
-  //   // "client_id": "1001125",
-  //   // "client_secret": "876JHG76UKFJYGVHf867rFUTFGHCJ8JHV"
-  // }
   var data = {
     "name": req.body.name,
     "pass": req.body.pass
   }
   fetch(config.d8.api_login, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+    .then((res) => {
+      return res.json()
+  })
+  .then((json) => {
+    console.log(json);
+    // Do something with the returned data.
+
+    res.send(json);
+  });
+});
+
+app.post('/api/list_bank', (req, res) => {
+  console.log(req.body);
+  console.log(config.d8.headers);
+  var data = {}
+
+  fetch(config.d8.api_list_bank, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+    .then((res) => {
+      return res.json()
+  })
+  .then((json) => {
+    console.log(json);
+    // Do something with the returned data.
+
+    res.send(json);
+  });
+});
+
+app.post('/api/add_bank', (req, res) => {
+  console.log(req.body);
+  console.log(config.d8.headers);
+  var data = {
+    "uid": req.body.uid,
+    "tid_bank": req.body.tid_bank,
+    "name_bank": req.body.name_bank,
+    "number_bank": req.body.number_bank,
+  }
+
+  fetch(config.d8.api_add_bank, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+    .then((res) => {
+      return res.json()
+  })
+  .then((json) => {
+    console.log(json);
+    // Do something with the returned data.
+
+    res.send(json);
+  });
+});
+
+app.post('/api/delete_bank', (req, res) => {
+  console.log(req.body);
+  console.log(config.d8.headers);
+  var data = {
+    "uid": req.body.uid,
+    "target_id": req.body.target_id,
+  }
+
+  fetch(config.d8.api_delete_bank, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
     .then((res) => {
       return res.json()
   })
@@ -176,6 +242,8 @@ io.on('connection', (socket) => {
     socket.join(room);
     console.log(this);
   });
+
+  interval = setInterval(() => getApiAndEmit(socket), 10000);
   
   socket.on('disconnect', () => {
     
@@ -198,6 +266,13 @@ io.on('connection', (socket) => {
   */
 });
 
+
+const getApiAndEmit = socket => {
+  const response = new Date();
+  // Emitting a new message. Will be consumed by the client
+  socket.emit("FromAPI", response);
+};
+
 // io.on('disconnect', () => {
 //   console.log("disconnection");
 // });
@@ -205,7 +280,37 @@ io.on('connection', (socket) => {
 server.listen(PORT, function (err) {
   console.log('listening on port 8080')
 
-  connectDb().then(() => {
+  connectDb().then((db) => {
     console.log("MongoDb connected");
+
+    console.log(db);
+
+    // (new Product).watch().on('change', data => console.log(new Date(), data));
+
+    // var conn = db.connection;
+    // var ObjectID = require('mongodb').ObjectID;
+
+    // var user = {
+    //   a: 'abc',
+    //   _id: new ObjectID()
+    // };
+    // conn.collection('superheroes').insert(user);
+
+    // const collection = db.collection("superheroes");
+    // db.collection("sample_collection").insertOne({
+    //   field1: "abcderrr"
+    // }, (err, result) => {
+    //     if(err) console.log(err);
+    //     else console.log(result.ops[0].field1)
+    // });
+
+    // var dbo = db.db("mydb");
+    // var myobj = { name: "Company Inc", address: "Highway 37" };
+    // dbo.collection("customers").insertOne(myobj, function(err, res) {
+    //   if (err) throw err;
+    //   console.log("1 document inserted");
+    //   db.close();
+    // });
   });
+
 })

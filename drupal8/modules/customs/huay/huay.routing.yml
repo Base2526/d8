@@ -92,4 +92,25 @@ api.reset_password:
   requirements:
     _access: 'TRUE'
 
+api.list_bank:
+  path: '/api/list_bank.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::list_bank' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.add_bank:
+  path: '/api/add_bank.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::add_bank' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.delete_bank:
+  path: '/api/delete_bank.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::delete_bank' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
 # api

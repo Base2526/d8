@@ -30,7 +30,7 @@ class API extends ControllerBase {
     if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
       $content = json_decode( $request->getContent(), TRUE );
 
-      $name = trim( $content['name']);
+      $name = trim( $content['name'] );
       $pass = trim( $content['pass'] );
   
       if(!(( empty($name) && empty($pass) ) ||
@@ -42,6 +42,12 @@ class API extends ControllerBase {
         * case is email with use user_load_by_mail reture name
         */
         if(\Drupal::service('email.validator')->isValid( $name )){
+          $user_load = user_load_by_mail($name);
+          if(!$user_load){
+            $response['result']   = FALSE;
+            $response['message']  = 'Unrecognized ' . $name;
+            return new JsonResponse( $response );
+          }
           $name = user_load_by_mail($name)->getUsername();
         }
   
@@ -259,6 +265,112 @@ class API extends ControllerBase {
 
     $response['result']   = FALSE;
     $response['message']  = 'reset_password';
+    return new JsonResponse( $response );
+  }
+
+  public function list_bank(Request $request){
+    $time1 = microtime(true);
+
+    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+      $content = json_decode( $request->getContent(), TRUE );
+
+      $response['result']           = TRUE;
+      $response['execution_time']   = microtime(true) - $time1;
+
+      $response['data']             = Utils::getTaxonomy_term('list_bank');
+      return new JsonResponse( $response );
+    }
+
+    $response['result']   = FALSE;
+    $response['message']  = 'list_bank';
+    return new JsonResponse( $response );
+  }
+
+  public function add_bank(Request $request){
+    $time1 = microtime(true);
+
+    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+      $content = json_decode( $request->getContent(), TRUE );
+
+      $uid          = trim( $content['uid'] );
+      $tid_bank     = trim( $content['tid_bank'] );
+      $name_bank    = trim( $content['name_bank'] );
+      $number_bank  = trim( $content['number_bank'] );
+
+      if( empty($uid) || empty($tid_bank) || empty($name_bank) || empty($number_bank) ){
+        $response['result']   = FALSE;
+        return new JsonResponse( $response );
+      }
+
+      $number_bank = str_replace("-", "", $number_bank);
+
+      $user_banks = Paragraph::create([
+        'type'            => 'user_banks',
+        'field_bank'      => $tid_bank,
+        'field_name_bank' => $name_bank,
+        'field_number_bank' => $number_bank
+      ]);
+      
+      $user_banks->save();
+
+      $user = \Drupal\user\Entity\User::load($uid);
+
+      $paragraphs = array();
+      foreach ($user->get('field_bank')->getValue() as $ii=>$vv){
+          $p = Paragraph::load( $vv['target_id'] );
+
+          $field_number_bank = $p->get('field_number_bank')->getValue();
+          if(!empty($field_number_bank)){
+            $field_number_bank = $field_number_bank[0]['value'];
+          }
+          $field_bank        = $p->get('field_bank')->target_id;
+          if( strcmp($field_number_bank, $number_bank) === 0 && strcmp($field_bank, $tid_bank) === 0){
+            $response['result']   = FALSE;
+            $response['message']  = 'ธนาคาร & เลขที่บัญชี ซํ้า';
+            return new JsonResponse( $response );
+          }
+
+          $paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+      }
+
+      $paragraphs[] = array('target_id'=> $user_banks->id(), 'target_revision_id' => $user_banks->getRevisionId());
+      
+      $user->set('field_bank', $paragraphs);
+      $user->save();
+
+      // str_replace("-", "", '123-3-33333-33333')
+      $response['result']           = TRUE;
+      $response['execution_time']   = microtime(true) - $time1;
+      return new JsonResponse( $response );
+    }
+
+    $response['result']   = FALSE;
+    return new JsonResponse( $response );
+  }
+
+  public function delete_bank(Request $request){
+    $time1 = microtime(true);
+
+    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+      $content = json_decode( $request->getContent(), TRUE );
+
+      $uid          = trim( $content['uid'] );
+      $target_id    = trim( $content['target_id'] );
+
+      if( empty($uid) || empty($pid) ){
+        $response['result']   = FALSE;
+        return new JsonResponse( $response );
+      }
+
+      $entity = \Drupal::entityTypeManager()->getStorage('paragraph')->load($target_id);
+      if ($entity) $entity->delete();
+
+      $response['result']           = TRUE;
+      $response['execution_time']   = microtime(true) - $time1;
+      return new JsonResponse( $response );
+    }
+
+    $response['result']   = FALSE;
     return new JsonResponse( $response );
   }
 }

@@ -1,19 +1,23 @@
 services:
     # Custom cache bin.
-    # cache.huay:
-    #     class: Drupal\Core\Cache\CacheBackendInterface
-    #     tags:
-    #     - { name: cache.bin }
-    #     factory: cache_factory:get
-    #     arguments: [huay]
-    # huay.cache:
-    #     class: Drupal\huay\Cache\MyCache
-    #     arguments: ['@cache.huay']
-    # huay_event_subscriber_event_subscriber:
-    #     class: Drupal\huay\EventSubscriber\CustomredirectSubscriber
+    cache.huay:
+        class: Drupal\Core\Cache\CacheBackendInterface
+        tags:
+        - { name: cache.bin }
+        factory: cache_factory:get
+        arguments: [huay]
+    huay.cache:
+        class: Drupal\huay\Cache\MyCache
+        arguments: ['@cache.huay']
+    # printing_administrative_software_event_subscriber_event_subscriber:
+    #     class: Drupal\printing_administrative_software\EventSubscriber\CustomredirectSubscriber
     #     tags:
     #         - {name: event_subscriber}
-    # logger.huay:
-    #     class: Drupal\huay\Utils\MyLog
+    # logger.printing_administrative_software:
+    #     class: Drupal\printing_administrative_software\Utils\MyLog
     #     tags:
     #         - { name: logger }
+    # printing_administrative_software.breadcrumb:
+    #     class: Drupal\printing_administrative_software\Breadcrumb\BreadcrumbBuilder
+    #     tags:
+    #         - { name: breadcrumb_builder, priority: 100 }

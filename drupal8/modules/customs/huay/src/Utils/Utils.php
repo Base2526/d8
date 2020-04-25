@@ -21,15 +21,15 @@ class Utils extends ControllerBase {
     //   $terms = explode(",", $terms);
 
     //   if (in_array( $cid , $terms)) {
-        foreach($branchs_terms as $tag_term) {
-        //   $id_term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tag_term->tid)->get('field_id_term')->getValue();
-        //   if(!empty( $id_term )){
-        //     $new_tid =  $id_term[0]['value'];
-        //     $branchs[$new_tid] = $tag_term->name;
-        //   }
-
-          $branchs[$tag_term->tid] = $tag_term->name;
+      foreach($branchs_terms as $tag_term) {
+        $tid_code = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tag_term->tid)->get('field_tid_code')->getValue();
+        if(!empty( $tid_code )){
+          $new_tid =  $tid_code[0]['value'];
+          $branchs[$new_tid] = $tag_term->name;
         }
+
+        // $branchs[$tag_term->tid] = $tag_term->name;
+      }
     //   }else{
     //     foreach ($branchs_terms as $tag_term) {
     //       $branchs[$tag_term->tid] = $tag_term->name;

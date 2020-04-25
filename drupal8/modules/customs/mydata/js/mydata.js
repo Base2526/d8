@@ -31,7 +31,7 @@ var socket;
     
         // var io = require('socket.io');
         console.log(socket);
-        socket = io(configs.nodejs_url, {query:"platform=web&uid=" + user.uid});
+        // socket = io(configs.nodejs_url, {query:"platform=web&uid=" + user.uid});
         console.log(socket);
         
     

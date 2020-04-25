@@ -1,16 +1,18 @@
 import React, { Component, useState } from 'react';
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
-
+import { connect } from 'react-redux'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
-
 import InputMask from "react-input-mask";
-// import MaskedFormControl from 'react-bootstrap-maskedinput'
+
+import { headers } from '../Utils/Config';
+
+import axios from 'axios';
+var _ = require('lodash');
 
 var styles = {
     root: {
@@ -46,36 +48,97 @@ class AddBankPage extends Component {
 
             number_bank_confirm2:'',
 
-            validated:false
+            validated:false,
+
+            list_bank:{},
+            error: false,
+            error_message:'',
         }
+
+        console.log(props);
 
         this.handleChange = this.handleChange.bind(this);
         this.handleClear  = this.handleClear.bind(this);
+
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+    
+    componentDidMount = async () =>{
+      let response  = await axios.post('/api/list_bank', {}, 
+                                      {headers:headers()});
+      if( response.status==200 && response.statusText == "OK" ){
+        if(response.data.result){
+          // console.log(response.data.data);
+
+          this.setState({list_bank: response.data.data});
+        }
+      }
+
+      
+
+
+      // socket.io
+      /*
+        backend:
+    build: './nodejs'
+    container_name: "backend"
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "9231:9229"
+      */
+
+      
     }
 
-    handleSubmit = (event) => {
+    handleSubmit = async (event) => {
         const form = event.currentTarget;
         if (form.checkValidity() === false) {
           event.preventDefault();
           event.stopPropagation();
-        }
-    
-        // setValidated(true);
+          this.setState({validated: true});
+        }else{
+          event.preventDefault();
 
-        this.setState({validated:true});
+          let { select_bank, name_bank, number_bank, number_bank_confirm} = this.state;   
+
+          console.log(select_bank, name_bank, number_bank, number_bank_confirm);
+
+
+          if(number_bank.trim() !== number_bank_confirm.trim())
+          {
+            this.setState({
+              error: true,
+              error_message: 'เลขที่บัญชี กับ ยืนยันเลขที่บัญชี ไม่เท่ากัน ',
+            });
+          }else{
+            let response  = await axios.post('/api/add_bank', 
+                                        { uid: this.props.user.uid,
+                                          tid_bank: select_bank, 
+                                          name_bank,
+                                          number_bank}, 
+                                        {headers:headers()});
+            console.log(response);
+            if( response.status==200 && response.statusText == "OK" ){
+              if(response.data.result){
+                // this.props.userLogin(response.data.data);
+                this.nextPath('/');
+              }else{
+
+                // console.log(response.data.message);
+                this.setState({
+                  error: true,
+                  error_message: response.data.message,
+
+                  password:''
+                });
+              }
+            }
+          }
+        }
     };
 
-    // const handleSubmit = (event) => {
-    //     const form = event.currentTarget;
-    //     if (form.checkValidity() === false) {
-    //       event.preventDefault();
-    //       event.stopPropagation();
-    //     }
-    
-    //     setValidated(true);
-    // };
-    
-
+  
     view(){
         return (
             <Form noValidate validated={this.state.validated} onSubmit={this.handleSubmit}>
@@ -166,92 +229,126 @@ class AddBankPage extends Component {
             number_bank_confirm:'',
         });
     }
+
+    nextPath(path) {
+      this.props.history.push(path);
+    }
     
     render() {
+      console.log(this.state);
+      console.log(this.props);
+      let {validated, error, error_message} = this.state;
+     
+      return (
+          <Form noValidate validated={validated} onSubmit={this.handleSubmit}>
+              { error ? <Alert variant={'danger'}>{error_message}</Alert> : '' }
+              <Form.Group controlId="select_bank">
+                  <Form.Label>เลือกธนาคาร</Form.Label>
+                  <Form.Control 
+                      as="select" 
+                      required 
+                      value={this.state.select_bank}  
+                      onChange={this.handleChange}>
+                      <option value="">--เลือก--</option>
+                      {/* <option value="10">ธ. กรุงเทพ</option>
+                      <option value="20">ธ. กสิกรไทย</option>
+                      <option value="30">ธ. กรุงไทย</option> */}
+                      {
+                         _.map(this.state.list_bank, (val, key) => {
+                          // console.log(val, key)
+                          return <option key={key} value={key}>{val}</option>
+                        })                  
+                      }
+                  </Form.Control>
+                  <Form.Control.Feedback type="invalid">
+                      กรุณาเลือกธนาคาร
+                  </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group controlId="name_bank">
+                  <Form.Label>ชื่อบัญชี</Form.Label>
+                  <Form.Control 
+                      type="text" 
+                      placeholder="ชื่อบัญชี" 
+                      required 
+                      value={this.state.name_bank} onChange={this.handleChange}/>
+                  <Form.Control.Feedback type="invalid">
+                      กรุณากรอบชื่อบัญชี.
+                  </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group>
+                  <Form.Label>เลขที่บัญชี</Form.Label>
+                  {/* <Form.Control 
+                      type="number" 
+                      placeholder="เลขที่บัญชี" 
+                      required 
+                      value={this.state.number_bank} onChange={this.handleChange}/> */}
+                  <InputMask 
+                      id='number_bank' 
+                      mask="999-9-99999-99999" 
+                      onChange={this.handleChange} 
+                      value={this.state.number_bank}
+                      className="form-control"
+                      placeholder="ยืนยันเลขที่บัญชี" 
+                      maskPlaceholder={null}
+                      required /> 
+                  <Form.Control.Feedback type="invalid">
+                      กรุณากรอบเลขที่บัญชี.
+                  </Form.Control.Feedback>
+              </Form.Group>
+              {/* <Form.Group controlId="number_bank_confirm">
+                  <Form.Label>ยืนยันเลขที่บัญชี</Form.Label>
+                  <Form.Control 
+                      type="text" 
+                      placeholder="ยืนยันเลขที่บัญชี" 
+                      required 
+                      value={this.state.number_bank_confirm} onChange={this.handleChange}/>
+                  <Form.Control.Feedback type="invalid">
+                      กรุณากรอบยืนยันเลขที่บัญชี.
+                  </Form.Control.Feedback>
+              </Form.Group> */}
 
-        console.log(this.state);
-        return (
-            <Form noValidate validated={this.state.validated} onSubmit={this.handleSubmit}>
-                <Form.Group controlId="select_bank">
-                    <Form.Label>เลือกธนาคาร</Form.Label>
-                    <Form.Control 
-                        as="select" 
-                        required 
-                        value={this.state.select_bank}  
-                        onChange={this.handleChange}>
-                        <option value="">--เลือก--</option>
-                        <option value="10">ธ. กรุงเทพ</option>
-                        <option value="20">ธ. กสิกรไทย</option>
-                        <option value="30">ธ. กรุงไทย</option>
-                    </Form.Control>
-                    <Form.Control.Feedback type="invalid">
-                        กรุณาเลือกธนาคาร
-                    </Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group controlId="name_bank">
-                    <Form.Label>ชื่อบัญชี</Form.Label>
-                    <Form.Control 
-                        type="text" 
-                        placeholder="ชื่อบัญชี" 
-                        required 
-                        value={this.state.name_bank} onChange={this.handleChange}/>
-                    <Form.Control.Feedback type="invalid">
-                        กรุณากรอบชื่อบัญชี.
-                    </Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group>
-                    <Form.Label>เลขที่บัญชี</Form.Label>
-                    {/* <Form.Control 
-                        type="number" 
-                        placeholder="เลขที่บัญชี" 
-                        required 
-                        value={this.state.number_bank} onChange={this.handleChange}/> */}
-                    <InputMask 
-                        id='number_bank' 
-                        mask="999-9-99999-99999" 
-                        onChange={this.handleChange} 
-                        value={this.state.number_bank}
-                        class="form-control"
-                        placeholder="ยืนยันเลขที่บัญชี" 
-                        required /> 
-                    <Form.Control.Feedback type="invalid">
-                        กรุณากรอบเลขที่บัญชี.
-                    </Form.Control.Feedback>
-                </Form.Group>
-                {/* <Form.Group controlId="number_bank_confirm">
-                    <Form.Label>ยืนยันเลขที่บัญชี</Form.Label>
-                    <Form.Control 
-                        type="text" 
-                        placeholder="ยืนยันเลขที่บัญชี" 
-                        required 
-                        value={this.state.number_bank_confirm} onChange={this.handleChange}/>
-                    <Form.Control.Feedback type="invalid">
-                        กรุณากรอบยืนยันเลขที่บัญชี.
-                    </Form.Control.Feedback>
-                </Form.Group> */}
-
-                <Form.Group>
-                    <Form.Label>ยืนยันเลขที่บัญชี</Form.Label>
-                    <InputMask 
-                        id='number_bank_confirm' 
-                        mask="999-9-99999-99999" 
-                        onChange={this.handleChange} 
-                        value={this.state.number_bank_confirm}
-                        class="form-control"
-                        placeholder="ยืนยันเลขที่บัญชี" 
-                        required /> 
-                    {/* <MaskedFormControl type='text'  mask='111-111-1111' /> */}
-                    <Form.Control.Feedback type="invalid">
-                        กรุณากรอบยืนยันเลขที่บัญชี xxx.
-                    </Form.Control.Feedback>
-                </Form.Group>
-                <Button variant="primary" type="submit">
-                    เพิ่มบัญชี
-                </Button>
-                <Button variant="light" onClick={this.handleClear}>Clear</Button>
-            </Form>
-        );
+              <Form.Group>
+                  <Form.Label>ยืนยันเลขที่บัญชี</Form.Label>
+                  <InputMask 
+                      id='number_bank_confirm' 
+                      mask="999-9-99999-99999" 
+                      onChange={this.handleChange} 
+                      value={this.state.number_bank_confirm}
+                      className="form-control"
+                      placeholder="ยืนยันเลขที่บัญชี" 
+                      maskPlaceholder={null}
+                      required /> 
+                  {/* <MaskedFormControl type='text'  mask='111-111-1111' /> */}
+                  <Form.Control.Feedback type="invalid">
+                      กรุณากรอบยืนยันเลขที่บัญชี xxx.
+                  </Form.Control.Feedback>
+              </Form.Group>
+              <Button variant="primary" type="submit">
+                  เพิ่มบัญชี
+              </Button>
+              <Button variant="light" onClick={this.handleClear}>Clear</Button>
+          </Form>
+      );
     }
 }
 
-export default AddBankPage;
+/*
+	จะเป็น function ที่จะถูกเรียกตลอดเมือ ข้อมูลเปลี่ยนแปลง
+	เราสามารถดึงข้อมูลทั้งหมดที่อยู่ใน redux ได้เลย
+*/
+const mapStateToProps = (state, ownProps) => {
+  console.log(state);
+  console.log(ownProps);
+
+	if(!state._persist.rehydrated){
+		return {};
+  }
+  
+  if(state.auth.isLoggedIn){
+    return { logged_in: true, user: state.auth.user};
+  }else{
+    return { logged_in: false };
+  }
+}
+
+export default connect(mapStateToProps, null)(AddBankPage)

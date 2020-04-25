@@ -77,6 +77,7 @@ class ButtonAppBar extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
+  
 	if(!state._persist.rehydrated){
 		return {};
   }

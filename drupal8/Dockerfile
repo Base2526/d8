@@ -1,4 +1,4 @@
-FROM drupal:8.6.17
+FROM drupal:8.7.8
 
 # COPY ./modules /var/www/html/sites/default/modules
 # COPY ./themes /var/www/html/sites/default/themes

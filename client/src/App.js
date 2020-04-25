@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as BR, Route, Switch } from 'react-router-dom'; 
-
 import axios from 'axios';
+import { connect } from 'react-redux'
 
 import RideSelect from './Components/RideSelect/RideSelect';
 import SecondPage from './Components/SecondPage/SecondPage';
@@ -34,7 +34,11 @@ import routes from "./routes";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import {connect_socketIO} from './socket.io'
+
 const API_URL = 'http://jsonplaceholder.typicode.com';
+
+
 
 class App extends Component {
 
@@ -86,6 +90,12 @@ state = {
                       : path,
                     ...rest
                   }));
+
+                if(this.props.logged_in){
+                  connect_socketIO(this.props.user.uid)
+                }
+                
+                // console.log();
                 console.log(`Generated crumbs for ${props.match.path}`);
                 crumbs.map(({ name, path }) => console.log({ name, path }));
                 return (
@@ -144,4 +154,20 @@ state = {
   }
 }
 
-export default App;
+// export default App;
+const mapStateToProps = (state, ownProps) => {
+  console.log(state);
+  console.log(ownProps);
+
+	if(!state._persist.rehydrated){
+		return {};
+  }
+  
+  if(state.auth.isLoggedIn){
+    return { logged_in: true, user: state.auth.user};
+  }else{
+    return { logged_in: false };
+  }
+}
+
+export default connect(mapStateToProps, null)(App)

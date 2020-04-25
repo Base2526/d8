@@ -64,6 +64,42 @@ services:
     #   MONGO_INITDB_ROOT_PASSWORD: example
     volumes:  # backup mongo
       - ./mongodb:/data/db
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+
+  # replset refer : https://gist.github.com/asoorm/7822cc742831639c93affd734e97ce4f
+  # mongo1:
+  #   hostname: mongo1
+  #   container_name: localmongo1
+  #   image: mongo
+  #   expose:
+  #     - 27017
+  #   ports:
+  #     - 27011:27017
+  #   restart: always
+  #   entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+
+  # mongo2:
+  #   hostname: mongo2
+  #   container_name: localmongo2
+  #   image: mongo
+  #   expose:
+  #     - 27017
+  #   ports:
+  #     - 27012:27017
+  #   restart: always
+  #   entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+  # mongo3:
+  #   hostname: mongo3
+  #   container_name: localmongo3
+  #   image: mongo
+  #   expose:
+  #     - 27017
+  #   ports:
+  #     - 27013:27017
+  #   restart: always
+  #   entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+ 
+  # replset
 
   mongo-express:
     image: mongo-express

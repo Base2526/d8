@@ -1,19 +1,12 @@
 import React, { Component } from 'react';
-import TextField from '@material-ui/core/TextField';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
 import { Redirect, Link} from 'react-router-dom';
-
 import { connect } from 'react-redux'
-import { userLogin } from '../../actions/auth'
-
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 
-import * as types from "../../actions/types";
+import { headers } from '../Utils/Config';
+import { userLogin } from '../../actions/auth'
 
 const axios = require('axios');
 
@@ -30,224 +23,46 @@ class LoginPage extends Component {
       error_message:'',
     };
 
-    this.onChange = this.onChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-
     this.handleChange = this.handleChange.bind(this);
   }
 
-  componentDidMount() {
-    // this.callApi()
-    //   .then(res => console.log(res.express) )
-    //   .catch(err => console.log(err));
-
-    /*
-    var self = this;
-    axios.post('/api/login', {
-      name: 'admin', 
-      pass: 'ๅ/_ภ'
-    })
-    .then(function (response) {
-      if( response.status==200 && response.statusText == "OK"){
-        if(response.data.result){
-          // self.props.userLogin(response.data.data);
-        }
-      }
-      // console.log(response);
-
-      // self.setState({
-      //   error: true,
-      //   error_message: "xxxxx."
-      // });
-
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-    */
+  componentDidMount(){
   }
 
   handleChange(event) {
     this.setState({[event.target.id]: event.target.value});
   }    
 
-  onChange(e) {
-    this.setState({
-      [e.target.name]: e.target.value
-    });
-  }
-
-  callApi = async () => {
-    const response = await fetch('/api/hello');
-    const body = await response.json();
-    if (response.status !== 200) throw Error(body.message);
-    
-    return body;
-  };
-
-  // submitForm(e) {
-  submitForm = async e => {
-    e.preventDefault();
-    console.log('submitForm');
-    const { user, pass } = this.state;
-
-    if(user.trim() == "" && pass.trim() == "" ){
-      this.setState({
-        error: true,
-        error_message: "Username && Pass is empty."
-          });
-    }else if(user.trim() == ""){
-      this.setState({
-        error: true,
-        error_message: "Username is empty."
-          });
-    }else if(pass.trim() == ""){
-      this.setState({
-        error: true,
-        error_message: "Password is empty."
-          });
-    }
- 
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name:user, pass}),
-    });
-
-    let body = await response.text();
-
-    body = JSON.parse(body);
-    if(!body.result){
-      console.log(body.message);
-    }else{
-      let data = body.data;
-      console.log(data);
-
-      this.props.userLogin(data);
-    }
-
-    // if(username === "admin" && password === "admin") {
-    //   ls.set("token", "56@cysXs");
-    //   this.setState({
-    //     loggedIn: true
-    //   });
-    // } else {
-    //   return <p>Invalid Creds</p>
-    // }
-    // this.props.userLogin('username', 'password');
-    // this.props.addTodo('4');
-    /*
-    const params = {
-      name: username,
-      pass: password
-    };
-    const headers = {
-      'Content-Type': 'application/json'
-    };
-    axios.post("http://localhost/api/login.json",{ params }, {headers})
-    .then(res => {
-      console.log(res);
-      // console.log(res.data);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-    */
-  }
-
   handleSubmit = async (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
-
       this.setState({validated: true});
-
-      const response  = await axios.post('/api/login', {name: 'admin', pass: 'ๅ/_ภ'});
-      // const { data }  = await res;
-      // const data      = await response.json();
-      console.log(response);
-
     }else{
+      event.preventDefault();
 
-      let { email, password } = this.state;
-
-      console.log(email);
-      console.log(password);
-      
-      let response  = await axios.post('/api/login', {name: email, pass: password});
+      let { email, password } = this.state;   
+      let response  = await axios.post('/api/login', 
+                                      {name: email, pass: password}, 
+                                      {headers:headers()});
+      console.log(response);
       if( response.status==200 && response.statusText == "OK" ){
         if(response.data.result){
           this.props.userLogin(response.data.data);
+        }else{
 
-          // this.props.dispatch({
-          //   type: types.AUTH_LOGIN,
-          //   user:response.data.data
-          // });
-          return;
+          // console.log(response.data.message);
+          this.setState({
+            error: true,
+            error_message: response.data.message,
+
+            password:''
+          });
         }
       }
-
-      this.setState({
-        error: true,
-        error_message: "Username && password is empty."
-      });
-
-
-    //  async getData(){
-    //   const res = await axios.get('url-to-get-the-data');
-    //   const { data } = await res;
-    //   this.setState({serverResponse: data})
-    // }
-    }
-
-    /*
-    let { email, password } = this.state;
-    if(email.trim() == "" && password.trim() == "" ){
-      this.setState({
-        error: true,
-        error_message: "Username && password is empty."
-          });
-    }else if(email.trim() == ""){
-      this.setState({
-        error: true,
-        error_message: "Username is empty."
-          });
-    }else if(password.trim() == ""){
-      this.setState({
-        error: true,
-        error_message: "Password is empty."
-          });
-    }
-    */
-
-    // event.preventDefault();
-    // event.stopPropagation();
-
-    // this.setState({validated:false});
- 
-    // const response = await fetch('/api/login', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({ name:email, pass:password}),
-    // });
-
-    // let body = await response.text();
-
-    // body = JSON.parse(body);
-    // if(!body.result){
-    //   console.log(body.message);
-    // }else{
-    //   let data = body.data;
-    //   console.log(data);
-    //   this.props.userLogin(data);
-    // }
-    // this.nextPath('/deposit');
-
+    } 
   }
 
   nextPath(path) {
@@ -360,4 +175,5 @@ const mapDispatchToProps = (dispatch) => {
 	}
 }
 
+// export default LoginPage
 export default connect(mapStateToProps, {userLogin})(LoginPage)
