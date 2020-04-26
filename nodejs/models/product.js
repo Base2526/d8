@@ -10,6 +10,8 @@ const productSchema = new Schema({
 
 const ProductModel = mongoose.model('Product', productSchema)
 
-// ProductModel.watch().on('change', data => console.log(new Date(), data));
+// ProductModel.watch().on('change', data =>{
+//   console.log(new Date(), data)
+// });
 
 module.exports = ProductModel

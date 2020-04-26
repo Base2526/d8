@@ -17,12 +17,15 @@ config.web.port = process.env.WEB_PORT || 9980;
 
 config.d8.host              = 'http://drupal8';
 config.d8.api_login         = config.d8.host + '/api/login.json';
+config.d8.api_logout        = config.d8.host + '/api/logout.json';
 config.d8.api_register      = config.d8.host + '/api/register.json';
 config.d8.api_reset_password= config.d8.host + '/api/reset_password.json';
 
 config.d8.api_list_bank     = config.d8.host + '/api/list_bank.json';
 config.d8.api_add_bank      = config.d8.host + '/api/add_bank.json';
 config.d8.api_delete_bank   = config.d8.host + '/api/delete_bank.json';
+
+config.d8.api_update_socket_id   = config.d8.host + '/api/update_socket_id.json';
 
 config.d8.headers = {
                         "Content-Type": "application/json",

@@ -54,18 +54,74 @@ services:
       PGADMIN_DEFAULT_PASSWORD: postgres
     hostname: pgadmin4
     restart: always
-  mongo:
-    image: mongo
-    restart: always
-    ports:
-      - "27017:27017"
-    # environment:
-    #   MONGO_INITDB_ROOT_USERNAME: root
-    #   MONGO_INITDB_ROOT_PASSWORD: example
-    volumes:  # backup mongo
-      - ./mongodb:/data/db
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+      # 
+  # mongo1:
+  #   container_name: mongo1
+  #   image: mongo:4-xenial
+  #   expose:
+  #     - 27017
+  #   restart: always
+  #   entrypoint: [ "mongod", "--bind_ip_all", "--replSet", "rs0" ]
+  # mongo2:
+  #   container_name: mongo2
+  #   image: mongo:4-xenial
+  #   expose:
+  #     - 27017
+  #   restart: always
+  #   entrypoint: [ "mongod", "--bind_ip_all", "--replSet", "rs0" ]
+  # mongo3:
+  #   container_name: mongo3
+  #   image: mongo:4-xenial
+  #   expose:
+  #     - 27017
+  #   restart: always
+  #   entrypoint: [ "mongod", "--bind_ip_all", "--replSet", "rs0" ]
+  
+  # mongo:
+  #   image: mongo:4-xenial
+  #   restart: always
+  #   ports:
+  #     - "27017:27017"
+  #   # environment:
+  #   #   MONGO_INITDB_ROOT_USERNAME: root
+  #   #   MONGO_INITDB_ROOT_PASSWORD: example
+  #   volumes:  # backup mongo
+  #     - ./mongodb:/data/db
+  #   # entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+  #   entrypoint: ["mongo","--host","mongo1","--port","27017","--eval", 'rs.initiate( { _id : "rs0",members: [{ _id: 0, host: "mongo1:27017" },{ _id: 1, host: "mongo2:27017" },{ _id: 2, host: "mongo3:27017" }   ]})']
 
+
+  mongo1:
+    hostname: mongo1
+    container_name: localmongo1
+    image: mongo:4.0-xenial
+    expose:
+      - 27017
+    volumes:
+      - ./mongodb/mongo1:/data/db
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+  mongo2:
+    hostname: mongo2
+    container_name: localmongo2
+    image: mongo:4.0-xenial
+    expose:
+      - 27017
+    volumes:
+      - ./mongodb/mongo2:/data/db
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+  mongo3:
+    hostname: mongo3
+    container_name: localmongo3
+    image: mongo:4.0-xenial
+    expose:
+      - 27017
+    volumes:
+      - ./mongodb/mongo3:/data/db
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+  
   # replset refer : https://gist.github.com/asoorm/7822cc742831639c93affd734e97ce4f
   # mongo1:
   #   hostname: mongo1
@@ -109,6 +165,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_SERVER: mongo1  # กรณีเรา set replset เราต้องกำหนด  ME_CONFIG_MONGODB_SERVER ด้วย
 
   # wmcached:
   #   image: wodby/memcached:1.4-2.0.0

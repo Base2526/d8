@@ -84,11 +84,33 @@ app.get('/', async (req, res) => {
 app.post('/api/login', (req, res) => {
   console.log(req.body);
   console.log(config.d8.headers);
+
+  config.d8.headers['cookie'] = req.headers.cookie;
   var data = {
     "name": req.body.name,
     "pass": req.body.pass
   }
   fetch(config.d8.api_login, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+    .then((res) => {
+      return res.json()
+  })
+  .then((json) => {
+    console.log(json);
+    // Do something with the returned data.
+
+    res.send(json);
+  });
+});
+
+app.post('/api/logout', (req, res) => {
+  console.log(req.body);
+  console.log(config.d8.headers);
+
+  config.d8.headers['cookie'] = req.headers.cookie;
+  var data = {
+    "uid": req.body.uid
+  }
+  fetch(config.d8.api_logout, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
     .then((res) => {
       return res.json()
   })
@@ -179,6 +201,8 @@ const http  = require('http');
 const server= http.createServer(app);
 let io = require('socket.io')(server);
 
+
+var socket_connection;
 // var request = require('request');
 io.on('connection', (socket) => { 
   let handshake = socket.handshake;
@@ -188,6 +212,12 @@ io.on('connection', (socket) => {
   console.log(handshake.time);
   console.log(handshake.query);
   console.log(`Socket ${socket.id} connected.`);
+
+  // handshake.headers.cookie
+
+  socket_connection = socket;
+
+  update_socket_id(socket);
 
   // console.log("user-agent: "+socket.request.headers['user-agent']);
   // request('http://localhost/rest/api/get?_format=json', function (error, response, body) {
@@ -243,7 +273,7 @@ io.on('connection', (socket) => {
     console.log(this);
   });
 
-  interval = setInterval(() => getApiAndEmit(socket), 10000);
+  // interval = setInterval(() => getApiAndEmit(socket), 10000);
   
   socket.on('disconnect', () => {
     
@@ -259,18 +289,34 @@ io.on('connection', (socket) => {
     //     console.log('Username: ' + client.nickname);
     // }); 
   });
-
-
-  /*
-  
-  */
 });
 
+async function update_socket_id(socket){
+  var data = {
+    "uid": socket.handshake.query.uid,
+    "socket_id": socket.id,
+  }
+
+  config.d8.headers['cookie'] = socket.handshake.headers.cookie;
+  await fetch(config.d8.api_update_socket_id, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+    .then((res) => {
+      return res.json()
+  })
+  .then((json) => {
+    console.log(json);
+  });
+}
+// main();
 
 const getApiAndEmit = socket => {
   const response = new Date();
   // Emitting a new message. Will be consumed by the client
-  socket.emit("FromAPI", response);
+
+  // จะส่งไปทุกๆ  socket.on('FromAPI', (messageNew) => ในส่วน reactjs
+  // socket.emit("FromAPI", response);
+
+  // จะส่งไปตามแต่ละ socket.id
+  // io.to('vwMRV1tla8OILFnWAAAC').emit('FromAPI', 'for your eyes only');
 };
 
 // io.on('disconnect', () => {
@@ -284,6 +330,52 @@ server.listen(PORT, function (err) {
     console.log("MongoDb connected");
 
     console.log(db);
+    // console.log(socket_connection);
+
+    Product.watch().on('change', data =>{
+      console.log(new Date(), data)
+
+      // console.log(socket_connection);
+
+      getApiAndEmit(socket_connection)
+
+      //operationType
+      switch(data.operationType){
+        case 'insert':{
+          console.log('insert');
+          break;
+        }
+        case 'delete':{
+          console.log('delete');
+          break;
+        }
+        case 'replace':{
+          console.log('replace');
+          break;
+        }
+        case 'update':{
+          console.log('update');
+          break;
+        }
+        case 'drop':{
+          console.log('drop');
+          break;
+        }
+        case 'rename':{
+          console.log('rename');
+          break;
+        }
+        case 'dropDatabase':{
+          console.log('dropDatabase');
+          break;
+        }
+        case 'invalidate':{
+          console.log('dropDatabase');
+          break;
+        }
+      }
+     
+    });
 
     // (new Product).watch().on('change', data => console.log(new Date(), data));
 

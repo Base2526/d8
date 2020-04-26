@@ -1,5 +1,10 @@
 <?php
 
+use Drupal\user\Entity\User;
+use Drupal\paragraphs\Entity\Paragraph;
+
+use Drupal\huay\Utils\Utils;
+
 /*
 $uri = 'mongodb://mongo:27017';
 $collection = (new MongoDB\Client($uri))->local->startup_log;
@@ -73,7 +78,6 @@ function huay_page_attachments(array &$attachments) {
     $attachments['#attached']['drupalSettings']['configs'] = $params;
 }
 
-
 /*
  * Implements hook_theme()
 */
@@ -100,8 +104,8 @@ function huay_theme($existing, $type, $theme, $path) {
  * กรณีที่เรา เพิ่ม taxonomy_term ใหม่ เราจะต้อง เพิ่มข้อมูลฟิลล์ field_id_term == $entity->id() แก้ปัญหา id ไม่เหมือนกัน dev, uat, prod
  */
 function huay_taxonomy_term_insert(Drupal\Core\Entity\EntityInterface $entity) {
-    $vocabularys = \Drupal\config_pages\Entity\ConfigPages::config('config_global')->get('field_taxonomy_term')->value;
-    $vocabularys = explode(",", $vocabularys);
+    // $vocabularys = \Drupal\config_pages\Entity\ConfigPages::config('config_global')->get('field_taxonomy_term')->value;
+    $vocabularys = explode(",", Utils::GetConfigGlobal()['taxonomy_term']);
 
     if (in_array($entity->bundle(), $vocabularys)) {
         $id_term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($entity->id())->get('field_tid_code')->getValue()[0]['value'];
@@ -118,3 +122,210 @@ function huay_taxonomy_term_insert(Drupal\Core\Entity\EntityInterface $entity) {
     }
 }
 
+/*
+hook_entity_create(\Drupal\Core\Entity\EntityInterface $entity) 
+Acts when creating a new entity.
+*/
+// function huay_entity_create(\Drupal\Core\Entity\EntityInterface $entity) {
+//     \Drupal::logger('huay_entity_create')->notice(t('ID: @id, EntityTypeId : @EntityTypeId, bundle : @bundle ',array( '@id'=>$entity->id(), 
+//                                                                                                                     '@EntityTypeId'=>$entity->getEntityTypeId(), 
+//                                                                                                                     '@bundle'=>$entity->bundle()) )->__toString());
+// }
+
+function mongodb_people($uid){
+    if(empty($uid)){
+        return FALSE;
+    }
+
+    $data = array();
+    $user = User::load($uid);
+
+    $image_url = '';  
+    if (!$user->get('user_picture')->isEmpty()) {
+        $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
+    }
+
+    $credit_balance = 0;
+    $field_credit_balance = $user->get('field_credit_balance')->getValue();
+    if(!empty($field_credit_balance)){
+        $credit_balance = $field_credit_balance[0]['value'];
+    }
+
+    $data = array(
+                'uid'      =>$uid,
+                'name'     =>$user->getUsername(),
+                'email'    =>$user->getEmail(),
+                'roles'    =>$user->getRoles(),
+                'image_url'=>$image_url,
+                'credit_balance' =>$credit_balance,
+            );
+
+    $banks = array();
+    foreach ($user->get('field_bank')->getValue() as $bi=>$bv){
+        $p = Paragraph::load( $bv['target_id'] );
+
+        // ชื่อบัญชี
+        $name_bank = '';
+        $field_name_bank = $p->get('field_name_bank')->getValue();
+        if(!empty($field_name_bank)){
+            $name_bank = $field_name_bank[0]['value'];
+        }
+
+        // เลขที่บัญชี
+        $number_bank = '';
+        $field_number_bank = $p->get('field_number_bank')->getValue();
+        if(!empty($field_number_bank)){
+            $number_bank = $field_number_bank[0]['value'];
+        }
+
+        // ธนาคาร
+        $bank_tid        = $p->get('field_bank')->target_id;
+
+        $banks[$bv['target_id']] = array(
+                                        'name_bank'     =>$name_bank,
+                                        'number_bank'   =>$number_bank,
+                                        'bank_tid'      =>$bank_tid
+                                        );
+    }
+    $data['banks'] = $banks;
+
+    $user_access = array();
+    foreach ($user->get('field_user_access')->getValue() as $bi=>$bv){
+        $p = Paragraph::load( $bv['target_id'] );
+
+        // cookie
+        $cookie = '';
+        $field_cookie = $p->get('field_cookie')->getValue();
+        if(!empty($field_cookie)){
+            $cookie = $field_cookie[0]['value'];
+        }
+
+        // field_socket_id
+        $socket_id = '';
+        $field_socket_id = $p->get('field_socket_id')->getValue();
+        if(!empty($field_socket_id)){
+            $socket_id = $field_socket_id[0]['value'];
+        }
+        
+        $user_access[$bv['target_id']] = array('cookie' =>$cookie, 'socket_id' =>$socket_id);
+    }
+
+    $data['user_access'] = $user_access;
+
+    $collection = Utils::GetMongoDB()->people;
+    $filter = array('uid'=>$uid);
+    if($collection->count($filter)){
+        // udpate
+
+        $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+        $collection->updateOne($filter, array('$set' =>$data) );
+    }else{
+        // create
+
+        $data['createdAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+        $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+        $collection->insertOne($data);
+    }
+
+    // 
+// _id	tags	name	category	price	createdAt 	updatedAt
+
+    return TRUE;
+}
+
+/*
+hook_entity_insert(\Drupal\Core\Entity\EntityInterface $entity) 
+เราจะไม่ใช้ hook_entity_create เพราะว่า hook_entity_create จะถูกเรียกก่อน hook_entity_insert ซึ่งจะไม่ให้ id 
+*/
+function huay_entity_insert(\Drupal\Core\Entity\EntityInterface $entity) {
+    \Drupal::logger('huay_entity_insert')->notice(t('ID: @id, EntityTypeId : @EntityTypeId, bundle : @bundle ',array(   '@id'           =>$entity->id(), 
+                                                                                                                        '@EntityTypeId' =>$entity->getEntityTypeId(), 
+                                                                                                                        '@bundle'       =>$entity->bundle()) )->__toString());
+    switch($entity->getEntityTypeId()){
+        case 'user':{
+            mongodb_people($entity->id());
+        break;
+        }
+        /*
+        case 'paragraph':{
+            switch($entity->bundle()){
+                case 'user_banks':{
+                    $p = Paragraph::load( $entity->id() );
+                    // \Drupal::logger('huay_entity_insert > paragraph > user_banks')->notice( serialize($p->getParentEntity()) );
+
+                    // dpm($p->bundle());
+                    // dpm($p->id());
+                    // $field_number_bank = $p->get('field_number_bank')->getValue();
+                    // if(!empty($field_number_bank)){
+                    //     $field_number_bank = $field_number_bank[0]['value'];
+                    // }
+                    // $field_bank        = $p->get('field_bank')->target_id;
+
+                    $parentEntity = $p->getParentEntity();
+                    // dpm($parentEntity->getEntityTypeId());
+                    // dpm($parentEntity->id());
+
+                    switch($parentEntity->getEntityTypeId()){
+                        case 'user':{
+                        break;
+                        }
+                    }
+                   
+                break;
+                }
+            }
+        break;
+        }
+        */
+    }
+
+    // ID: 11, EntityTypeId : paragraph, bundle : user_banks
+}
+
+/*
+hook_entity_update(Drupal\Core\Entity\EntityInterface $entity) 
+*/
+function huay_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
+    \Drupal::logger('huay_entity_update')->notice(t('ID: @id, EntityTypeId : @EntityTypeId, bundle : @bundle ',array( '@id'=>$entity->id(), 
+                                                                                                                    '@EntityTypeId'=>$entity->getEntityTypeId(), 
+                                                                                                                    '@bundle'=>$entity->bundle()) )->__toString());
+    switch($entity->getEntityTypeId()){
+        case 'user':{
+            mongodb_people($entity->id());
+        break;
+        }
+
+        case 'paragraph':{
+            switch($entity->bundle()){
+                case 'user_access':{
+                    $p = Paragraph::load( $entity->id() );
+                    $parentEntity = $p->getParentEntity();
+                    switch($parentEntity->getEntityTypeId()){
+                        case 'user':{
+                            mongodb_people($parentEntity->id());
+                        break;
+                        }
+                    }
+                   
+                break;
+                }
+            }
+        break;
+        }
+    }
+}
+
+/*
+function hook_entity_delete(Drupal\Core\Entity\EntityInterface $entity)
+*/
+function huay_entity_delete(Drupal\Core\Entity\EntityInterface $entity) {
+    \Drupal::logger('huay_entity_delete')->notice(t('ID: @id, EntityTypeId : @EntityTypeId, bundle : @bundle ',array(   '@id'=>$entity->id(), 
+                                                                                                                        '@EntityTypeId'=>$entity->getEntityTypeId(), 
+                                                                                                                        '@bundle'=>$entity->bundle()) )->__toString());
+    switch($entity->getEntityTypeId()){
+        case 'user':{
+
+        break;
+        }
+    }
+}

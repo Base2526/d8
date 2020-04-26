@@ -92,9 +92,9 @@ state = {
                   }));
 
                 if(this.props.logged_in){
-                  connect_socketIO(this.props.user.uid)
+                  connect_socketIO(this.props.user)
                 }
-                
+
                 // console.log();
                 console.log(`Generated crumbs for ${props.match.path}`);
                 crumbs.map(({ name, path }) => console.log({ name, path }));

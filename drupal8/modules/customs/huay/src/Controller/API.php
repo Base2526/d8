@@ -27,6 +27,7 @@ class API extends ControllerBase {
   public function login(Request $request){
     $time1 = microtime(true);
 
+    // \Drupal::logger('login')->error(gettype($request->headers->get('cookie')));
     if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
       $content = json_decode( $request->getContent(), TRUE );
 
@@ -61,14 +62,55 @@ class API extends ControllerBase {
             $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
           }
 
+          $cookie = Utils::GetCookie( $request->headers->get('cookie') );
+
           $data = array('uid'      =>$uid, 
                         'name'     =>$user->getUsername(),
                         'email'    =>$user->getEmail(),
                         'roles'    =>$user->getRoles(),
                         'image_url'=>$image_url,
                         // 'session'  =>\Drupal::service('session')->getId(),
-                        'token'    =>Utils::encode('uid='.$uid."&time=".\Drupal::time()->getCurrentTime()),
+                        'cookie'    =>$cookie, //Utils::encode('uid='.$uid."&time=".\Drupal::time()->getCurrentTime()),
                         );
+
+          /*
+            กรณีที่ใช้ browser เดียวกัน login ได้หลายๆครั้งจะได้ cookie เดิมเสมอนอกจะ clear cache browser cookie ถึงจะเปลียนแปลง
+          */
+          $is_new_cookie = TRUE;
+          $paragraphs = array();
+          foreach ($user->get('field_user_access')->getValue() as $ii=>$vv){
+            $p = Paragraph::load( $vv['target_id'] );
+            if(empty($p)){
+              continue;
+            }
+            
+            $paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+
+            $field_cookie = $p->get('field_cookie')->getValue();
+            if(!empty($field_cookie)){
+              $tmp_cookie = $field_cookie[0]['value'];
+
+              if(strcmp($tmp_cookie, $cookie) == 0){
+                $is_new_cookie = FALSE;
+                break;
+              }
+            }
+          }
+
+          if($is_new_cookie){
+            // เก็บ user_access
+            $user_access = Paragraph::create([
+              'type'            => 'user_access',
+              'field_cookie'    => $cookie,
+            ]);
+            $user_access->save();
+
+            $paragraphs[] = array('target_id'=> $user_access->id(), 'target_revision_id' => $user_access->getRevisionId());
+
+            $user->set('field_user_access', $paragraphs);
+            $user->save();
+            // เก็บ user_access
+          }
   
           $response['result']           = TRUE;
           $response['execution_time']   = microtime(true) - $time1;
@@ -97,7 +139,9 @@ class API extends ControllerBase {
 
       if(!empty($uid)){
         // $user = \Drupal::currentUser();
-        $user = User::load($uid);
+        // $user = User::load($uid);
+
+        /*
         \Drupal::logger('user')
           ->notice('Session closed for %name.', array(
           '%name' => $user
@@ -115,6 +159,25 @@ class API extends ControllerBase {
         // @see https://github.com/symfony/symfony/issues/12375
         \Drupal::service('session_manager')->destroy();
         $user->setAccount(new AnonymousUserSession());
+        */
+
+        $cookie = Utils::GetCookie( $request->headers->get('cookie') );
+
+        $user = User::load($uid);
+        foreach ($user->get('field_user_access')->getValue() as $ii=>$vv){
+          $p = Paragraph::load( $vv['target_id'] );
+
+          $field_cookie = $p->get('field_cookie')->getValue();
+          if(!empty($field_cookie)){
+            $tmp_cookie = $field_cookie[0]['value'];
+
+            if(strcmp($tmp_cookie, $cookie) == 0){
+              $p = Paragraph::load( $vv['target_id'] );
+              if ($p) $p->delete();
+              break;
+            }
+          }
+        }
 
         $response['result']           = TRUE;
         $response['execution_time']   = microtime(true) - $time1; 
@@ -122,8 +185,6 @@ class API extends ControllerBase {
       }
     }
     $response['result']   = FALSE;
-    $response['message']  = 'logout';
-    $response['execution_time']   = microtime(true) - $time1; 
     return new JsonResponse( $response );
   }
 
@@ -364,6 +425,62 @@ class API extends ControllerBase {
 
       $entity = \Drupal::entityTypeManager()->getStorage('paragraph')->load($target_id);
       if ($entity) $entity->delete();
+
+      $response['result']           = TRUE;
+      $response['execution_time']   = microtime(true) - $time1;
+      return new JsonResponse( $response );
+    }
+
+    $response['result']   = FALSE;
+    return new JsonResponse( $response );
+  }
+
+  public function update_socket_id(Request $request){
+    $time1 = microtime(true);
+
+    /*
+    var data = {
+    "uid": socket.handshake.query.uid,
+    "socket_id": socket.id,
+  }
+    */
+
+    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+      $content = json_decode( $request->getContent(), TRUE );
+
+      $uid                = trim( $content['uid'] );
+      $socket_id          = trim( $content['socket_id'] );
+
+      if( empty($uid) ){
+        $response['result']   = FALSE;
+        return new JsonResponse( $response );
+      }
+
+      $cookie = Utils::GetCookie( $request->headers->get('cookie') );
+
+      $target_id = 0;
+      $user = User::load($uid);
+      foreach ($user->get('field_user_access')->getValue() as $ii=>$vv){
+        $p = Paragraph::load( $vv['target_id'] );
+
+        $field_cookie = $p->get('field_cookie')->getValue();
+        if(!empty($field_cookie)){
+          $tmp_cookie = $field_cookie[0]['value'];
+
+          if(strcmp($tmp_cookie, $cookie) == 0){
+            $target_id = $vv['target_id'];
+            break;
+          }
+        }
+      }
+
+      if($target_id){
+        $p = Paragraph::load( $target_id );
+        if(!empty($p)){
+          $p->set('field_socket_id', $socket_id);
+          $p->save();
+        }
+      }
 
       $response['result']           = TRUE;
       $response['execution_time']   = microtime(true) - $time1;

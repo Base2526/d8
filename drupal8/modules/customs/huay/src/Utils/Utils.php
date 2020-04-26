@@ -4,6 +4,10 @@ namespace Drupal\huay\Utils;
 use \Drupal\Core\Controller\ControllerBase;
 use \Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
+use \Drupal\config_pages\Entity\ConfigPages;
+
+use \MongoDB\Client;
+
 class Utils extends ControllerBase {
   public static function getTaxonomy_term($cid, $clear = FALSE){
     $type = 'taxonomy_term';
@@ -67,7 +71,7 @@ class Utils extends ControllerBase {
   }
 
   public static function encode($string) {
-    $key    = sha1(\Drupal\config_pages\Entity\ConfigPages::config('config_global')->get('field_key_ende')->value);
+    $key    = sha1(Utils::GetConfigGlobal()['key_ende']);
     $strLen = strlen($string);
     $keyLen = strlen($key);
     $j      = 0;
@@ -83,7 +87,7 @@ class Utils extends ControllerBase {
   }
 
   public static  function decode($string) {
-    $key    = sha1(\Drupal\config_pages\Entity\ConfigPages::config('config_global')->get('field_key_ende')->value);
+    $key    = sha1(Utils::GetConfigGlobal()['key_ende']);
     $strLen = strlen($string);
     $keyLen = strlen($key);
     $j      = 0;
@@ -98,4 +102,47 @@ class Utils extends ControllerBase {
     return $hash;
   }
 
+  public static function GetConfigGlobal(){
+    $type = 'config_global';
+    $cid  = 'all';
+
+    $our_service = \Drupal::service('huay.cache');
+    $cache = $our_service->getCache($type, $cid);
+    if($cache  === NULL) {
+      $configs = array();
+
+      $config_global = ConfigPages::config('config_global');
+      $configs =array(
+        'key_ende'            => $config_global->get('field_key_ende')->value,
+
+        'taxonomy_term'       => $config_global->get('field_taxonomy_term')->value,
+        'mongodb_url'         => $config_global->get('field_mongodb_url')->value,
+        'mongodb_replicaset'  => $config_global->get('field_mongodb_replicaset')->value,
+      );
+
+      $our_service->setCache($type, $configs, $cid);
+      return $configs;
+    }else{
+      return $cache;
+    }
+  }
+
+  public function GetMongoDB(){
+    return (new Client(Utils::GetConfigGlobal()['mongodb_url'], array("replicaSet" => Utils::GetConfigGlobal()['mongodb_replicaset'])))->huay; 
+  }
+
+  public function GetCookie($str){
+    // $str = "SESS49960de5880e8c687434170f6476605b=vKZraSjZVEasMEXptUoKMFc2dPVF_t71tKg5O76qG58; pga4_Something is wrong=2faf1078-c16b-41a2-98cb-8e7c25f6c149!L4DEAiWZ24IzkCryUlWNpcWXznI=; PGADMIN_LANGUAGE=en; mongo-express=s%3Ahv7Qt-Pwxlfxuk05ejFVeQ3UewjeEOKQ.aiK%2FVH%2FdGSyBXydSDSWxo0PmwhJsLER2O3dPcNumYdM; io=gU2U4STdGQWW3jEZAAAB";
+    $arr_str = explode(";", $str);
+    foreach ($arr_str as $key => $value){
+      $arr_value = explode("=", $value);
+
+      if(count($arr_value) == 2){
+        if(strpos($arr_value[0], 'SESS')!== false){
+          return trim($arr_value[1]);
+        }
+      }
+    }
+    return FALSE;
+  }
 }

@@ -2,11 +2,12 @@ import io from 'socket.io-client';
 
 let socket = 'ttti';
 
-export function connect_socketIO(uid){
-    console.log(uid);
+export function connect_socketIO(user){
+    console.log(user);
     console.log(socket);
     if(!socket.connected){
-      socket = io('/', {query:"platform=web&uid=" . uid })
+      // this.props.user
+      socket = io('/', { query:"platform=web&uid=" + user.uid})
       socket.on('chat_message', (messageNew) => {
         console.log(messageNew);
         // temp.push(messageNew)

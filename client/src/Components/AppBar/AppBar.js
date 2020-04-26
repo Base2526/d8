@@ -5,29 +5,12 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux'
-import { Input, DatePicker, Radio, Button, Row, Col } from 'antd';
 import { userLogout } from '../../actions/auth'
-import history from "../../history";
+import { headers } from '../Utils/Config';
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    flexGrow: 1,
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
-  title: {
-    flexGrow: 1,
-    color: 'white'
-  },
-  linkStyle: {
-    color: 'white'
-  }
-}));
+var _ = require('lodash');
+const axios = require('axios');
 
-// const classes = useStyles();
-
-// export default function ButtonAppBar() {
 class ButtonAppBar extends Component {
 
   constructor(props) {
@@ -36,8 +19,16 @@ class ButtonAppBar extends Component {
     this.handleLogout = this.handleLogout.bind(this);
   }
 
-  handleLogout = event => {
-    this.props.userLogout();
+  handleLogout = async (event) =>  {
+    let response  = await axios.post('/api/logout', 
+                                      {uid: this.props.user.uid }, 
+                                      {headers:headers()});
+    console.log(response);
+    if( response.status==200 && response.statusText == "OK" ){
+      if(response.data.result){
+        this.props.userLogout();
+      }
+    }
   }
 
   render() {
@@ -68,6 +59,7 @@ class ButtonAppBar extends Component {
               <Link  href="#" style={{color: 'white'}} to="/">HUAY</Link>
             </Typography>
             {/* <Link  href="#" style={{color: 'white'}} to="/login"> */}
+            <div>{_.uniqueId()}</div>
             {v}
           </Toolbar>
         </AppBar>

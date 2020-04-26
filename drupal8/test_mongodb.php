@@ -52,4 +52,10 @@ var_dump($insertOneResult->getInsertedId());
 
 
 */
+
+/**
+ https://www.php.net/manual/en/mongo.connecting.rs.php
+ ex.
+ $db = (new MongoDB\Client("mongodb://mongo1:27017,mongo2:27017,mongo3:27017", array("replicaSet" => "rs0")))->local; 
+*/
 ?>
