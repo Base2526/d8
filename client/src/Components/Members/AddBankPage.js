@@ -11,6 +11,8 @@ import InputMask from "react-input-mask";
 
 import { headers } from '../Utils/Config';
 
+import { loadingOverlayActive } from '../../actions/huay'
+
 import axios from 'axios';
 var _ = require('lodash');
 
@@ -73,71 +75,54 @@ class AddBankPage extends Component {
           this.setState({list_bank: response.data.data});
         }
       }
-
-      
-
-
-      // socket.io
-      /*
-        backend:
-    build: './nodejs'
-    container_name: "backend"
-    ports:
-      - "3000:3000"
-      - "3001:3001"
-      - "9231:9229"
-      */
-
-      
     }
 
     handleSubmit = async (event) => {
-        const form = event.currentTarget;
-        if (form.checkValidity() === false) {
-          event.preventDefault();
-          event.stopPropagation();
-          this.setState({validated: true});
+      const form = event.currentTarget;
+      event.preventDefault();
+      if (form.checkValidity() === false) {
+        event.stopPropagation();
+        this.setState({validated: true});
+      }else{
+        this.props.loadingOverlayActive(true);
+        let { select_bank, name_bank, number_bank, number_bank_confirm} = this.state;   
+
+        // console.log(select_bank, name_bank, number_bank, number_bank_confirm);
+
+        if(number_bank.trim() !== number_bank_confirm.trim())
+        {
+          this.setState({
+            error: true,
+            error_message: 'เลขที่บัญชี กับ ยืนยันเลขที่บัญชี ไม่เท่ากัน ',
+          });
         }else{
-          event.preventDefault();
+          let response  = await axios.post('/api/add_bank', 
+                                      { uid: this.props.user.uid,
+                                        tid_bank: select_bank, 
+                                        name_bank,
+                                        number_bank}, 
+                                      {headers:headers()});
+          console.log(response);
+          if( response.status==200 && response.statusText == "OK" ){
+            if(response.data.result){
+              // this.props.userLogin(response.data.data);
+              this.nextPath('/');
+            }else{
 
-          let { select_bank, name_bank, number_bank, number_bank_confirm} = this.state;   
+              // console.log(response.data.message);
+              this.setState({
+                error: true,
+                error_message: response.data.message,
 
-          console.log(select_bank, name_bank, number_bank, number_bank_confirm);
-
-
-          if(number_bank.trim() !== number_bank_confirm.trim())
-          {
-            this.setState({
-              error: true,
-              error_message: 'เลขที่บัญชี กับ ยืนยันเลขที่บัญชี ไม่เท่ากัน ',
-            });
-          }else{
-            let response  = await axios.post('/api/add_bank', 
-                                        { uid: this.props.user.uid,
-                                          tid_bank: select_bank, 
-                                          name_bank,
-                                          number_bank}, 
-                                        {headers:headers()});
-            console.log(response);
-            if( response.status==200 && response.statusText == "OK" ){
-              if(response.data.result){
-                // this.props.userLogin(response.data.data);
-                this.nextPath('/');
-              }else{
-
-                // console.log(response.data.message);
-                this.setState({
-                  error: true,
-                  error_message: response.data.message,
-
-                  password:''
-                });
-              }
+                password:''
+              });
             }
           }
         }
-    };
 
+        this.props.loadingOverlayActive(false);
+      }
+    };
   
     view(){
         return (
@@ -351,4 +336,12 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps, null)(AddBankPage)
+const mapDispatchToProps = (dispatch) => {
+	return {
+    loadingOverlayActive: (isActivie) =>{
+      dispatch(loadingOverlayActive(isActivie))
+    }
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddBankPage)

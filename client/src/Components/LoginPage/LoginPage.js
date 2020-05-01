@@ -4,11 +4,16 @@ import { connect } from 'react-redux'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
+import axios from 'axios';
 
 import { headers } from '../Utils/Config';
 import { userLogin } from '../../actions/auth'
 
-const axios = require('axios');
+import {  loadingOverlayActive, 
+          updateHuayListBank, 
+          updateTransferMethod, 
+          updateContactUs,
+          updateListBank} from '../../actions/huay'
 
 class LoginPage extends Component {
   constructor(props) {
@@ -28,6 +33,7 @@ class LoginPage extends Component {
   }
 
   componentDidMount(){
+    // this.props.loadingOverlayActive(false);
   }
 
   handleChange(event) {
@@ -36,12 +42,12 @@ class LoginPage extends Component {
 
   handleSubmit = async (event) => {
     const form = event.currentTarget;
+    event.preventDefault();
     if (form.checkValidity() === false) {
-      event.preventDefault();
       event.stopPropagation();
       this.setState({validated: true});
     }else{
-      event.preventDefault();
+      this.props.loadingOverlayActive(true);
 
       let { email, password } = this.state;   
       let response  = await axios.post('/api/login', 
@@ -50,10 +56,25 @@ class LoginPage extends Component {
       console.log(response);
       if( response.status==200 && response.statusText == "OK" ){
         if(response.data.result){
-          this.props.userLogin(response.data.data);
-        }else{
+          let { userLogin, 
+                updateHuayListBank,
+                updateTransferMethod,
+                updateContactUs,
+                updateListBank} = this.props;
 
-          // console.log(response.data.message);
+          let { session, 
+                user, 
+                huay_list_bank,
+                transfer_method, 
+                contact_us,
+                list_bank} = response.data;
+
+          userLogin(user);
+          updateHuayListBank(huay_list_bank);
+          updateTransferMethod(transfer_method);
+          updateContactUs(contact_us);
+          updateListBank(list_bank);
+        }else{
           this.setState({
             error: true,
             error_message: response.data.message,
@@ -62,6 +83,8 @@ class LoginPage extends Component {
           });
         }
       }
+
+      this.props.loadingOverlayActive(false);
     } 
   }
 
@@ -114,9 +137,6 @@ class LoginPage extends Component {
 	เราสามารถดึงข้อมูลทั้งหมดที่อยู่ใน redux ได้เลย
 */
 const mapStateToProps = (state, ownProps) => {
-  console.log(state);
-  console.log(ownProps);
-
 	if(!state._persist.rehydrated){
 		return {};
   }
@@ -159,21 +179,26 @@ const mapStateToProps = (state, ownProps) => {
 	let {function1, function2} = this.props;
 */
 const mapDispatchToProps = (dispatch) => {
-	console.log(dispatch);
-
 	return {
-		// addTodo: (id) => {
-		// 					dispatch(addTodo(id))
-		// 				},
-		// addTodo2: (id, val) => {
-		// 					dispatch(addTodo(val))
-    //         },
     userLogin: (data) =>{
       dispatch(userLogin(data))
-    }
-
+    },
+    loadingOverlayActive: (isActivie) =>{
+      dispatch(loadingOverlayActive(isActivie))
+    },
+    updateHuayListBank: (data) =>{
+      dispatch(updateHuayListBank(data))
+    },
+    updateTransferMethod: (data) =>{
+      dispatch(updateTransferMethod(data))
+    },
+    updateContactUs: (data) =>{
+      dispatch(updateContactUs(data))
+    },
+    updateListBank:  (data) =>{
+      dispatch(updateListBank(data))
+    },
 	}
 }
 
-// export default LoginPage
-export default connect(mapStateToProps, {userLogin})(LoginPage)
+export default connect(mapStateToProps, mapDispatchToProps)(LoginPage)

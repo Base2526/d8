@@ -2,8 +2,13 @@
 
 use Drupal\user\Entity\User;
 use Drupal\paragraphs\Entity\Paragraph;
+use \Drupal\config_pages\Entity\ConfigPages;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\taxonomy\Entity\Term;
 
 use Drupal\huay\Utils\Utils;
+
 
 /*
 $uri = 'mongodb://mongo:27017';
@@ -111,7 +116,7 @@ function huay_taxonomy_term_insert(Drupal\Core\Entity\EntityInterface $entity) {
         $id_term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($entity->id())->get('field_tid_code')->getValue()[0]['value'];
 
         if(empty($id_term)){
-            $term = \Drupal\taxonomy\Entity\Term::load($entity->id());
+            $term = Term::load($entity->id());
             if (!empty($term)) {
                 $term->field_tid_code = $entity->id();
                 $term->save();
@@ -132,6 +137,40 @@ Acts when creating a new entity.
 //                                                                                                                     '@bundle'=>$entity->bundle()) )->__toString());
 // }
 
+// เงินที่ถอน 
+function credit_balance($user){
+    // ยอดฝากเงินทั้งหมด
+    $amount_of_money = 0;
+    foreach ($user->get('field_deposit')->getValue() as $bi=>$bv){
+        $p = Paragraph::load( $bv['target_id'] );
+            
+        $deposit_status = $p->get('field_deposit_status')->target_id;
+        if($deposit_status == 15){
+            // จำนวนเงินที่โอน
+            $field_amount_of_money = $p->get('field_amount_of_money')->getValue();
+            if(!empty($field_amount_of_money)){
+                $amount_of_money += $field_amount_of_money[0]['value'];
+            }
+        }
+    }
+
+    //  ถอนเงิน field_withdraw
+    $withdraw = 0;
+    foreach ($user->get('field_withdraw')->getValue() as $bi=>$bv){
+        $p = Paragraph::load( $bv['target_id'] );
+        $deposit_status = $p->get('field_deposit_status')->target_id;
+        if($deposit_status == 15){
+            // จำนวนเงินที่โอน
+            $field_amount_of_withdraw = $p->get('field_amount_of_withdraw')->getValue();
+            if(!empty($field_amount_of_withdraw)){
+                $withdraw += $field_amount_of_withdraw[0]['value'];
+            }
+        }
+    }
+
+    return $amount_of_money - $withdraw;   
+}
+
 function mongodb_people($uid){
     if(empty($uid)){
         return FALSE;
@@ -141,15 +180,16 @@ function mongodb_people($uid){
     $user = User::load($uid);
 
     $image_url = '';  
-    if (!$user->get('user_picture')->isEmpty()) {
-        $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
+    $user_picture = $user->get('user_picture')->getValue();
+    if (!empty($user_picture)) {
+        $image_url = Utils::get_file_url($user_picture[0]['target_id']);
     }
 
-    $credit_balance = 0;
-    $field_credit_balance = $user->get('field_credit_balance')->getValue();
-    if(!empty($field_credit_balance)){
-        $credit_balance = $field_credit_balance[0]['value'];
-    }
+    // $credit_balance = 0;
+    // $field_credit_balance = $user->get('field_credit_balance')->getValue();
+    // if(!empty($field_credit_balance)){
+    //     $credit_balance = $field_credit_balance[0]['value'];
+    // }
 
     $data = array(
                 'uid'      =>$uid,
@@ -157,7 +197,7 @@ function mongodb_people($uid){
                 'email'    =>$user->getEmail(),
                 'roles'    =>$user->getRoles(),
                 'image_url'=>$image_url,
-                'credit_balance' =>$credit_balance,
+                'credit_balance' =>credit_balance($user),
             );
 
     $banks = array();
@@ -165,10 +205,10 @@ function mongodb_people($uid){
         $p = Paragraph::load( $bv['target_id'] );
 
         // ชื่อบัญชี
-        $name_bank = '';
+        $name = '';
         $field_name_bank = $p->get('field_name_bank')->getValue();
         if(!empty($field_name_bank)){
-            $name_bank = $field_name_bank[0]['value'];
+            $name = $field_name_bank[0]['value'];
         }
 
         // เลขที่บัญชี
@@ -178,13 +218,21 @@ function mongodb_people($uid){
             $number_bank = $field_number_bank[0]['value'];
         }
 
-        // ธนาคาร
+        // ธนาคาร tid
         $bank_tid        = $p->get('field_bank')->target_id;
 
+        // ชื่อธนาคาร
+        $term = Term::load($bank_tid);
+        $bank_name = $term->getName();
+
+        
+        
+
         $banks[$bv['target_id']] = array(
-                                        'name_bank'     =>$name_bank,
+                                        'name'          =>$name,
                                         'number_bank'   =>$number_bank,
-                                        'bank_tid'      =>$bank_tid
+                                        'bank_tid'      =>$bank_tid,
+                                        'bank_name'     =>$bank_name
                                         );
     }
     $data['banks'] = $banks;
@@ -212,25 +260,246 @@ function mongodb_people($uid){
 
     $data['user_access'] = $user_access;
 
+    // ฝากเงิน field_deposit
+    $deposit = array();
+    foreach ($user->get('field_deposit')->getValue() as $bi=>$bv){
+        $p = Paragraph::load( $bv['target_id'] );
+
+        // ID ธนาคารของเว็บฯ 
+        $hauy_id_bank = '';
+        $field_hauy_id_bank = $p->get('field_hauy_id_bank')->getValue();
+        if(!empty($field_hauy_id_bank)){
+            $hauy_id_bank = $field_hauy_id_bank[0]['value'];
+        }
+
+        // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า 
+        $user_id_bank = '';
+        $field_user_id_bank = $p->get('field_user_id_bank')->getValue();
+        if(!empty($field_user_id_bank)){
+            $user_id_bank = $field_user_id_bank[0]['value'];
+        }
+
+        // จำนวนเงินที่โอน
+        $amount_of_money = '';
+        $field_amount_of_money = $p->get('field_amount_of_money')->getValue();
+        if(!empty($field_amount_of_money)){
+            $amount_of_money = $field_amount_of_money[0]['value'];
+        }
+
+        // ช่องทางการโอนเงิน 
+        $transfer_method = $p->get('field_transfer_method')->target_id;
+       
+        // วัน & เวลา ที่โอน 
+        $date_transfer = '';
+        $field_date_transfer = $p->get('field_date_transfer')->getValue();
+        if(!empty($field_date_transfer)){
+            $date_transfer = $field_date_transfer[0]['value'];
+        }
+
+        // หมายเหตุ 
+        $annotation = '';
+        $field_annotation = $p->get('field_annotation')->getValue();
+        if(!empty($field_annotation)){
+            $annotation = $field_annotation[0]['value'];
+        }
+
+        // สถานะการฝากเงิน 
+        $deposit_status = $p->get('field_deposit_status')->target_id;
+
+        $deposit[$bv['target_id']] = array( 'hauy_id_bank'      =>$hauy_id_bank, 
+                                            'user_id_bank'      =>$user_id_bank,
+                                            'amount_of_money'   =>$amount_of_money,
+                                            'transfer_method'   =>$transfer_method,
+                                            'date_transfer'     =>$date_transfer,
+                                            'annotation'        =>$annotation,
+                                            'deposit_status'    =>$deposit_status,
+                                            );
+    }
+    $data['deposit'] = $deposit;
+
+    // ถอนเงิน 
+    $withdraw = array();
+    foreach ($user->get('field_withdraw')->getValue() as $bi=>$bv){
+        $p = Paragraph::load( $bv['target_id'] );
+
+        // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า 
+        $user_id_bank = '';
+        $field_user_id_bank = $p->get('field_user_id_bank')->getValue();
+        if(!empty($field_user_id_bank)){
+            $user_id_bank = $field_user_id_bank[0]['value'];
+        }
+
+        // จำนวนเงินที่ถอน
+        $amount_of_withdraw = '';
+        $field_amount_of_withdraw = $p->get('field_amount_of_withdraw')->getValue();
+        if(!empty($field_amount_of_withdraw)){
+            $amount_of_withdraw = $field_amount_of_withdraw[0]['value'];
+        }
+
+        // หมายเหตุ 
+        $annotation = '';
+        $field_annotation = $p->get('field_annotation')->getValue();
+        if(!empty($field_annotation)){
+            $annotation = $field_annotation[0]['value'];
+        }
+
+        // สถานะการฝากเงิน 
+        $withdraw_status = $p->get('field_withdraw_status')->target_id;
+
+        $withdraw[$bv['target_id']] = array('user_id_bank'      =>$user_id_bank,
+                                            'amount_of_withdraw'=>$amount_of_withdraw,
+                                            'annotation'        =>$annotation,
+                                            'withdraw_status'   =>$withdraw_status,
+                                            );
+    }
+    $data['withdraw'] = $withdraw;
+
     $collection = Utils::GetMongoDB()->people;
     $filter = array('uid'=>$uid);
     if($collection->count($filter)){
         // udpate
-
         $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
         $collection->updateOne($filter, array('$set' =>$data) );
     }else{
         // create
-
         $data['createdAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
         $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
         $collection->insertOne($data);
     }
-
-    // 
-// _id	tags	name	category	price	createdAt 	updatedAt
-
     return TRUE;
+}
+
+function mongodb_contact_us($id){
+    $contact_us = ConfigPages::config('contact_us');
+
+    /*
+     $image_url = '';  
+          if (!$user->get('user_picture')->isEmpty()) {
+            $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
+          }
+    */
+    $data = array(
+        'id'            =>$id,
+        'line_at'       =>$contact_us->get('field_contact_us_line_at')->value,
+        'url_qrcode'    =>Utils::get_file_url($contact_us->get('field_contact_us_qrcode')->getValue()[0]['target_id']),
+        'description'   =>$contact_us->get('field_contact_us_description')->value,
+    );
+
+    $collection = Utils::GetMongoDB()->contact_us;
+    $filter = array('id'=>$id);
+    if($collection->count($filter)){
+        // udpate
+        $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+        $collection->updateOne($filter, array('$set' =>$data) );
+    }else{
+        // create
+        $data['createdAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+        $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+        $collection->insertOne($data);
+    }
+}
+
+// ช่องทางการโอนเงิน
+function mongodb_transfer_method($tid){
+    if(empty($tid)){
+        return FALSE;
+    }
+
+    $type = 'taxonomy_term';
+    $cid = 'transfer_method';
+    $branchs_terms = \Drupal::entityManager()->getStorage($type)->loadTree($cid);
+
+    $collection = Utils::GetMongoDB()->transfer_method;
+    foreach($branchs_terms as $tag_term) {
+        $data = array();
+        $data['tid']    = $tag_term->tid;
+        $data['name']   = $tag_term->name;
+
+        $filter = array('tid'=>$tag_term->tid);
+        if($collection->count($filter)){
+            $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+            $collection->updateOne($filter, array('$set' =>$data) );
+        }else{
+            // create
+            $data['createdAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+            $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+            $collection->insertOne($data);
+        }
+    }
+}
+
+// รายชื่อธนาคาร ของเว็บฯ
+function mongodb_huay_list_bank($tid){
+    if(empty($tid)){
+        return FALSE;
+    }
+
+    $type = 'taxonomy_term';
+    $cid = 'huay_list_bank';
+    $branchs_terms = \Drupal::entityManager()->getStorage($type)->loadTree($cid);
+
+    $collection = Utils::GetMongoDB()->huay_list_bank;
+    foreach($branchs_terms as $tag_term) {
+        $data = array();
+        $data['tid']    = $tag_term->tid;
+        $data['name']   = $tag_term->name;
+
+        $load = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tag_term->tid);
+   
+        $huay_name_bank = '';
+        $field_huay_name_bank = $load->get('field_huay_name_bank')->getValue();
+        if(!empty($field_huay_name_bank)){
+            $huay_name_bank = $field_huay_name_bank[0]['value'];
+        }
+
+        $huay_number_bank = '';
+        $field_huay_number_bank = $load->get('field_huay_number_bank')->getValue();
+        if(!empty($field_huay_number_bank)){
+            $huay_number_bank = $field_huay_number_bank[0]['value'];
+        }
+        $data['huay_name_bank']    = $huay_name_bank;
+        $data['huay_number_bank']   = $huay_number_bank;
+
+        $filter = array('tid'=>$tag_term->tid);
+        if($collection->count($filter)){
+            $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+            $collection->updateOne($filter, array('$set' =>$data) );
+        }else{
+            // create
+            $data['createdAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+            $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+            $collection->insertOne($data);
+        }
+    }
+}
+
+// รายชื่อธนาคาร
+function mongodb_list_bank($tid){
+    if(empty($tid)){
+        return FALSE;
+    }
+
+    $type = 'taxonomy_term';
+    $cid  = 'list_bank';
+    $branchs_terms = \Drupal::entityManager()->getStorage($type)->loadTree($cid);
+
+    $collection = Utils::GetMongoDB()->list_bank;
+    foreach($branchs_terms as $tag_term) {
+        $data = array();
+        $data['tid']    = $tag_term->tid;
+        $data['name']   = $tag_term->name;
+
+        $filter = array('tid'=>$tag_term->tid);
+        if($collection->count($filter)){
+            $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+            $collection->updateOne($filter, array('$set' =>$data) );
+        }else{
+            // create
+            $data['createdAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+            $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+            $collection->insertOne($data);
+        }
+    }
 }
 
 /*
@@ -312,7 +581,35 @@ function huay_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
             }
         break;
         }
+
+        case 'config_pages':{
+            switch($entity->bundle()){
+                case 'contact_us':{
+                    mongodb_contact_us($entity->id());
+                break;
+                }
+            }
+        break;
+        }
+
+        case 'taxonomy_term':{
+            switch($entity->bundle()){
+                case 'transfer_method':{
+                    mongodb_transfer_method($entity->id());
+                break;
+                }
+                case 'huay_list_bank':{
+                    mongodb_huay_list_bank($entity->id());
+                break;
+                }
+                case 'list_bank':{
+                    mongodb_list_bank($entity->id());
+                break;
+                }
+            }
+        }
     }
+
 }
 
 /*
@@ -324,7 +621,38 @@ function huay_entity_delete(Drupal\Core\Entity\EntityInterface $entity) {
                                                                                                                         '@bundle'=>$entity->bundle()) )->__toString());
     switch($entity->getEntityTypeId()){
         case 'user':{
+            $collection = Utils::GetMongoDB()->people;
+            $filter = array('uid'=>$entity->id());
+            if($collection->count($filter)){
+                // delete
+                $collection->deleteOne($filter, array('$set' =>$data) );
+            }
+        break;
+        }
+        // ID: 72, EntityTypeId : paragraph, bundle : user_access
+        case 'paragraph':{
+            switch($entity->bundle()){
+                case 'user_access':{
+                    // กรณีเรา ลบ user_access login เราต้องลบ session mongodb ด้วย
+                    $p = Paragraph::load( $entity->id() );
+                    if(!empty($p)){
+                        // $field_cookie = $p->get('field_cookie')->getValue();
+                        // if(!empty($field_cookie)){
+                        //     $session = $field_cookie[0]['value'];
 
+                        //     \Drupal::logger('huay_entity_delete')->notice(t('Session: @session',array( '@session'=>$session ))->__toString());
+
+                        //     $collection = Utils::GetMongoDB()->sessions;
+                        //     $filter = array('_id'=>$session);
+                        //     if($collection->count($filter)){
+                        //         // delete
+                        //         $collection->deleteOne($filter, array('$set' =>$data) );
+                        //     }
+                        // }
+                    }
+                break;
+                }
+            }
         break;
         }
     }

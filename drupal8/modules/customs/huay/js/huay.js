@@ -9,11 +9,10 @@ var socket;
     //     alert("hello");
     // }
     
-    setInterval(function(){
-        console.log("explode ฬฬ​");
-    }, 1000);
+    // setInterval(function(){
+    //     // console.log("explode ฬฬ​");
+    // }, 1000);
    
-
 
     var user = drupalSettings.user;
     console.log(user);

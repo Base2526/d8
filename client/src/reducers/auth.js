@@ -14,13 +14,18 @@ const auth = (state = initialState, action) => {
       return {
         ...state,
         user:action.user,
-        // username: action.username,
-        // password: action.password,
         isLoggedIn: true
       };
+    case types.AUTH_UPDATE:{
+      return {
+        ...state,
+        user:action.data,
+        isLoggedIn: true
+      };
+    }
     case types.AUTH_LOGOUT:
 
-      console.log(disconnect_socketIO());
+      disconnect_socketIO();
       
       return initialState;
     default:

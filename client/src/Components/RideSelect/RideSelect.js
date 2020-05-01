@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux'
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-// import InputAutocomplete from './InputAutocomplete/InputAutocomplete';
 import { Input, DatePicker, Radio, Button, Row, Col } from 'antd';
 import { RightCircleOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import './RideSelect.css';
 import ls from 'local-storage';
 import history from '../../history';
-import { Redirect, Link} from 'react-router-dom';
+
+import {loadingOverlayActive} from '../../actions/huay'
 
 const useStyles = makeStyles({
   root: {
@@ -47,6 +47,8 @@ class RideSelect extends Component {
   componentDidMount() {
     ls.set('rideType', this.state.type);
     ls.set('origin', this.state.from);
+
+    this.props.loadingOverlayActive(false);
   }
 
   destinationChangeHandler(event) {
@@ -146,49 +148,31 @@ class RideSelect extends Component {
             <Button type="primary" size="large" onClick={ () => this.nextPath2('/contact-us')}>
               ติดต่อเรา
             </Button>
-          </div>
-
-          {/*  
-          <Typography variant="h5" component="h2">
-              Chauffeur Driven, On Demand
-          </Typography>
-          <br />
-          <div className="centerAlign">
-            <Typography className={ useStyles.pos } color="textSecondary">
-              Where to?
-            </Typography>
-            <Radio.Group defaultValue="ow" buttonStyle="solid">
-              <Radio.Button value="ow">One Way</Radio.Button>
-              <Radio.Button disabled value="rt">Round Trip</Radio.Button>
-              <Radio.Button disabled value="m">Multicity</Radio.Button>
-              <Radio.Button disabled value="a">Airport</Radio.Button>
-            </Radio.Group>
-          </div>
-          <br />
-          <Typography className={ useStyles.pos } color="textSecondary">
-            Select your journey deets
-          </Typography>
-          <Row>
-            <Col span={6}>
-              <Input className={ useStyles.box_width } size="large" value={this.state.from} disabled="True" placeholder="Select Origin" prefix={<RightCircleOutlined />} />
-            </Col>
-           
-            <Col span={6}>
-              <DatePicker style={{width : 295}} onChange={(date, dateStr) => this.dateChangeHandler(date, dateStr)} size="large" showToday="True"/>
-            </Col>
-            <Col span={6}>
-            <Button type="primary" size="large" onClick={ () => this.nextPath('/second-page')}>
-            Continue
-          </Button>
-            </Col>
-          </Row>
-          <br />
-          */}
-          
+          </div> 
         </CardContent>
       </Card>
     );
   }
 }
 
-export default RideSelect;
+const mapStateToProps = (state, ownProps) => {
+	if(!state._persist.rehydrated){
+		return {};
+  }
+  
+  if(state.auth.isLoggedIn){
+    return { logged_in: true };
+  }else{
+    return { logged_in: false };
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+    loadingOverlayActive: (isActivie) =>{
+      dispatch(loadingOverlayActive(isActivie))
+    }
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(RideSelect)

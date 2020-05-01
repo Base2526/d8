@@ -27,7 +27,6 @@ class API extends ControllerBase {
   public function login(Request $request){
     $time1 = microtime(true);
 
-    // \Drupal::logger('login')->error(gettype($request->headers->get('cookie')));
     if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
       $content = json_decode( $request->getContent(), TRUE );
 
@@ -57,20 +56,20 @@ class API extends ControllerBase {
           $user = User::load($uid);
           $user_login_finalize = user_login_finalize($user);
           
-          $image_url = '';  
-          if (!$user->get('user_picture')->isEmpty()) {
-            $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
-          }
+          // $image_url = '';  
+          // if (!$user->get('user_picture')->isEmpty()) {
+          //   $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
+          // }
 
-          $cookie = Utils::GetCookie( $request->headers->get('cookie') );
+          $cookie = $request->headers->get('session');
 
           $data = array('uid'      =>$uid, 
-                        'name'     =>$user->getUsername(),
-                        'email'    =>$user->getEmail(),
-                        'roles'    =>$user->getRoles(),
-                        'image_url'=>$image_url,
+                        // 'name'     =>$user->getUsername(),
+                        // 'email'    =>$user->getEmail(),
+                        // 'roles'    =>$user->getRoles(),
+                        // 'image_url'=>$image_url,
                         // 'session'  =>\Drupal::service('session')->getId(),
-                        'cookie'    =>$cookie, //Utils::encode('uid='.$uid."&time=".\Drupal::time()->getCurrentTime()),
+                        // 'cookie'    =>$cookie, //Utils::encode('uid='.$uid."&time=".\Drupal::time()->getCurrentTime()),
                         );
 
           /*
@@ -161,22 +160,25 @@ class API extends ControllerBase {
         $user->setAccount(new AnonymousUserSession());
         */
 
-        $cookie = Utils::GetCookie( $request->headers->get('cookie') );
+        $cookie = $request->headers->get('session');
 
         $user = User::load($uid);
         foreach ($user->get('field_user_access')->getValue() as $ii=>$vv){
           $p = Paragraph::load( $vv['target_id'] );
 
-          $field_cookie = $p->get('field_cookie')->getValue();
-          if(!empty($field_cookie)){
-            $tmp_cookie = $field_cookie[0]['value'];
-
-            if(strcmp($tmp_cookie, $cookie) == 0){
-              $p = Paragraph::load( $vv['target_id'] );
-              if ($p) $p->delete();
-              break;
+          if(!empty($p)){
+            $field_cookie = $p->get('field_cookie')->getValue();
+            if(!empty($field_cookie)){
+              $tmp_cookie = $field_cookie[0]['value'];
+  
+              if(strcmp($tmp_cookie, $cookie) == 0){
+                $p = Paragraph::load( $vv['target_id'] );
+                if ($p) $p->delete();
+                break;
+              }
             }
           }
+          
         }
 
         $response['result']           = TRUE;
@@ -437,14 +439,6 @@ class API extends ControllerBase {
 
   public function update_socket_id(Request $request){
     $time1 = microtime(true);
-
-    /*
-    var data = {
-    "uid": socket.handshake.query.uid,
-    "socket_id": socket.id,
-  }
-    */
-
     if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
       $content = json_decode( $request->getContent(), TRUE );
 
@@ -456,20 +450,22 @@ class API extends ControllerBase {
         return new JsonResponse( $response );
       }
 
-      $cookie = Utils::GetCookie( $request->headers->get('cookie') );
+      $cookie = $request->headers->get('session');
 
       $target_id = 0;
       $user = User::load($uid);
       foreach ($user->get('field_user_access')->getValue() as $ii=>$vv){
         $p = Paragraph::load( $vv['target_id'] );
 
-        $field_cookie = $p->get('field_cookie')->getValue();
-        if(!empty($field_cookie)){
-          $tmp_cookie = $field_cookie[0]['value'];
+        if(!empty($p)){
+          $field_cookie = $p->get('field_cookie')->getValue();
+          if(!empty($field_cookie)){
+            $tmp_cookie = $field_cookie[0]['value'];
 
-          if(strcmp($tmp_cookie, $cookie) == 0){
-            $target_id = $vv['target_id'];
-            break;
+            if(strcmp($tmp_cookie, $cookie) == 0){
+              $target_id = $vv['target_id'];
+              break;
+            }
           }
         }
       }
@@ -481,6 +477,113 @@ class API extends ControllerBase {
           $p->save();
         }
       }
+
+      $response['result']           = TRUE;
+      $response['execution_time']   = microtime(true) - $time1;
+      return new JsonResponse( $response );
+    }
+
+    $response['result']   = FALSE;
+    return new JsonResponse( $response );
+  }
+
+  public function add_deposit(Request $request){
+    $time1 = microtime(true);
+    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+      $content = json_decode( $request->getContent(), TRUE );
+
+      $uid                = trim( $content['uid'] );
+      $hauy_id_bank       = trim( $content['hauy_id_bank'] ); // ID ธนาคารของเว็บฯ
+      $user_id_bank       = trim( $content['user_id_bank'] ); // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
+      $amount_of_money    = trim( $content['amount_of_money'] ); // จำนวนเงินที่โอน
+      $transfer_method    = trim( $content['transfer_method'] ); // ช่องทางการโอนเงิน
+      $date_transfer      = trim( $content['date_transfer'] ); // วัน & เวลา ที่โอน
+      $annotation         = trim( $content['annotation'] ); // ID ธนาคารของเว็บฯ
+
+      if( empty($uid) || 
+          empty($hauy_id_bank) || 
+          empty($user_id_bank) || 
+          empty($amount_of_money) || 
+          empty($transfer_method) ){
+        $response['result']   = FALSE;
+        return new JsonResponse( $response );
+      }
+
+      $user_deposit = Paragraph::create([
+        'type'                    => 'user_deposit',
+        'field_hauy_id_bank'      => $hauy_id_bank,
+        'field_user_id_bank'      => $user_id_bank,
+        'field_amount_of_money'   => $amount_of_money,
+        'field_transfer_method'   => $transfer_method,
+        // 'field_date_transfer'     => $date_transfer,
+        'field_annotation'        => $annotation,
+      ]);
+      
+      $user_deposit->save();
+
+      $user = \Drupal\user\Entity\User::load($uid);
+
+      $paragraphs = array();
+      foreach ($user->get('field_deposit')->getValue() as $ii=>$vv){
+          $p = Paragraph::load( $vv['target_id'] );
+          $paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+      }
+      $paragraphs[] = array('target_id'=> $user_deposit->id(), 'target_revision_id' => $user_deposit->getRevisionId());
+      
+      $user->set('field_deposit', $paragraphs);
+      $user->save();
+
+      $response['result']           = TRUE;
+      $response['execution_time']   = microtime(true) - $time1;
+      return new JsonResponse( $response );
+    }
+
+    $response['result']   = FALSE;
+    return new JsonResponse( $response );
+  }
+
+  /*
+    "uid"               : req.body.uid,
+    "user_id_bank"      : req.body.user_id_bank,
+    "amount_of_withdraw": req.body.amount_of_withdraw,
+    "annotation"        : req.body.annotation
+  */
+  public function withdraw(Request $request){
+    $time1 = microtime(true);
+    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+      $content = json_decode( $request->getContent(), TRUE );
+
+      $uid                = trim( $content['uid'] );
+      $user_id_bank       = trim( $content['user_id_bank'] ); // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
+      $amount_of_withdraw = trim( $content['amount_of_withdraw'] ); // จำนวนเงินที่โอน
+      $annotation         = trim( $content['annotation'] ); // ID ธนาคารของเว็บฯ
+
+      if( empty($uid) ||  
+          empty($user_id_bank) || 
+          empty($amount_of_withdraw) ){
+        $response['result']   = FALSE;
+        return new JsonResponse( $response );
+      }
+
+      $user_withdraw = Paragraph::create([
+        'type'                    => 'user_withdraw',
+        'field_user_id_bank'      => $user_id_bank,
+        'field_amount_of_withdraw'=> $amount_of_withdraw,
+        'field_annotation'        => $annotation,
+      ]);
+      
+      $user_withdraw->save();
+
+      $user = \Drupal\user\Entity\User::load($uid);
+      $paragraphs = array();
+      foreach ($user->get('field_withdraw')->getValue() as $ii=>$vv){
+          $p = Paragraph::load( $vv['target_id'] );
+          $paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+      }
+      $paragraphs[] = array('target_id'=> $user_withdraw->id(), 'target_revision_id' => $user_withdraw->getRevisionId());
+      
+      $user->set('field_withdraw', $paragraphs);
+      $user->save();
 
       $response['result']           = TRUE;
       $response['execution_time']   = microtime(true) - $time1;

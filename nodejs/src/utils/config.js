@@ -6,6 +6,8 @@ config.twitter = {};
 config.redis = {};
 config.web = {};
 config.d8 = {};
+config.mongo = {};
+config.session = {};
 
 config.default_stuff =  ['red','green','blue','apple','yellow','orange','politics'];
 config.twitter.user_name = process.env.TWITTER_USER || 'username';
@@ -25,6 +27,12 @@ config.d8.api_list_bank     = config.d8.host + '/api/list_bank.json';
 config.d8.api_add_bank      = config.d8.host + '/api/add_bank.json';
 config.d8.api_delete_bank   = config.d8.host + '/api/delete_bank.json';
 
+// ฝากเงิน
+config.d8.api_add_deposit   = config.d8.host + '/api/add_deposit.json';
+
+// ถอดเงิน
+config.d8.api_withdraw      = config.d8.host + '/api/withdraw.json';
+
 config.d8.api_update_socket_id   = config.d8.host + '/api/update_socket_id.json';
 
 config.d8.headers = {
@@ -32,5 +40,10 @@ config.d8.headers = {
                         // "client_id": "1001125",
                         // "client_secret": "876JHG76UKFJYGVHf867rFUTFGHCJ8JHV"
                     };
+// mongo 
+config.mongo.url = 'mongodb://mongo1:27017,mongo2:27017,mongo3:27017/huay?replicaSet=rs0';
+
+// session 
+config.session.secret = '1234567890';
 
 module.exports = config;

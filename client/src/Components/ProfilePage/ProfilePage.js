@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
-import TextField from '@material-ui/core/TextField';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
-import Button from '@material-ui/core/Button';
-import { Redirect, Link} from 'react-router-dom';
-
 import { connect } from 'react-redux'
 import { addTodo, userLogin } from '../../actions'
+
+import Image from 'react-bootstrap/Image'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 
 import history from "../../history";
 // import { doLogin, doLogout } from "../../actions/auth";
@@ -17,25 +14,12 @@ import ls from 'local-storage';
 
 import axios from 'axios';
 
-const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 8 },
-};
-
-const useStyles = {
-  root: {
-    minWidth: 275,
-  },
-  title: {
-    fontSize: 14,
-  },
-  pos: {
-    marginBottom: 12,
-  },
-  box_width: {
-    maxWidth: 300,
+var styles = {
+  simage: {
+      width: '200px',
+      height: '200px'
   }
-};
+}
 
 class ProfilePage extends Component {
   constructor(props) {
@@ -53,9 +37,9 @@ class ProfilePage extends Component {
   }
 
   componentDidMount() {
-    this.callApi()
-      .then(res => console.log(res.express) )
-      .catch(err => console.log(err));
+    // this.callApi()
+    //   .then(res => console.log(res.express) )
+    //   .catch(err => console.log(err));
   }
 
   onChange(e) {
@@ -145,14 +129,21 @@ class ProfilePage extends Component {
   }
 
   render() {
-  
-    return (
-      <div>
-        ProfilePage
-      </div>
-    );
+    let {name, email,image_url} = this.props.user;
+    console.log(this.props.user);
+    return (<Container>
+              <Row>
+                <Col>
+                  <div>{name}</div>
+                  <div><Image style={styles.simage} src={image_url} rounded /></div>
+                  <div>{email}</div>
+                </Col>
+              </Row>
+            </Container>);
   }
 };
+
+// 
 
 
 /*
@@ -188,12 +179,9 @@ const mapStateToProps = (state, ownProps) => {
 								// function ที่อยู่ใน actions
 								dispatch(addTodo(param1, param2))
 							},
-
 		}
 	}
-
 	export default connect(null, mapDispatchToProps)(function)
-
 	แบบที่ 2.
 	export default connect(null, { doFunction1, doFunction2 })(function)
 

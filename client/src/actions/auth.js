@@ -7,6 +7,11 @@ export const userLogin = (user) => ({
   user
 });
 
+export const userUpdate = (data) => ({
+  type: types.AUTH_UPDATE,
+  data
+});
+
 export const userLogout = () => ({
   type: types.AUTH_LOGOUT,
 });

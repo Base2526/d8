@@ -5,11 +5,14 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux'
+import axios from 'axios';
+
 import { userLogout } from '../../actions/auth'
 import { headers } from '../Utils/Config';
 
+import {  loadingOverlayActive } from '../../actions/huay'
+
 var _ = require('lodash');
-const axios = require('axios');
 
 class ButtonAppBar extends Component {
 
@@ -20,19 +23,23 @@ class ButtonAppBar extends Component {
   }
 
   handleLogout = async (event) =>  {
+    let {loadingOverlayActive, userLogout, user} = this.props;
+
+    loadingOverlayActive(true);
     let response  = await axios.post('/api/logout', 
-                                      {uid: this.props.user.uid }, 
+                                      {uid: user.uid }, 
                                       {headers:headers()});
     console.log(response);
     if( response.status==200 && response.statusText == "OK" ){
       if(response.data.result){
-        this.props.userLogout();
+        userLogout();
       }
     }
+
+    loadingOverlayActive(false);
   }
 
   render() {
-    console.log(this.props);
     let v = <div>
               <Link  href="#" style={{color: 'white', paddingRight:'5px'}} to="/login">เข้าสู่ระบบ</Link>
               <Link  href="#" style={{color: 'white'}} to="/register">สมัครสมาชิก</Link>
@@ -59,7 +66,6 @@ class ButtonAppBar extends Component {
               <Link  href="#" style={{color: 'white'}} to="/">HUAY</Link>
             </Typography>
             {/* <Link  href="#" style={{color: 'white'}} to="/login"> */}
-            <div>{_.uniqueId()}</div>
             {v}
           </Toolbar>
         </AppBar>
@@ -69,11 +75,9 @@ class ButtonAppBar extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  
 	if(!state._persist.rehydrated){
 		return {};
   }
-  
   if(state.auth.isLoggedIn){
     return { loggedIn: true, user: state.auth.user };
   }else{
@@ -85,9 +89,11 @@ const mapDispatchToProps = (dispatch) => {
 	return {
     userLogout: () => {
       dispatch(userLogout())
+    },
+    loadingOverlayActive: (isActivie) =>{
+      dispatch(loadingOverlayActive(isActivie))
     }
 	}
 }
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(ButtonAppBar)

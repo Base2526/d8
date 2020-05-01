@@ -4,7 +4,7 @@
  * @file
  * Contains paragraphs.module
  */
-
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\field\FieldStorageConfigInterface;
@@ -626,3 +626,20 @@ function template_preprocess_paragraphs_summary(&$variables) {
   $variables['behaviors'] = $variables['element']['#summary']['behaviors'];
   $variables['expanded'] = !empty($variables['element']['#expanded']);
 }
+
+/**
+ * Implements hook_entity_delete().
+ */
+// function paragraphs_entity_delete(EntityInterface $entity) {
+//   \Drupal::logger('paragraphs_entity_delete')->notice(t('entity_type_id: @entity_type_id, getEntityTypeId : @bundle',array(   '@entity_type_id'=>$entity->id(), 
+//                                                                                                                         '@bundle'=>$entity->getEntityTypeId()) )->__toString());
+//   $paragraph_storage = \Drupal::entityTypeManager()->getStorage('paragraph');
+//   $query = $paragraph_storage->getQuery();
+//   $query->condition('parent_type', $entity->getEntityTypeId());
+//   $query->condition('parent_id', $entity->id());
+//   $results = $query->execute();
+//   if ($results) {
+//     $entities = $paragraph_storage->loadMultiple($results);
+//     $paragraph_storage->delete($entities);
+//   }
+// }

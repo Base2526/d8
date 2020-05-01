@@ -123,3 +123,15 @@ step 5
 สามารถใช้งานได้ปกติ
 ###################### mongodb ######################
 
+
+/*
+  // Convert date to timestamp
+  var date = Date.parse(date_transfer.toString());
+  console.log(date);
+
+  // Convert timestamp to date
+  var date = new Date(date);
+  console.log(date);
+*/
+
+

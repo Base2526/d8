@@ -145,4 +145,9 @@ class Utils extends ControllerBase {
     }
     return FALSE;
   }
+
+  public static function get_file_url($target_id){   
+    $file = \Drupal\file\Entity\File::load($target_id);
+    return  !empty($file) ? $file->url() : '';
+  }
 }
