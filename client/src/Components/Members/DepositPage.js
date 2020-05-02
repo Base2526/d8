@@ -9,11 +9,13 @@ import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import DatePicker from "react-datepicker";
 import axios from 'axios';
+import _ from 'lodash';
+
 import "react-datepicker/dist/react-datepicker.css";
-import { headers } from '../Utils/Config';
+import { headers, showToast } from '../Utils/Config';
 import { loadingOverlayActive } from '../../actions/huay'
 
-var _ = require('lodash');
+// var _ = require('lodash');
 
 class DepositPage extends Component {
   constructor(props) {
@@ -23,6 +25,7 @@ class DepositPage extends Component {
       validated:false,
       error: false,
       error_message:'',
+      is_active: false,
 
       hauy_id_bank:'', 
       user_id_bank:'', 
@@ -47,7 +50,7 @@ class DepositPage extends Component {
     this.setState({
       date_transfer: Date.parse(date.toString())
     });
-  };
+  }
 
   handleSubmit = async (event) => {
     const form = event.currentTarget;
@@ -56,8 +59,7 @@ class DepositPage extends Component {
       event.stopPropagation();
       this.setState({validated: true});
     }else{
-      this.props.loadingOverlayActive(true);
-
+      this.setState({is_active: true});
       let { hauy_id_bank, 
             user_id_bank, 
             amount_of_money, 
@@ -78,21 +80,31 @@ class DepositPage extends Component {
       if( response.status==200 && response.statusText == "OK" ){
         if(response.data.result){
           this.nextPath('/');
+
+          showToast('success', 'ฝากเงินเรียบร้อยรอการ อนุมัติ');
         }else{
           this.setState({
             error: true,
             error_message: response.data.message,
             validated:true
           });
-        }
-      }
 
-      this.props.loadingOverlayActive(false);
+          showToast('error', response.data.message);
+        }
+      }else{
+        // ฝากเงิน
+        showToast('error', 'Error');
+      }
+      this.setState({is_active: false}); 
     }
   }
 
   nextPath(path) {
     this.props.history.push(path);
+  }
+
+  loadingOverlayActive(){
+    this.props.loadingOverlayActive(this.state.is_active);
   }
 
   render() {
@@ -109,6 +121,8 @@ class DepositPage extends Component {
     console.log(this.state);
 
     // this.props.user.banks[0]
+
+    this.loadingOverlayActive();
 
     return (<Form noValidate validated={validated} onSubmit={this.handleSubmit}>
               <Container>

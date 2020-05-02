@@ -113,9 +113,9 @@ api.delete_bank:
   requirements:
     _access: 'TRUE'
 
-api.update_socket_id:
-  path: '/api/update_socket_id.json'
-  defaults: { _controller: '\Drupal\huay\Controller\API::update_socket_id' }
+api.update_socket_io:
+  path: '/api/update_socket_io.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::update_socket_io' }
   methods:  [POST]
   requirements:
     _access: 'TRUE'

@@ -42,7 +42,7 @@ export function connect_socketIO(props){
       })
       socket.on('contact_us', (data) => {
         console.log(JSON.parse(data));
-        props.updateContactUs(JSON.parse(data));
+        props.updateContactUs(JSON.parse(data)[0]);
       })
       // 
       socket.on('list_bank', (data) => {

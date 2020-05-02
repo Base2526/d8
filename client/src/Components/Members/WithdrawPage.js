@@ -7,12 +7,13 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
+import axios from 'axios';
+import _ from 'lodash';
 
 import { loadingOverlayActive } from '../../actions/huay'
-import { headers } from '../Utils/Config';
+import { headers, showToast } from '../Utils/Config';
 
-const axios = require('axios');
-var _ = require('lodash');
+// var _ = require('lodash');
 
 class WithdrawPage extends Component {
   constructor(props) {
@@ -36,16 +37,18 @@ class WithdrawPage extends Component {
   handleChange(event) {
     this.setState({[event.target.id]: event.target.value});
 
-    if( this.props.user.credit_balance < event.target.value){
-      this.setState({
-        error: true,
-        error_message: 'จำนวนเงินไม่พอ',
-        validated:false
-      });
-    }else{
-      this.setState({
-        error: false,
-      });
+    if(event.target.id == 'amount_of_withdraw'){
+      if( this.props.user.credit_balance < event.target.value){
+        this.setState({
+          error: true,
+          error_message: 'จำนวนเงินไม่พอ',
+          validated:false
+        });
+      }else{
+        this.setState({
+          error: false,
+        });
+      }
     }
   }   
 
@@ -71,13 +74,19 @@ class WithdrawPage extends Component {
       if( response.status==200 && response.statusText == "OK" ){
         if(response.data.result){
           this.nextPath('/');
+
+          showToast('success', 'ถอนเงินเรียบร้อยรอการอนุมัติ');
         }else{
           this.setState({
             error: true,
             error_message: response.data.message,
             validated:true
           });
+
+          showToast('error', response.data.message);
         }
+      }else{
+        showToast('error', 'Error');
       }
 
       this.setState({is_active: false});

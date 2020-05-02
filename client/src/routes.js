@@ -23,6 +23,10 @@ import ProfilePage from './Components/ProfilePage/ProfilePage';
 import ForgetPasswordPage from './Components/ForgetPasswordPage/ForgetPasswordPage';
 import RegisterPage from './Components/RegisterPage/RegisterPage';
 
+import HelpPage from './Components/Help/HelpPage';
+
+import LotteryListTransactionPage from './Components/Lottery/LotteryListTransactionPage'
+
 const toppings = [
   { id: "1", name: "Cheese" },
   { id: "2", name: "Pepperoni" },
@@ -113,5 +117,9 @@ export default [
     { path: "/deposit", name: "ฝากเงิน", Component: DepositPage },
     { path: "/withdraw", name: "ถอนเงิน", Component: WithdrawPage },
     { path: "/add-bank", name: "เพิ่มบัญชีธนาคาร", Component: AddBankPage },
-    { path: "/contact-us", name: "ติดต่อเรา", Component: ContactUsPage}
+    { path: "/contact-us", name: "ติดต่อเรา", Component: ContactUsPage},
+
+    { path: "/help", name:"วิธีการใช้งาน", Component: HelpPage},
+
+    { path: "/lottery-list-transaction", name:"รายการโพยทั้งหมด", Component: LotteryListTransactionPage}
 ];

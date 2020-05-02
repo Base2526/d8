@@ -45,7 +45,8 @@ class ContactUsPage extends Component {
     return (<Container>
                 <Row>
                     <Col>
-                      <div>{data.line_at}</div>
+                      <a href={`http://line.me/ti/p/~${data.line_at}`}>{data.line_at}</a>
+                      <div><a href={`tel:${data.tel}`}>{data.tel}</a></div>
                       <div><Image style={styles.simage} src={data.url_qrcode} rounded /></div>
                       <div>{data.description}</div>
                     </Col>
@@ -61,7 +62,7 @@ const mapStateToProps = (state, ownProps) => {
   }
   
   if(state.auth.isLoggedIn){
-    return { logged_in:true, data: state.contact_us.data[0]};
+    return { logged_in:true, data: state.contact_us.data};
   }else{
     return { logged_in:false };
   }

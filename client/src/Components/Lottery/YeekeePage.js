@@ -1,341 +1,190 @@
 import React, { Component } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-// import InputAutocomplete from './InputAutocomplete/InputAutocomplete';
-import { Input, DatePicker, Radio, Button, Row, Col } from 'antd';
-import { RightCircleOutlined } from '@ant-design/icons';
-import 'antd/dist/antd.css';
-import '../RideSelect/RideSelect.css';
-import ls from 'local-storage';
+import Alert from 'react-bootstrap/Alert'
+import { connect } from 'react-redux'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
+import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
+import ReactList from 'react-list';
 
-
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css';
-
-import history from '../../history';
-import { Redirect, Link} from 'react-router-dom';
-
-const useStyles = makeStyles({
-  root: {
-    minWidth: 275,
-  },
-  title: {
-    fontSize: 14,
-  },
-  pos: {
-    marginBottom: 12,
-  },
-  box_width: {
-    maxWidth: 300,
-  }
-});
+import { headers, showToast } from '../Utils/Config';
+import { loadingOverlayActive } from '../../actions/huay'
 
 class YeekeePage extends Component {
   constructor(props) {
     super(props);
-    
     this.state = {
-      type: 'ow',
-      from : 'Bangalore',
-      journeyDate: null,
-      destination: null,
-      lat:null,
-      lng:null,
-      distance: null,
-      journeyTime: null,
-      selected: [],
+      error: false,
+      error_message:'',
+      book_makers:[],
+      total: 0,
+    }
 
-
-
-      tabIndex: 1
-    };
-
+    this.handleItemClick = this.handleItemClick.bind(this);
+    this.renderItem = this.renderItem.bind(this);
+    this.handleItemChange = this.handleItemChange.bind(this);
   }
 
   componentDidMount() {
-    ls.set('rideType', this.state.type);
-    ls.set('origin', this.state.from);
-
-    let params = this.props.match.params;
-    console.log(params.id);
-    
-    this.handleClick = this.handleClick.bind(this);
   }
 
-  destinationChangeHandler(event) {
-    this.setState({ to: event.target.value });
-  }
+  handleItemClick = (index) => {
+    var tmp_book_makers = [...this.state.book_makers]; 
+    if (index !== -1) {
+      tmp_book_makers.splice(index, 1);
+      this.setState({book_makers: tmp_book_makers});
 
-  dateChangeHandler(date, dateStr) {
-    ls.set('journeyDate', dateStr);
-    this.setState({ journeyDate: dateStr });
-  }
-
-  handleBooking = async e => {
-    // e.preventDefault();
-    const response = await fetch('/api/price', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ lat: this.state.lat, lng: this.state.lng }),
-    });
-    const body = await response.json();
-    
-    ls.set('distance', body.distance);
-    ls.set('journeyTime', body.days);
-  };
-
-  continueHandler = () => {
-    history.push('/second-page')
-  }
-
-  getDestVal = (val) => {
-    this.setState({destination : val[0], lat : val[1].lat, lng : val[1].lng})
-    ls.set('destination', this.state.destination)
-    ls.set('lat', this.state.lat)
-    ls.set('lng', this.state.lng)
-      
-    console.log(this.state.destination);
-  }
-
-  nextPath(path) {
-    
-    if(this.state.destination != null) {
-      this.handleBooking();
-      this.props.history.push(path);
+      showToast('success', "ลบรายการ เรียบร้อย");
     }
   }
 
-  handleClick = (i) => {
-    // console.log('this is:', i);
-    let find = this.state.selected.find(element => element == i);
-    if(!find){
-        var newArray = this.state.selected.slice();    
-        newArray.push(i);   
-        this.setState({selected:newArray})
+  handleItemChange(event) {
+
+    let {user} = this.props;
+    let {book_makers} = this.state;
+    book_makers[event.target.id] = {...book_makers[event.target.id], quantity: event.target.value}
+    
+    let total = 0;
+    book_makers.map(function(item, i){
+      total+=parseInt(item.quantity)
+    })
+    console.log(total)
+
+    if(total> user.credit_balance){
+      this.setState({book_makers, total, error:true, error_message: 'เครดิตคงเหลือไม่พอ'});
     }else{
-        let filter = this.state.selected.filter(j => i != j);
-        this.setState({selected:filter})
+      this.setState({book_makers, total});
     }
-  }
+  }    
 
-  getrSelectedList () {
-    var divList = [];
-    for (var i = 0; i < this.state.selected.length; i++) {
-        divList.push(<button key={i} data-id={i} style={{backgroundColor: 'red'}} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>
-                        selected : {this.state.selected[i]}
-                    </button>);
-    }
-    return divList;
-  }
-
-  getrDivList () {
-    var divList = [];
-    for (var i = 0; i < 40; i++) {
-        let find = this.state.selected.find(element => element == i);
-        if(find){
-            divList.push(<button key={i} data-id={i} style={{backgroundColor: 'blue'}} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>
-                                {i}
-                            </button>);
-        }else{
-            divList.push(<button key={i} data-id={i} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>
-                            {i}
-                        </button>);
-        }
-        
-    }
-    return divList;
-  }
-
-  getTabPanelContent (id) {
-
-    switch(id){
-      case 0:{
-        return <h2>Any content . {id}</h2>;
-        break;
-      }
-      case 1:{
-        // return this.getrDivList();
-
-        let v = <Tabs>
-                  <TabList>
-                  <Tab>สามตัว</Tab>
-                  <Tab>สองตัว</Tab>
-                  <Tab>เลขวิ่ง</Tab>
-                  </TabList>
-
-                  <TabPanel>
-                  <div>
-                    <button data-id='3xx' style={{backgroundColor: 'blue'}} >
-                    3ตัวบน
-                    </button>
-                    <button data-id='3yy' style={{backgroundColor: 'blue'}} >
-                    3ตัวโต๊ด
-                    </button>
-                  </div>
-
-                  <div>
-                    <button data-id='000' style={{backgroundColor: 'blue'}} >
-                    000
-                    </button>
-                    <button data-id='100' style={{backgroundColor: 'blue'}} >
-                    100
-                    </button>
-                    <button data-id='200' style={{backgroundColor: 'blue'}} >
-                    200
-                    </button>
-                    <button data-id='300' style={{backgroundColor: 'blue'}} >
-                    300
-                    </button>
-                    <button data-id='400' style={{backgroundColor: 'blue'}} >
-                    400
-                    </button>
-                    <button data-id='500' style={{backgroundColor: 'blue'}} >
-                    500
-                    </button>
-                    <button data-id='600' style={{backgroundColor: 'blue'}} >
-                    600
-                    </button>
-                    <button data-id='700' style={{backgroundColor: 'blue'}} >
-                    700
-                    </button>
-                    <button data-id='800' style={{backgroundColor: 'blue'}} >
-                    800
-                    </button>
-                    <button data-id='900' style={{backgroundColor: 'blue'}} >
-                    900
-                    </button>
-                  </div>
-                  <div>
-                    {this.getrDivList()}
-                  </div>
-                  </TabPanel>
-                  <TabPanel>
-                  <div>
-                    <button data-id='3xx' style={{backgroundColor: 'blue'}} >
-                    2ตัวบน
-                    </button>
-                    <button data-id='3yy' style={{backgroundColor: 'blue'}} >
-                    2ตัวล่าง
-                    </button>
-                  </div>
-                  <div>
-                    {this.getrDivList()}
-                  </div>
-                  </TabPanel>
-                  <TabPanel>
-                  <div>
-                    <button data-id='3xx' style={{backgroundColor: 'blue'}} >
-                    วิ่งบน
-                    </button>
-                    <button data-id='3yy' style={{backgroundColor: 'blue'}} >
-                    วิ่งล่าง
-                    </button>
-                  </div>
-                  <div>
-                    <button data-id='0' style={{backgroundColor: 'blue'}} >
-                    0
-                    </button>
-                    <button data-id='1' style={{backgroundColor: 'blue'}} >
-                    1
-                    </button>
-                    <button data-id='2' style={{backgroundColor: 'blue'}} >
-                    2
-                    </button>
-                    <button data-id='3' style={{backgroundColor: 'blue'}} >
-                    3
-                    </button>
-                    <button data-id='4' style={{backgroundColor: 'blue'}} >
-                    4
-                    </button>
-                    <button data-id='5' style={{backgroundColor: 'blue'}} >
-                    5
-                    </button>
-                    <button data-id='6' style={{backgroundColor: 'blue'}} >
-                    6
-                    </button>
-                    <button data-id='7' style={{backgroundColor: 'blue'}} >
-                    7
-                    </button>
-                    <button data-id='8' style={{backgroundColor: 'blue'}} >
-                    8
-                    </button>
-                    <button data-id='9' style={{backgroundColor: 'blue'}} >
-                    9
-                    </button>
-                  </div>
-                  </TabPanel>
-              </Tabs>;
-
-        return v;
-        break;
-      }
-    }
-    return <h2>Any content 1x</h2>;
-  }
-
-  render() {
-
-    // 
-
-
-    console.log(this.state.selected);
-    return (
-    //   <Card className={ useStyles.root }>
-    //     <CardContent>
-
-        <div style={{minWidth: 275}}>
-            <div>
-                { this.getrSelectedList() }
-            </div>
-            <div>
+  renderItem(index, key) {
+    console.log(this.state.book_makers[index])
+    return <div key={key}>
+              <div>{this.state.book_makers[index].number}</div>
               <div>
-                <button data-id='9' >ดึงโพย</button>
-              </div>
-              <div>
-                <button data-id='9' >ใส่ราคา</button>
-              </div>
-            </div>
-            <div>
-                <Tabs selectedIndex={this.state.tabIndex} onSelect={tabIndex => this.setState({ tabIndex })}>
-                    <TabList>
-                      <Tab>กดเลขเอง</Tab>
-                      <Tab>เลือกจากแผง</Tab>
-                    </TabList>
-
-                    <TabPanel>
-                    {this.getTabPanelContent(0)}
-                    </TabPanel>
-                    <TabPanel>
-                    {this.getTabPanelContent(1)}
-                    </TabPanel>
-                </Tabs>
+                <input 
+                  type="number"
+                  placeholder="จำนวนเงิน" 
+                  // key={index} 
+                  // data-id={index}
+                  min="1"
+                  id={index}
+                  onInput={this.handleItemChange} 
+                  defaultValue={this.state.book_makers[index].quantity} 
+                  />
                 <div>
-                  <div>เงื่อนไขการแทง</div>
-                  <div>
-                  <div>วิ่งบน จ่าย : 3.20</div>
-                  <ul>
-                    <li>แทงขั้นต่ำต่อครั้ง : 10.00</li>
-                    <li>แทงสูงสุดต่อครั้ง : 20000.00</li>
-                    <li>แทงสูงสุดต่อเลข : 20000.00</li>
-                  </ul>
-                  <div>วิ่งล่าง จ่าย : 4.20</div>
-                  <ul>
-                    <li>แทงขั้นต่ำต่อครั้ง : 10.00</li>
-                    <li>แทงสูงสุดต่อครั้ง : 20000.00</li>
-                    <li>แทงสูงสุดต่อเลข : 20000.00</li>
-                  </ul>
-                  </div>
+                  {this.state.book_makers[index].quantity*this.state.book_makers[index].price}
                 </div>
+                <button key={index} data-id={index} style={{backgroundColor: 'red'}} onClick={e => this.handleItemClick(e.target.getAttribute('data-id'))}>
+                ยกเลิก
+                </button>
+              </div>
+            </div>;
+  }
+
+  handleClick(){
+    let {user} = this.props;
+    let {book_makers} = this.state;
+
+    const rand = Math.floor(Math.random() * 100) + 1 ;
+
+    let item =  {
+                  type:1,
+                  number:rand,
+                  quantity:1,
+                  price:90
+                }
+
+    book_makers = [...book_makers, item];
+    console.log(book_makers);
+
+
+    let total = 0;
+    book_makers.map(function(item, i){
+      total+=item.quantity
+    })
+
+    if(total> user.credit_balance){
+      this.setState({book_makers, total, error:true, error_message: 'เครดิตคงเหลือไม่พอ'});
+    }else{
+      this.setState({book_makers, total});
+    }
+  } 
+
+
+  /*
+  
+  เครดิตคงเหลือ : 0 ฿
+ยอดเดิมพันทั้งหมด : 80,200 ฿
+  */
+  render() {
+    let {user} = this.props;
+    let {error, error_message, book_makers, total} = this.state;
+
+    return (
+      <Container>
+        <Row>
+          <Col md={12} xs={12}>
+            { error ? <Alert variant={'warning'}>{error_message}</Alert> : '' }
+          </Col>
+        </Row>
+        <Row>
+          <Col style={{backgroundColor: '#20c997'}} md={12} xs={12}>
+          <div>
+          เครดิตคงเหลือ : {user.credit_balance} ฿
             </div>
-        </div>
-    //     </CardContent>
-    //   </Card>
-    );
+          <div>
+          ยอดเดิมพันทั้งหมด : {total} ฿
+          </div>
+          </Col>
+        </Row>
+        <Row>
+          <Col style={{backgroundColor: 'red'}} md={4} xs={12}>
+            <div>
+              <div>รายการแทง ({this.state.book_makers.length})</div>
+              <div style={{overflow: 'auto', maxHeight: 400}}>
+                <ReactList
+                  itemRenderer={this.renderItem}
+                  length={this.state.book_makers.length}
+                  type='uniform'
+                />
+              </div>
+            </div>
+          </Col>
+          <Col style={{backgroundColor: 'green'}} md={8} xs={12}>
+          <Button
+            variant="primary"
+            // disabled={isLoading}
+            onClick={() =>this.handleClick()}>
+            เพิ่มตัวเลข
+          </Button>
+          </Col>
+        </Row>
+      </Container> 
+    )
   }
 }
 
-export default YeekeePage;
+// export default YeekeePage;
+const mapStateToProps = (state, ownProps) => {
+	if(!state._persist.rehydrated){
+		return {};
+  }
+  
+  if(state.auth.isLoggedIn){
+    return { logged_in: true, user: state.auth.user};
+  }else{
+    return { logged_in: false };
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+    loadingOverlayActive: (isActivie) =>{
+      dispatch(loadingOverlayActive(isActivie))
+    }
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(YeekeePage)

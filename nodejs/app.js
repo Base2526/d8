@@ -341,13 +341,9 @@ io.on('connection', (socket) => {
   console.log(handshake.query);
   console.log(`Socket ${socket.id} connected.`);
 
-
-
-  // handshake.headers.cookie
-
   socket_local = socket;
 
-  update_socket_id(socket);
+  update_socket_io(socket);
 
   // console.log("user-agent: "+socket.request.headers['user-agent']);
   // request('http://localhost/rest/api/get?_format=json', function (error, response, body) {
@@ -374,7 +370,8 @@ io.on('connection', (socket) => {
   // })
 
   socket.conn.on('heartbeat', function() {
-    // console.log('#1');
+    console.log('#1');
+    console.log(socket);
     if (!socket.authenticated) {
       // Don't start counting as present until they authenticate.
       return;
@@ -407,6 +404,7 @@ io.on('connection', (socket) => {
   
   socket.on('disconnect', () => {
     
+    update_socket_io(socket);
     console.log(`Socket ${socket.id} disconnected.`);
   });
 
@@ -421,15 +419,17 @@ io.on('connection', (socket) => {
   });
 });
 
-async function update_socket_id(socket){
+async function update_socket_io(socket){
   var data = {
-    "uid": socket.handshake.query.uid,
-    "socket_id": socket.id,
+    "uid"           : socket.handshake.query.uid,
+    "socket_id"     : socket.id,
+    "connected"     : socket.connected,
+    "disconnected"  : socket.disconnected
   }
   console.log(socket);
 
   config.d8.headers['session'] = socket.client.request.session.id;
-  await fetch(config.d8.api_update_socket_id, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+  await fetch(config.d8.api_update_socket_io, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
     .then((res) => {
       return res.json()
   })

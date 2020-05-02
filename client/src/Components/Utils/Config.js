@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 // const helpers = {
 //     fetchApi: function(){
 
@@ -20,3 +21,26 @@ export function headers() {
 
 2.สามารถเรียกใช้ authHeader() < function, assets < ตัวแปล
 */
+export function showToast(type, title, autoClose=1500) {
+    switch(type){
+        case 'success':{
+            toast.success(title , {containerId: 'toast_container_id', autoClose});
+        break;
+        }
+
+        case 'error':{
+            toast.error(title , {containerId: 'toast_container_id', autoClose});
+        break;
+        }
+
+        case 'warn':{
+            toast.warn(title , {containerId: 'toast_container_id', autoClose});
+        break;
+        }
+
+        case 'info':{
+            toast.info(title , {containerId: 'toast_container_id', autoClose});
+        break;
+        }
+    }   
+}

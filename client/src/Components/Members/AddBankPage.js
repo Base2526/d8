@@ -8,33 +8,11 @@ import Col from 'react-bootstrap/Col'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import InputMask from "react-input-mask";
-
-import { headers } from '../Utils/Config';
-
-import { loadingOverlayActive } from '../../actions/huay'
-
 import axios from 'axios';
-var _ = require('lodash');
+import _ from 'lodash';
 
-var styles = {
-    root: {
-      display: "block"
-    },
-    pStyle: {
-        fontSize: '50px',
-        textAlign: 'center',
-        backgroundColor: 'red'
-    },
-    item: {
-      color: "black",
-      complete: {
-        textDecoration: "line-through"
-      },
-      due: {
-        color: "red"
-      }
-    },
-}
+import { headers, showToast  } from '../Utils/Config';
+import { loadingOverlayActive } from '../../actions/huay'
 
 class AddBankPage extends Component {
     // const [show, setShow] = useState(true);
@@ -55,13 +33,12 @@ class AddBankPage extends Component {
             list_bank:{},
             error: false,
             error_message:'',
-        }
 
-        console.log(props);
+            is_active: false
+        }
 
         this.handleChange = this.handleChange.bind(this);
         this.handleClear  = this.handleClear.bind(this);
-
         this.handleSubmit = this.handleSubmit.bind(this);
     }
     
@@ -70,8 +47,6 @@ class AddBankPage extends Component {
                                       {headers:headers()});
       if( response.status==200 && response.statusText == "OK" ){
         if(response.data.result){
-          // console.log(response.data.data);
-
           this.setState({list_bank: response.data.data});
         }
       }
@@ -84,11 +59,9 @@ class AddBankPage extends Component {
         event.stopPropagation();
         this.setState({validated: true});
       }else{
-        this.props.loadingOverlayActive(true);
+        this.setState({is_active: true});
+
         let { select_bank, name_bank, number_bank, number_bank_confirm} = this.state;   
-
-        // console.log(select_bank, name_bank, number_bank, number_bank_confirm);
-
         if(number_bank.trim() !== number_bank_confirm.trim())
         {
           this.setState({
@@ -105,100 +78,26 @@ class AddBankPage extends Component {
           console.log(response);
           if( response.status==200 && response.statusText == "OK" ){
             if(response.data.result){
-              // this.props.userLogin(response.data.data);
               this.nextPath('/');
-            }else{
 
-              // console.log(response.data.message);
+              showToast('success', 'เพิ่มบัญชีธนาคารเรียบร้อย');
+            }else{
               this.setState({
                 error: true,
                 error_message: response.data.message,
-
                 password:''
               });
+
+              showToast('error', response.data.message);
             }
+          }else{
+            showToast('error', 'Error');
           }
         }
 
-        this.props.loadingOverlayActive(false);
+        this.setState({is_active: false});
       }
     };
-  
-    view(){
-        return (
-            <Form noValidate validated={this.state.validated} onSubmit={this.handleSubmit}>
-              <Form.Row>
-                <Form.Group as={Col} md="4" controlId="validationCustom01">
-                  <Form.Label>First name</Form.Label>
-                  <Form.Control
-                    required
-                    type="text"
-                    placeholder="First name"
-                    defaultValue="Mark"
-                  />
-                  <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group as={Col} md="4" controlId="validationCustom02">
-                  <Form.Label>Last name</Form.Label>
-                  <Form.Control
-                    required
-                    type="text"
-                    placeholder="Last name"
-                    defaultValue="Otto"
-                  />
-                  <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group as={Col} md="4" controlId="validationCustomUsername">
-                  <Form.Label>Username</Form.Label>
-                  <InputGroup>
-                    <InputGroup.Prepend>
-                      <InputGroup.Text id="inputGroupPrepend">@</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <Form.Control
-                      type="text"
-                      placeholder="Username"
-                      aria-describedby="inputGroupPrepend"
-                      required
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      Please choose a username.
-                    </Form.Control.Feedback>
-                  </InputGroup>
-                </Form.Group>
-              </Form.Row>
-              <Form.Row>
-                <Form.Group as={Col} md="6" controlId="validationCustom03">
-                  <Form.Label>City</Form.Label>
-                  <Form.Control type="text" placeholder="City" required />
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a valid city.
-                  </Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group as={Col} md="3" controlId="validationCustom04">
-                  <Form.Label>State</Form.Label>
-                  <Form.Control type="text" placeholder="State" required />
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a valid state.
-                  </Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group as={Col} md="3" controlId="validationCustom05">
-                  <Form.Label>Zip</Form.Label>
-                  <Form.Control type="text" placeholder="Zip" required />
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a valid zip.
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Form.Row>
-              <Form.Group>
-                <Form.Check
-                  required
-                  label="Agree to terms and conditions"
-                  feedback="You must agree before submitting."
-                />
-              </Form.Group>
-              <Button type="submit">Submit form</Button>
-            </Form>);
-    }
 
     handleChange(event) {
         console.log(event.target);
@@ -218,12 +117,15 @@ class AddBankPage extends Component {
     nextPath(path) {
       this.props.history.push(path);
     }
+
+    loadingOverlayActive(){
+      this.props.loadingOverlayActive(this.state.is_active);
+    }
     
     render() {
-      console.log(this.state);
-      console.log(this.props);
       let {validated, error, error_message} = this.state;
      
+      this.loadingOverlayActive();
       return (
           <Form noValidate validated={validated} onSubmit={this.handleSubmit}>
               { error ? <Alert variant={'danger'}>{error_message}</Alert> : '' }
@@ -262,11 +164,6 @@ class AddBankPage extends Component {
               </Form.Group>
               <Form.Group>
                   <Form.Label>เลขที่บัญชี</Form.Label>
-                  {/* <Form.Control 
-                      type="number" 
-                      placeholder="เลขที่บัญชี" 
-                      required 
-                      value={this.state.number_bank} onChange={this.handleChange}/> */}
                   <InputMask 
                       id='number_bank' 
                       mask="999-9-99999-99999" 
@@ -280,18 +177,6 @@ class AddBankPage extends Component {
                       กรุณากรอบเลขที่บัญชี.
                   </Form.Control.Feedback>
               </Form.Group>
-              {/* <Form.Group controlId="number_bank_confirm">
-                  <Form.Label>ยืนยันเลขที่บัญชี</Form.Label>
-                  <Form.Control 
-                      type="text" 
-                      placeholder="ยืนยันเลขที่บัญชี" 
-                      required 
-                      value={this.state.number_bank_confirm} onChange={this.handleChange}/>
-                  <Form.Control.Feedback type="invalid">
-                      กรุณากรอบยืนยันเลขที่บัญชี.
-                  </Form.Control.Feedback>
-              </Form.Group> */}
-
               <Form.Group>
                   <Form.Label>ยืนยันเลขที่บัญชี</Form.Label>
                   <InputMask 
@@ -303,7 +188,6 @@ class AddBankPage extends Component {
                       placeholder="ยืนยันเลขที่บัญชี" 
                       maskPlaceholder={null}
                       required /> 
-                  {/* <MaskedFormControl type='text'  mask='111-111-1111' /> */}
                   <Form.Control.Feedback type="invalid">
                       กรุณากรอบยืนยันเลขที่บัญชี xxx.
                   </Form.Control.Feedback>
@@ -311,20 +195,15 @@ class AddBankPage extends Component {
               <Button variant="primary" type="submit">
                   เพิ่มบัญชี
               </Button>
-              <Button variant="light" onClick={this.handleClear}>Clear</Button>
+              {/* <Button variant="light" onClick={this.handleClear}>Clear</Button> */}
           </Form>
       );
     }
 }
 
-/*
-	จะเป็น function ที่จะถูกเรียกตลอดเมือ ข้อมูลเปลี่ยนแปลง
-	เราสามารถดึงข้อมูลทั้งหมดที่อยู่ใน redux ได้เลย
-*/
+//	จะเป็น function ที่จะถูกเรียกตลอดเมือ ข้อมูลเปลี่ยนแปลง
+//	เราสามารถดึงข้อมูลทั้งหมดที่อยู่ใน redux ได้เลย
 const mapStateToProps = (state, ownProps) => {
-  console.log(state);
-  console.log(ownProps);
-
 	if(!state._persist.rehydrated){
 		return {};
   }

@@ -437,7 +437,7 @@ class API extends ControllerBase {
     return new JsonResponse( $response );
   }
 
-  public function update_socket_id(Request $request){
+  public function update_socket_io(Request $request){
     $time1 = microtime(true);
     if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
       $content = json_decode( $request->getContent(), TRUE );
@@ -554,9 +554,9 @@ class API extends ControllerBase {
       $content = json_decode( $request->getContent(), TRUE );
 
       $uid                = trim( $content['uid'] );
-      $user_id_bank       = trim( $content['user_id_bank'] ); // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
+      $user_id_bank       = trim( $content['user_id_bank'] );       // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
       $amount_of_withdraw = trim( $content['amount_of_withdraw'] ); // จำนวนเงินที่โอน
-      $annotation         = trim( $content['annotation'] ); // ID ธนาคารของเว็บฯ
+      $annotation         = trim( $content['annotation'] );         // ID ธนาคารของเว็บฯ
 
       if( empty($uid) ||  
           empty($user_id_bank) || 

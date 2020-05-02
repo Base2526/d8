@@ -10,6 +10,9 @@ import './RideSelect.css';
 import ls from 'local-storage';
 import history from '../../history';
 
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
+
 import {loadingOverlayActive} from '../../actions/huay'
 
 const useStyles = makeStyles({
@@ -49,6 +52,8 @@ class RideSelect extends Component {
     ls.set('origin', this.state.from);
 
     this.props.loadingOverlayActive(false);
+
+
   }
 
   destinationChangeHandler(event) {
@@ -98,13 +103,24 @@ class RideSelect extends Component {
 
   nextPath2(path) {
     this.props.history.push(path);
+    
+    // toast('Wow so easy !')
+    // toast.success("Success Notification !", {
+    //   position: toast.POSITION.TOP_CENTER
+    // });
   }
+
+  // notifyA(){
+  //   toast.success('Wow so easy !', {containerId: 'A', autoClose: 3000});
+  // }
 
   render() {
 
     return (
       <Card className={ useStyles.root }>
+
         <CardContent>
+          
           <div style={{padding:'5px'}}>
             <Button type="primary" size="large" onClick={ () => this.nextPath2('/deposit')}>
               ฝากเงิน
@@ -123,6 +139,11 @@ class RideSelect extends Component {
           <div style={{padding:'5px'}}>
             <Button type="primary" size="large" onClick={ () => this.nextPath2('/lottery-list')}>
               แทงหวย
+            </Button>
+          </div>
+          <div style={{padding:'5px'}}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath2('/lottery-list-transaction')}>
+            รายการโพยทั้งหมด
             </Button>
           </div>
 
@@ -147,6 +168,12 @@ class RideSelect extends Component {
           <div style={{padding:'5px'}}>
             <Button type="primary" size="large" onClick={ () => this.nextPath2('/contact-us')}>
               ติดต่อเรา
+            </Button>
+          </div> 
+
+          <div style={{padding:'5px'}}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath2('/help')}>
+            วิธีการใช้งาน
             </Button>
           </div> 
         </CardContent>

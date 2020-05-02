@@ -158,8 +158,9 @@ function credit_balance($user){
     $withdraw = 0;
     foreach ($user->get('field_withdraw')->getValue() as $bi=>$bv){
         $p = Paragraph::load( $bv['target_id'] );
-        $deposit_status = $p->get('field_deposit_status')->target_id;
-        if($deposit_status == 15){
+        $deposit_status = $p->get('field_withdraw_status')->target_id;
+        // เอาทุกสถานะ ยกเว้น สถานะไม่อนุมัติเท่านั้น
+        if($deposit_status != 17){
             // จำนวนเงินที่โอน
             $field_amount_of_withdraw = $p->get('field_amount_of_withdraw')->getValue();
             if(!empty($field_amount_of_withdraw)){
@@ -378,11 +379,13 @@ function mongodb_contact_us($id){
             $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
           }
     */
+    // 
     $data = array(
         'id'            =>$id,
         'line_at'       =>$contact_us->get('field_contact_us_line_at')->value,
         'url_qrcode'    =>Utils::get_file_url($contact_us->get('field_contact_us_qrcode')->getValue()[0]['target_id']),
         'description'   =>$contact_us->get('field_contact_us_description')->value,
+        'tel'           =>$contact_us->get('field_contact_us_tel')->value,
     );
 
     $collection = Utils::GetMongoDB()->contact_us;

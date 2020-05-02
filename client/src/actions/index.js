@@ -7,7 +7,6 @@ export const addTodo = text => ({
   text
 })
 
-
 export const userLogin = (username, password) => ({
   type: types.AUTH_LOGIN,
   username,

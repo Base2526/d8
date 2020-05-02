@@ -8,6 +8,10 @@ import AppBar from './Components/AppBar/AppBar';
 import Footer from './Components/Footer/Footer';
 // import Container from '@material-ui/core/Container';
 import Container from 'react-bootstrap/Container'
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { Breadcrumbs } from './Components/Breadcrumbs'
 
 import { userUpdate } from './actions/auth'
@@ -22,6 +26,7 @@ import routes from "./routes";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {connect_socketIO} from './socket.io'
 
+
 class App extends Component {
   componentDidMount() {
      console.log(process.env); 
@@ -29,10 +34,13 @@ class App extends Component {
 
   render(){
     return(<BR>
-            <LoadingOverlay
-              active={this.props.isActive}
-              spinner={<ScaleLoader color="#00BFFF" />}
-              text='Loading your content...'>
+              <LoadingOverlay
+                active={this.props.isActive}
+                spinner={<ScaleLoader color="#00BFFF" />}
+                text='Loading your content...'>
+
+              <ToastContainer enableMultiContainer containerId={'toast_container_id'} position={toast.POSITION.TOP_RIGHT} />  
+              
               <div className="App">
                 <AppBar></AppBar>
                 <br />

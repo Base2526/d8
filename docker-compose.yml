@@ -224,7 +224,7 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     ports:
-      - "8099:3000"
+      - "80:3000"
     volumes:
       - ./client:/usr/src/app
       - /usr/src/app/node_modules # เพิ่มความเร็วในการ load page /usr/src/app < จากด้านบน แล้วตามด้วย node_modules
