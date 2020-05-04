@@ -19,7 +19,7 @@
 # Ignore SimpleTest multi-site environment.
 # simpletest
 vendor
-pgadmin
+# pgadmin
 mongodb
 nodejs/node_modules
 apps/node_modules
