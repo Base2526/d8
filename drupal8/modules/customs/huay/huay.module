@@ -431,6 +431,36 @@ function mongodb_transfer_method($tid){
     }
 }
 
+// รอบหวยยี่กี่
+function mongodb_yeekee_round($tid){
+    if(empty($tid)){
+        return FALSE;
+    }
+
+    $type = 'taxonomy_term';
+    $cid  = 'yeekee_round';
+    $branchs_terms = \Drupal::entityManager()->getStorage($type)->loadTree($cid);
+
+    $collection = Utils::GetMongoDB()->yeekee_round;
+    foreach($branchs_terms as $tag_term) {
+        $data = array();
+        $data['tid']    = $tag_term->tid;
+        $data['name']   = $tag_term->name;
+        $data['weight'] = $tag_term->weight;
+
+        $filter = array('tid'=>$tag_term->tid);
+        if($collection->count($filter)){
+            $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+            $collection->updateOne($filter, array('$set' =>$data) );
+        }else{
+            // create
+            $data['createdAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+            $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+            $collection->insertOne($data);
+        }
+    }
+}
+
 // รายชื่อธนาคาร ของเว็บฯ
 function mongodb_huay_list_bank($tid){
     if(empty($tid)){
@@ -549,6 +579,27 @@ function huay_entity_insert(\Drupal\Core\Entity\EntityInterface $entity) {
         break;
         }
         */
+
+        case 'taxonomy_term':{
+            switch($entity->bundle()){
+                case 'transfer_method':{
+                    mongodb_transfer_method($entity->id());
+                break;
+                }
+                case 'huay_list_bank':{
+                    mongodb_huay_list_bank($entity->id());
+                break;
+                }
+                case 'list_bank':{
+                    mongodb_list_bank($entity->id());
+                break;
+                }
+                case 'yeekee_round':{
+                    mongodb_yeekee_round($entity->id());
+                break;
+                }
+            }
+        }
     }
 
     // ID: 11, EntityTypeId : paragraph, bundle : user_banks
@@ -607,6 +658,10 @@ function huay_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
                 }
                 case 'list_bank':{
                     mongodb_list_bank($entity->id());
+                break;
+                }
+                case 'yeekee_round':{
+                    mongodb_yeekee_round($entity->id());
                 break;
                 }
             }

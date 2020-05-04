@@ -376,7 +376,7 @@ class API extends ControllerBase {
       
       $user_banks->save();
 
-      $user = \Drupal\user\Entity\User::load($uid);
+      $user = User::load($uid);
 
       $paragraphs = array();
       foreach ($user->get('field_bank')->getValue() as $ii=>$vv){
@@ -397,6 +397,7 @@ class API extends ControllerBase {
       }
 
       $paragraphs[] = array('target_id'=> $user_banks->id(), 'target_revision_id' => $user_banks->getRevisionId());
+      
       
       $user->set('field_bank', $paragraphs);
       $user->save();
@@ -521,7 +522,7 @@ class API extends ControllerBase {
       
       $user_deposit->save();
 
-      $user = \Drupal\user\Entity\User::load($uid);
+      $user = User::load($uid);
 
       $paragraphs = array();
       foreach ($user->get('field_deposit')->getValue() as $ii=>$vv){
@@ -542,12 +543,6 @@ class API extends ControllerBase {
     return new JsonResponse( $response );
   }
 
-  /*
-    "uid"               : req.body.uid,
-    "user_id_bank"      : req.body.user_id_bank,
-    "amount_of_withdraw": req.body.amount_of_withdraw,
-    "annotation"        : req.body.annotation
-  */
   public function withdraw(Request $request){
     $time1 = microtime(true);
     if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
@@ -574,7 +569,7 @@ class API extends ControllerBase {
       
       $user_withdraw->save();
 
-      $user = \Drupal\user\Entity\User::load($uid);
+      $user = User::load($uid);
       $paragraphs = array();
       foreach ($user->get('field_withdraw')->getValue() as $ii=>$vv){
           $p = Paragraph::load( $vv['target_id'] );
@@ -586,6 +581,135 @@ class API extends ControllerBase {
       $user->save();
 
       $response['result']           = TRUE;
+      $response['execution_time']   = microtime(true) - $time1;
+      return new JsonResponse( $response );
+    }
+
+    $response['result']   = FALSE;
+    return new JsonResponse( $response );
+  }
+
+  public function bet(Request $request){
+    $time1 = microtime(true);
+    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+      $content = json_decode( $request->getContent(), TRUE );
+
+      $uid                = trim( $content['uid'] );
+      $data               = trim( $content['data'] ); 
+      if( empty($uid) ||  
+          empty($data) ||
+          empty(User::load($uid)) ){
+        $response['result']   = FALSE;
+        return new JsonResponse( $response );
+      }
+      
+      $data_decode = json_decode(base64_decode($data));
+
+      $list_bet_paragraphs =array();
+      foreach ($data_decode->data as $ii=>$vv){
+        // $type = $vv->type;
+        // $response['type']    = $vv->type;
+        // $response['items']   = $vv->items;
+
+        $item_chit_paragraphs = array();
+        foreach ($vv->items as $item_key=>$item_value){
+          // item_chit
+          $item_chit = Paragraph::create([
+            'type'                    => 'item_chit',
+            'field_item_chit_price'   => $item_value->quantity,
+            'field_item_chit_number'  => $item_value->number,      // รอบ
+          ]);
+          $item_chit->save();
+
+          $item_chit_paragraphs[] = array('target_id'=> $item_chit->id(), 'target_revision_id' => $item_chit->getRevisionId());
+        }
+
+        $item_chit_type = 0;
+        switch($vv->type){
+          // สามตัวบน
+          case 'type_3_up':{
+            $item_chit_type = 21;
+          break;
+          }
+
+          // สามตัวโต๊ด
+          case 'type_3_toot':{
+            $item_chit_type = 22;
+          break;
+          }
+
+          // สองตัวบน
+          case 'type_2_up':{
+            $item_chit_type = 23;
+          break;
+          }
+
+          // สองตัวล่าง
+          case 'type_2_down':{
+            $item_chit_type = 24;
+          break;
+          }
+
+          // สามตัวกลับ
+          case 'type_3_undo':{
+            $item_chit_type = 25;
+          break;
+          }
+
+          // สองตัวกลับ
+          case 'type_2_undo':{
+            $item_chit_type = 26;
+          break;
+          }
+
+          // วิ่งบน
+          case 'type_1_up':{
+            $item_chit_type = 27;
+          break;
+          }
+
+          // วิ่งล่าง
+          case 'type_1_down':{
+            $item_chit_type = 28;
+          break;
+          }
+        }
+
+        // list_bet
+        $list_bet = Paragraph::create([
+          'type'                   => 'list_bet',
+          'field_bet_item'         => $item_chit_paragraphs,
+          'field_bet_type'         => $item_chit_type
+        ]);
+        $list_bet->save();
+
+        $list_bet_paragraphs[] = array('target_id'=> $list_bet->id(), 'target_revision_id' => $list_bet->getRevisionId());
+      }
+
+      $user = User::load($uid);
+      $chits_paragraphs = array();
+      foreach ($user->get('field_chits')->getValue() as $ii=>$vv){
+          $p = Paragraph::load( $vv['target_id'] );
+          $chits_paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+      }
+
+      // chit
+      $chit = Paragraph::create([
+        'type'                   => 'chit',
+        'field_yeekee_round'     => $data_decode->yeekee_round,       // รอบการแทงหวยยีกี
+        'field_chit_type'        => $data_decode->chit_type,          // ยี่กี หรือ หวยรัฐบาลไทย
+        'field_list_bet'         => $list_bet_paragraphs
+      ]);
+      $chit->save();
+
+      $chits_paragraphs[] = array('target_id'=> $chit->id(), 'target_revision_id' => $chit->getRevisionId());
+      
+      $user->set('field_chits', $chits_paragraphs);
+      $user->save();
+      
+      $response['result']           = TRUE;
+      // $response['base64_decode']    = $data_decode;
+      // $response['base64_decode_type']    = gettype($data_decode);
       $response['execution_time']   = microtime(true) - $time1;
       return new JsonResponse( $response );
     }

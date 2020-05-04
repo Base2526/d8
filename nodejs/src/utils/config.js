@@ -33,7 +33,10 @@ config.d8.api_add_deposit   = config.d8.host + '/api/add_deposit.json';
 // ถอดเงิน
 config.d8.api_withdraw      = config.d8.host + '/api/withdraw.json';
 
-config.d8.api_update_socket_io   = config.d8.host + '/api/update_socket_io.json';
+config.d8.api_update_socket_io      = config.d8.host + '/api/update_socket_io.json';
+
+// แทงพนัน 
+config.d8.api_bet                   = config.d8.host + '/api/bet.json';
 
 config.d8.headers = {
                         "Content-Type": "application/json",

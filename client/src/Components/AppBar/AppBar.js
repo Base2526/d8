@@ -45,12 +45,15 @@ class ButtonAppBar extends Component {
               <Link  href="#" style={{color: 'white'}} to="/register">สมัครสมาชิก</Link>
             </div>;
     if(this.props.loggedIn){
+
+      let {user} =this.props;
       v = <div>
+            เครดิตคงเหลือ : {user.credit_balance} ฿
             <Link style={{color: 'white', paddingRight:'5px'}} href="#" to="/profile-page" >
               <div className="logo">
-                <img src={this.props.user.image_url} width="40" height="40" />
+                <img src={user.image_url} width="40" height="40" />
               </div>
-              {this.props.user.name}
+              {user.name}
             </Link>
             <Link style={{color: 'white'}} href="#" to="/login" onClick={this.handleLogout} >
               ออกจากระบบ

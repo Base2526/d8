@@ -1,8 +1,9 @@
 import * as types from "./types";
 
-export const loadingOverlayActive = (isActive) => ({
+export const loadingOverlayActive = (isActive, loadingText="Loading content...") => ({
     type: types.LOADING_OVERLAY_ACTIVE,
-    isActive
+    isActive,
+    loadingText
 });
 
 export const updateHuayListBank = (data) => ({

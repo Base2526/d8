@@ -20,6 +20,7 @@ const HuayListBank    = require('./models/huay_list_bank')
 const TransferMethod  = require('./models/transfer_method')
 const ListBank        = require('./models/list_banck')
 const Sessions        = require('./models/sessions')
+const YeekeeRound     = require('./models/yeekee_round')
 
 const connectDb       = require("./src/connection");
 const User            = require("./src/User.model");
@@ -303,6 +304,22 @@ app.post('/api/withdraw', (req, res) => {
     console.log(json);
     // Do something with the returned data.
 
+    res.send(json);
+  });
+});
+
+app.post('/api/bet', (req, res) => {
+  var data = {
+    "uid"       : req.body.uid,
+    "data"      : req.body.data
+  }
+
+  fetch(config.d8.api_bet, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+    .then((res) => {
+      return res.json()
+  })
+  .then((json) => {
+    console.log(json);
     res.send(json);
   });
 });
@@ -594,6 +611,47 @@ server.listen(PORT, function (err) {
         }
         case 'invalidate':{
           console.log('TransferMethod > dropDatabase');
+          break;
+        }
+      }
+    });
+
+    // รอบหวยยี่กี่
+    YeekeeRound.watch().on('change', async data =>{
+      console.log(new Date(), data)
+      //operationType
+      switch(data.operationType){
+        case 'insert':{
+          console.log('YeekeeRound > insert');
+          break;
+        }
+        case 'delete':{
+          console.log('YeekeeRound > delete');
+          break;
+        }
+        case 'replace':{
+          console.log('YeekeeRound > replace');
+          break;
+        }
+        case 'update':{
+          console.log('YeekeeRound > update');
+          // socket_local.emit("transfer_method", JSON.stringify(await TransferMethod.find({})));
+          break;
+        }
+        case 'drop':{
+          console.log('YeekeeRound > drop');
+          break;
+        }
+        case 'rename':{
+          console.log('YeekeeRound > rename');
+          break;
+        }
+        case 'dropDatabase':{
+          console.log('YeekeeRound > dropDatabase');
+          break;
+        }
+        case 'invalidate':{
+          console.log('YeekeeRound > dropDatabase');
           break;
         }
       }

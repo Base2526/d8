@@ -1,7 +1,8 @@
 import * as types from "../actions/types";
 
 const initialState = {
-    isActive: false
+    isActive: false,
+    loadingText: ""
 };
 
 const loading_overlay = (state = initialState, action) => {
@@ -11,6 +12,7 @@ const loading_overlay = (state = initialState, action) => {
       return {
         ...state,
         isActive:action.isActive,
+        loadingText: action.loadingText,
       };
     default:
       return state;

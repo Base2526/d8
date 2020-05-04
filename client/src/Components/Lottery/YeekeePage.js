@@ -8,11 +8,17 @@ import Button from 'react-bootstrap/Button'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Form from 'react-bootstrap/Form'
 import ReactList from 'react-list';
+import Modal from 'react-bootstrap/Modal'
+import axios from 'axios';
+// import btoa from 'btoa';
+import { Accordion, AccordionItem } from 'react-sanfona';
 
 import NumericInput from 'react-numeric-input';
-
-import { headers, showToast, isEmpty } from '../Utils/Config';
+import OtpInput from '../Utils/OtpInput';
+import { headers, showToast, isEmpty, getCurrentDate, getCurrentTime } from '../Utils/Config';
 import { loadingOverlayActive } from '../../actions/huay'
+
+import '../../index.css';
 
 class YeekeePage extends Component {
   constructor(props) {
@@ -20,17 +26,83 @@ class YeekeePage extends Component {
     this.state = {
       error: false,
       error_message:'',
-      book_makers:[],
       total: 0,
       equal_price:0,
 
       is_active: false,
+      loading_text: 'รอสักครู่ กำลังส่งโพย',
+      confirm_show: false,
+
+      otp: '',
+      m: {mode:3, mi:['type_3_up']},
+
+      data: [
+        {
+          headerName: 'สามตัวบน',
+          isOpened: true,
+          type:'type_3_up',
+          height: 120,
+          items: [],
+        },
+        {
+          headerName: 'สามตัวโต๊ด',
+          isOpened: true,
+          type:'type_3_toot',
+          height: 120,
+          items: [],
+        },
+        {
+          headerName: 'สองตัวบน',
+          isOpened: true,
+          type:'type_2_up',
+          height: 120,
+          items: [],
+        },
+        {
+          headerName: 'สองตัวล่าง',
+          isOpened: true,
+          isReactComponent: false,
+          type:'type_2_down',
+          height: 120,
+          items: [],
+        },
+        {
+          headerName: 'สามตัวกลับ',
+          isOpened: true,
+          type:'type_3_undo',
+          height: 120,
+          items: [],
+        },
+        {
+          headerName: 'สองตัวกลับ',
+          isOpened: true,
+          type:'type_2_undo',
+          height: 120,
+          items: [],
+        },
+        {
+          headerName: 'วิ่งบน',
+          isOpened: true,
+          type:'type_1_up',
+          height: 120,
+          items: [],
+        },
+        {
+          headerName: 'วิ่งล่าง',
+          isOpened: true,
+          type:'type_1_down',
+          height: 120,
+          items: [],
+        }
+      ]
     }
 
     this.handleItemClick = this.handleItemClick.bind(this);
-    this.renderItem = this.renderItem.bind(this);
+    // this.renderItem = this.renderItem.bind(this);
     // this.handleItemOnInput = this.handleItemOnInput.bind(this);
     this.handlerItemChange = this.handlerItemChange.bind(this);
+
+    this.listBookmakers    = this.listBookmakers.bind(this);
 
     // this.handlerEqualOnInput = this.handlerEqualOnInput.bind(this);
     this.handlerEqualChange = this.handlerEqualChange.bind(this);
@@ -39,146 +111,167 @@ class YeekeePage extends Component {
     this.handleClearClick = this.handleClearClick.bind(this);
 
     this.onCloseAlert  = this.onCloseAlert.bind(this);
+    this.viewType = this.viewType.bind(this);
+    this.addNumber = this.addNumber.bind(this);
+
+    this.expanded = this.expanded.bind(this);
+    this.showConfirmModal = this.showConfirmModal.bind(this)
   }
 
   componentDidMount() {
+
   }
 
-  handleItemClick = (index) => {
-    var tmp_book_makers = [...this.state.book_makers]; 
-    if (index !== -1) {
-      tmp_book_makers.splice(index, 1);
-      this.setState({book_makers: tmp_book_makers});
+  handleOtpChange = otp => {
+    console.log(otp);
+    if(otp.toString().length == 3){
+      this.setState({ otp });
 
-      showToast('success', "ลบรายการ เรียบร้อย");
-    }
-  }
-
-  /*
-  handleItemOnInput(event) {
-    let {user} = this.props;
-    let {book_makers} = this.state;
-    book_makers[event.target.id] = {...book_makers[event.target.id], quantity: (isEmpty(event.target.value) || event.target.value < 1) ? 1 : event.target.value}
-    
-    let total = 0;
-    book_makers.map(function(item, i){
-      let quantity = parseInt(item.quantity);
-      if(quantity < 1){
-        quantity = parseInt(1);
-      }
-      console.log(quantity)
-      total+=quantity
-    })
-    console.log(total)
-
-    if(total> user.credit_balance){
-      this.setState({book_makers, total, error:true, error_message: 'เครดิตคงเหลือไม่พอ'});
+      this.addNumber(otp);
+      setTimeout(function() { 
+        this.setState({ otp:'' });
+      }.bind(this), 500)
     }else{
-      this.setState({book_makers, total});
+      this.setState({ otp });
     }
-  }    
-  */
+  }
+
+  handleItemClick = (id) => {
+    let mid  = id.split("-");
+    let {data, m} = this.state;
+
+    // console.log(data, m)
+    let find = data.find((val) => { return val.type === mid[0]});
+
+    let items = find.items;
+    items.splice(mid[1], 1);
+    let new_find = {...find, items}
+    // console.log(new_find)
+
+    let findIndex = data.findIndex((val) => { return val.type === mid[0]});
+
+    let newData = [...data]
+    newData[findIndex] = new_find;
+
+    let total = 0;
+    newData.map((nv, nk) =>{
+      nv.items.map((nvv, nkk) =>{
+        total+=parseInt(nvv.quantity)
+      })
+    })
+    
+    this.setState({data: newData, total})
+  }
 
   handlerItemChange(newVal, valStr, event){
-    // console.log(newVal, valStr, event.id);
+    console.log(newVal, valStr, event.id, event.value);
 
-    let {user} = this.props;
-    let {book_makers} = this.state;
-    book_makers[event.id] = {...book_makers[event.id], quantity: newVal}
-    
+    let mid  = event.id.split("-");
+    let {data, m} = this.state;
+
+    let find = data.find((val) => { return val.type === mid[0]});
+
+    let items = find.items;
+
+    let item = items[mid[1]]
+
+    item = {...item, quantity:event.value}
+
+    items[mid[1]] = item
+    let new_find = {...find, items}
+
+    let findIndex = data.findIndex((val) => { return val.type === mid[0]});
+    let newData = [...data]
+
+    newData[findIndex] = new_find;
+
     let total = 0;
-    book_makers.map(function(item, i){
-      let quantity = parseInt(item.quantity);
-      if(quantity < 1){
-        quantity = parseInt(1);
+    newData.map((nv, nk) =>{
+      nv.items.map((nvv, nkk) =>{
+        total+=parseInt(nvv.quantity)
+      })
+    })
+    
+    this.setState({data: newData, total})
+  }
+
+  addNumber(number){
+    let {user} = this.props;
+    let {data, m} = this.state;
+
+    m.mi.map((key, i) =>{
+      let find = data.find((val) => { return val.type === key});
+      let items = find.items;
+      if(!items.find((val) => { return val.number === number })){
+        let item =  { number,
+                      quantity:1,
+                      price:90
+                    }
+        items = [...items, item]
+        find  = {...find, items}
+
+        let findIndex = data.findIndex((val) => { return val.type === key});
+
+        let newData = [...data]
+        newData[findIndex] = find;
+
+        let total = 0;
+        newData.map((nv, nk) =>{
+          nv.items.map((nvv, nkk) =>{
+            total+=parseInt(nvv.quantity)
+          })
+        })
+        
+        this.setState({data: newData, total})
+      }else{
+        showToast('warn', 'กรอบเลขซํ้า')
       }
-      console.log(quantity)
-      total+=quantity
     })
-    console.log(total)
-
-    if(total> user.credit_balance){
-      // this.setState({book_makers, total, error:true, error_message: 'เครดิตคงเหลือไม่พอ'});
-
-      this.setState({book_makers, total});
-
-      showToast('warn', "เครดิตคงเหลือไม่พอ", 3000);
-    }else{
-      this.setState({book_makers, total});
-    }
-  }
-
-  renderItem(index, key) {
-    console.log(this.state.book_makers[index])
-    return <div key={key}>
-              <div>{this.state.book_makers[index].number}</div>
-              <div>
-                {/* <input 
-                  type="number"
-                  placeholder="จำนวนเงิน" 
-                  // key={index} 
-                  // data-id={index}
-                  min="1"
-                  id={index}
-                  onInput={this.handleItemChange} 
-                  defaultValue={this.state.book_makers[index].quantity} 
-                  /> */}
-                <NumericInput 
-                  min={1} 
-                  id={index}
-                  // className="form-control" 
-                  // onInput={this.handleItemOnInput} 
-                  onChange={this.handlerItemChange}
-                  // defaultValue={this.state.book_makers[index].quantity}
-                  value={this.state.book_makers[index].quantity} 
-                  />
-                <div>
-                  ชนะ : {this.state.book_makers[index].quantity*this.state.book_makers[index].price}
-                </div>
-                <button key={index} data-id={index} style={{backgroundColor: 'red'}} onClick={e => this.handleItemClick(e.target.getAttribute('data-id'))}>
-                X
-                </button>
-              </div>
-            </div>;
-  }
-
-  handleClick(){
-    let {user} = this.props;
-    let {book_makers} = this.state;
-
-    const rand = Math.floor(Math.random() * 100) + 1 ;
-
-    let item =  {
-                  type:1,
-                  number:rand,
-                  quantity:1,
-                  price:90
-                }
-
-    book_makers = [...book_makers, item];
-    console.log(book_makers);
-
-
-    let total = 0;
-    book_makers.map(function(item, i){
-      total+=parseInt(item.quantity)
-    })
-
-    if(total> user.credit_balance){
-      // this.setState({book_makers, total, error:true, error_message: 'เครดิตคงเหลือไม่พอ'});
-    
-      this.setState({book_makers, total,});
-
-      showToast('warn', "เครดิตคงเหลือไม่พอ", 3000);
-    }else{
-      this.setState({book_makers, total});
-    }
   } 
 
-  handleBetClick(){
-    console.log('handleBetClick');
+  handleBetClick = async()=>{
+    this.setState({confirm_show: false, is_active:true})
 
-    this.setState({is_active: true})
+    let {match} = this.props;
+    let {data} = this.state;
+
+    data =  data.filter(function(val) { return !isEmpty(val.items)})
+
+    // var b64 = btoa(JSON.stringify(data));
+    // console.log(b64, JSON.stringify(data))
+
+    // yeekee_round : รอบ       {match.params.id}
+    // chit_type    : ยี่กี(30) หรือ หวยรัฐบาลไทย
+
+
+    let buff = new Buffer(JSON.stringify({yeekee_round:match.params.id,  chit_type: 30, data}));
+
+    let response  = await axios.post('/api/bet', 
+                                      { uid: this.props.user.uid,
+                                        data: buff.toString('base64')}, 
+                                      {headers:headers()});
+    console.log(response);
+    if( response.status==200 && response.statusText == "OK" ){
+      if(response.data.result){
+        this.nextPath('/');
+
+        showToast('success', 'ส่งโพยเรียบร้อย');
+      }else{
+        this.setState({
+          error: true,
+          error_message: response.data.message,
+          password:''
+        });
+
+        showToast('error', response.data.message);
+      }
+    }else{
+      showToast('error', 'Error');
+    }
+  }
+
+  nextPath(path) {
+    this.props.history.push(path);
   }
 
   handleClearClick(){
@@ -186,7 +279,7 @@ class YeekeePage extends Component {
   }
 
   loadingOverlayActive(){
-    this.props.loadingOverlayActive(this.state.is_active);
+    this.props.loadingOverlayActive(this.state.is_active, this.state.loading_text);
   }
 
   onCloseAlert(){
@@ -224,37 +317,402 @@ class YeekeePage extends Component {
   }
 
   handlerEqualChange(newVal, valStr, event){
+    console.log(newVal, valStr, event)
     this.setEqualPrice(newVal)
+
+    // 
   }
 
-  setEqualPrice(price){
-    let {book_makers} = this.state;
-    let tmp_book_makers = book_makers;
-    book_makers.map(function(item, i){
-      tmp_book_makers[i] = {...item, quantity:price}
-    })
+  setEqualPrice(quantity){
+    let total = 0;
+    let {data} = this.state
+    let new_data = [...data]
+    data.map((v, k) =>{
+      // let tmp_v = {...v}
+      let items = [...v.items]
+      v.items.map((vv, kk) =>{
+        // total+=parseInt(nvv.quantity)
+        items[kk] = {...vv, quantity}
 
-    this.setState({book_makers:tmp_book_makers, equal_price: price})
+        total+=parseInt(quantity)
+      })
+      new_data[k] = {...v, items}
+    })
+    this.setState({data:new_data, total, equal_price: quantity})
+  }
+
+  handleNumPad(key){
+    let {otp, m} = this.state;
+    console.log(m.mode)
+    switch(key){
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+      case 9:{
+        otp = otp + key;
+        console.log(key, otp)
+        if(otp.toString().length == m.mode){
+          this.setState({ otp });
+
+          this.addNumber(otp);
+
+          setTimeout(function() { 
+            this.setState({ otp:'' });
+          }.bind(this), 500)
+        }else{
+          this.setState({ otp });
+        }
+        break;
+      }
+      case 'C':{
+        otp = otp;
+        if(otp.toString().length > 0){
+          this.setState({ otp:'' });
+        }
+        break;
+      }
+      case 'D':{
+        otp = otp;
+        if(otp.toString().length > 0){
+          otp = otp.slice(0, -1); 
+          this.setState({ otp});
+        }
+        break;
+      }
+    }
+  }
+
+  handleType(type){
+    let {m} = this.state
+    let tmp_m = {}
+    switch(type){
+      case 'type_3_up':{
+        if(m.mode === 3){
+          if(m.mi.find((val) => { return val === type })){
+            let mi =  m.mi.filter(function(val) { return val !== type })
+            tmp_m = {...m, mi}
+          }else{
+            let mi    = [...m.mi, type]
+            tmp_m  = {...m, mi}
+          }
+        }else{
+          tmp_m = {mode:3, mi:['type_3_up']}
+        }
+        console.log(tmp_m);
+        break;
+      }
+      case 'type_3_toot':{
+        if(m.mode === 3){
+          if(m.mi.find((val) => { return val === type })){
+            let mi =  m.mi.filter(function(val) { return val !== 'type_3_undo' })
+                mi =  m.mi.filter(function(val) { return val !== type })
+             tmp_m = {...m, mi}
+          }else{
+            let mi =  m.mi.filter(function(val) { return val !== 'type_3_undo' })
+                mi = [...mi, type]
+            tmp_m  = {...m, mi}
+          }
+        }else{
+          tmp_m = {mode:3, mi:['type_3_toot']}
+        }
+        console.log(tmp_m);
+        break;
+      }
+      case 'type_3_undo':{
+        if(m.mode === 3){
+          if(m.mi.find((val) => { return val === type })){
+            let mi =  m.mi.filter(function(val) { return val !== 'type_3_toot' })
+                mi =  m.mi.filter(function(val) { return val !== type })
+             tmp_m = {...m, mi}
+          }else{
+            let mi =  m.mi.filter(function(val) { return val !== 'type_3_toot' })
+                mi = [...mi, type]
+            tmp_m  = {...m, mi}
+          }
+        }else{
+          tmp_m = {mode:3, mi:['type_3_undo']}
+        }
+        console.log(tmp_m);
+        break;
+      }
+      // 2 ตัวบน
+      case 'type_2_up':{
+        if(m.mode === 2){
+          if(m.mi.find((val) => { return val === type })){
+            let  mi =  m.mi.filter(function(val) { return val !== type })
+            tmp_m = {...m, mi}
+          }else{
+            let mi = [...m.mi, type]
+            tmp_m  = {...m, mi}
+          }
+        }else{
+          tmp_m = {mode:2, mi:['type_2_up']}
+        }
+        break;
+      }
+
+      // 2 ตัวล่าง
+      case 'type_2_down':{
+        if(m.mode === 2){
+          if(m.mi.find((val) => { return val === type })){
+            let  mi =  m.mi.filter(function(val) { return val !== type })
+            tmp_m = {...m, mi}
+          }else{
+            let mi = [...m.mi, type]
+            tmp_m  = {...m, mi}
+          }
+        }else{
+          tmp_m = {mode:2, mi:['type_2_down']}
+        }
+        break;
+      }
+
+      // 2 ตัวกลับ
+      case 'type_2_undo':{
+        if(m.mode === 2){
+          if(m.mi.find((val) => { return val === type })){
+            let  mi =  m.mi.filter(function(val) { return val !== type })
+            tmp_m = {...m, mi}
+          }else{
+            let mi = [...m.mi, type]
+            tmp_m  = {...m, mi}
+          }
+        }else{
+          tmp_m = {mode:2, mi:['type_2_undo']}
+        }
+        break;
+      }
+
+      // วิ่งบน
+      case 'type_1_up':{
+        if(m.mode === 1){
+          if(m.mi.find((val) => { return val === type })){
+            let  mi =  m.mi.filter(function(val) { return val !== type })
+            tmp_m = {...m, mi}
+          }else{
+            let mi = [...m.mi, type]
+            tmp_m  = {...m, mi}
+          }
+        }else{
+          tmp_m = {mode:1, mi:['type_1_up']}
+        }
+        break;
+      }
+
+      // วิ่งล่าง
+      case 'type_1_down':{
+        if(m.mode === 1){
+          if(m.mi.find((val) => { return val === type })){
+            let  mi =  m.mi.filter(function(val) { return val !== type })
+            tmp_m = {...m, mi}
+          }else{
+            let mi = [...m.mi, type]
+            tmp_m  = {...m, mi}
+          }
+        }else{
+          tmp_m = {mode:1, mi:['type_1_down']}
+        }
+        break;
+      }
+    }
+    // console.log(tmp_m)
+    this.setState({m: tmp_m})
+  }
+
+  variant(mode, type){
+    let {m} = this.state
+    return ( m.mode === mode ? ( (m.mi.find((val) => { return val === type })) ? 'primary' : 'outline-primary' ) : 'outline-primary' )
+  }
+
+  viewType(){
+    return( <div>
+            <div>
+              <Button 
+                variant={this.variant(3, 'type_3_up')}
+                onClick={() =>this.handleType("type_3_up")}>3 ตัวบน</Button>
+              <Button 
+                variant={this.variant(3, 'type_3_toot')}
+                onClick={() =>this.handleType("type_3_toot")}>3 ตัวโต๊ด</Button>
+              <Button 
+                variant={this.variant(2, 'type_2_up')}
+                onClick={() =>this.handleType("type_2_up")}>2 ตัวบน</Button>
+              <Button 
+                variant={this.variant(2, 'type_2_down')}
+                onClick={() =>this.handleType("type_2_down")}>2 ตัวล่าง</Button>
+            </div>
+            <div>
+              <Button 
+                variant={this.variant(3, 'type_3_undo')}
+                onClick={() =>this.handleType("type_3_undo")}>3 ตัวกลับ</Button> 
+              <Button 
+                variant={this.variant(2, 'type_2_undo')}
+                onClick={() =>this.handleType("type_2_undo")}>2 ตัวกลับ</Button> 
+              <Button 
+                variant={this.variant(1, 'type_1_up')}
+                onClick={() =>this.handleType("type_1_up")}>วิ่งบน</Button> 
+              <Button 
+                variant={this.variant(1, 'type_1_down')}
+                onClick={() =>this.handleType("type_1_down")}>วิ่งล่าง</Button>
+              </div>
+            </div> )
+  }
+
+  expanded(index, isOpened){
+    let {data} = this.state;
+    let item = data[index]
+
+    // isOpened
+    item = {...item, isOpened}
+
+    let new_data = [...data]
+    new_data[index] = item;
+
+    this.setState({data: new_data})
+  }
+
+  listBookmakers(){
+    let { data } = this.state;
+
+    data =  data.filter(function(val) { return !isEmpty(val.items)})
+    console.log(data)
+    return(
+      <Accordion allowMultiple>
+        {
+        data.map((value, i) =>{
+          return (
+            <AccordionItem 
+              key={i} 
+              title={`${value.headerName} (${value.items.length})`} 
+              expanded={value.isOpened}
+              onExpand={(index) =>{
+                console.log("onExpand : " + index);
+                this.expanded(index, true);
+              }}
+              onClose={(index) =>{
+                console.log("onClose : " + index);
+                this.expanded(index, false);
+              }}>
+              {
+                value.items.map((v, key) =>{
+                  return (<div key={key}>
+                          <div>{v.number}</div>
+                          <div>
+                            <NumericInput 
+                              min={1} 
+                              id={value.type +"-"+ key}
+                              onChange={this.handlerItemChange}
+                              value={v.quantity} />
+                            <div>
+                              ชนะ : {v.quantity*v.price}
+                            </div>
+                            <button key={key} data-id={value.type +"-"+ key} style={{backgroundColor: 'red'}} onClick={e => this.handleItemClick(e.target.getAttribute('data-id'))}>X</button>
+                          </div>
+                        </div>)
+                })
+              }
+            </AccordionItem>
+          );
+        })
+        }
+      </Accordion>
+    )
+  }
+
+  showConfirmModal(){
+    let {match} = this.props;
+    let {data, m} = this.state;
+
+    data =  data.filter(function(val) { return !isEmpty(val.items)})
+
+    let total = 0;
+    return <Modal
+        show={this.state.confirm_show}
+        onHide={() => {
+          this.setState({confirm_show: false})
+        }}
+        dialogClassName="modal-90w"
+        aria-labelledby="example-custom-modal-styling-title"
+        backdrop="static"
+        scrollable={true}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="example-custom-modal-styling-title">
+            ยืนยันการส่งโพย
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+          หวยยี่กี รอบที่ {match.params.id}
+          วันที่	{getCurrentDate('/')}
+          เวลา	{getCurrentTime()}
+          </p>
+          <p>
+          รายการแทง
+          </p>
+          {
+            data.map((nv, nk) =>{  
+                let items =  nv.items.map((nvv, nkk) =>{
+                  total+=parseInt(nvv.quantity)
+                  return <div key={nkk}>{nvv.number} - {nvv.quantity} ฿</div>      
+                })
+                return  <div key={nk}>
+                          <div>{ nv.headerName }</div>
+                          <div>{ items }</div>
+                        </div>
+              
+            })
+          }
+          <div>ยอดรวมทั้งหมด {total} ฿</div>
+          <Form.Group controlId="exampleForm.ControlTextarea1">
+            <Form.Label>หมายเหตุ</Form.Label>
+            <Form.Control as="textarea" rows="2" />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+           onClick={() =>{
+            this.handleBetClick() 
+          } }>กดยืนยันการส่งโพย</Button>
+        </Modal.Footer>
+      </Modal>
   }
 
   render() {
-    let {user} = this.props;
-    let {error, error_message, book_makers, total, equal_price} = this.state;
+    let {user, match} = this.props; 
+    let {error, error_message, total, equal_price, otp, m} = this.state;
 
-    console.log(equal_price)
+    let btnC = <Button variant="outline-primary" onClick={() =>this.handleNumPad("C")} disabled>C</Button>;
+    let btnD = <Button variant="outline-primary" onClick={() =>this.handleNumPad("D")} disabled>D</Button>;
+    if(otp.toString().length > 0){
+      btnC = <Button variant="outline-primary" onClick={() =>this.handleNumPad("C")}>C</Button> ;
+      btnD = <Button variant="outline-primary" onClick={() =>this.handleNumPad("D")}>D</Button>;
+    }
+
     this.loadingOverlayActive();
+
+    // m: {mode:3, mi:['type_3_up']}
     return (
+      <div>
+        { this.state.confirm_show ? this.showConfirmModal() : '' }
       <Container style={{minHeight: 600}}>
         <Row>
-          <Col style={{backgroundColor: 'green'}} md={12} xs={12}>
-          { error ? <Alert variant={'warning'} dismissible onClose={this.onCloseAlert}>{error_message}</Alert> : '' }
+          <Col style={{border: '1px solid #61dafb'}} md={12} xs={12}>
+            <div>
+              หวยยี่กี รอบที่ {match.params.id}
+            </div>
+            <div>
+              เวลาเหลือ 10:14:13
+            </div>
           </Col>
         </Row>
         <Row style={{ border: '1px solid #61dafb' }}>
           <Col style={{ border: '1px solid #61dafb' }} md={8} xs={12}>
-            <div>
-            เครดิตคงเหลือ : {user.credit_balance} ฿
-              </div>
             <div>
             ยอดเดิมพันทั้งหมด : {total} ฿
             </div>
@@ -262,26 +720,29 @@ class YeekeePage extends Component {
           <Col style={{ border: '1px solid #61dafb' }} md={4} xs={12}>
             <Button
               variant="primary"
-              onClick={() =>this.handleBetClick()}>
-              แทงพนัน
+              onClick={() =>{
+                this.setState({confirm_show: true})
+              } }>
+              กดส่งโพย
             </Button>
 
-            <Button
+            {/* <Button
               variant="outline-danger"
               onClick={() =>this.handleClearClick()}>
               ล้างข้อมูล
-            </Button>
+            </Button> */}
           </Col>
         </Row>
         <Row>
           <Col style={{ border: '1px solid #BF553F' }} md={4} xs={12}>
-            <div>รายการแทง ({this.state.book_makers.length})</div>
+            <div>รายการแทง</div>
             <div style={{overflow: 'auto', maxHeight: 400, minHeight: 400, border: '1px solid #708024'}}>
-              <ReactList
+              {/* <ReactList
                 itemRenderer={this.renderItem}
                 length={this.state.book_makers.length}
                 type='uniform'
-              />
+              /> */}
+              {this.listBookmakers()}
             </div>
             <div style={{ border: '1px solid #61dafb' }}>
               <div>
@@ -328,26 +789,58 @@ class YeekeePage extends Component {
             </div>
           </Col>
           <Col style={{ border: '1px solid #61dafb' }} md={8} xs={12}>
+            {this.viewType()}
             <div>
-              <Button variant="outline-primary">3 ตัวบน</Button>
-              <Button variant="outline-primary">3 ตัวโต๊ด</Button>
-              <Button variant="outline-primary">2 ตัวบน</Button>
-              <Button variant="outline-primary">2 ตัวล่าง</Button>
-              <Button variant="outline-primary">3 ตัวกลับ</Button> 
-              <Button variant="outline-primary">2 ตัวกลับ</Button> 
-              <Button variant="outline-primary">วิ่งบน</Button> 
-              <Button variant="outline-primary">วิ่งล่าง</Button> 
+              <OtpInput
+                inputStyle="inputStyle"
+                onChange={this.handleOtpChange}
+                numInputs={m.mode}
+                value={otp}
+              />
             </div>
             <div>
-              {/* cursor: default */}
-              {/* <label style={{width: 50, height: 50, cursor: 'default', border: '1px solid #61dafb'}}></label> */}
-              <input type="text" style={{width: 50, height: 50}} />
-              <input type="text" style={{width: 50, height: 50}} />
-              <input type="text" style={{width: 50, height: 50}} />
+              <div>
+                  <Button variant="outline-primary" onClick={() =>this.handleNumPad(1)}>1</Button> 
+                  <Button variant="outline-primary" onClick={() =>this.handleNumPad(2)}>2</Button>
+                  <Button variant="outline-primary" onClick={() =>this.handleNumPad(3)}>3</Button>
+              </div>
+              <div>
+                  <Button variant="outline-primary" onClick={() =>this.handleNumPad(4)}>4</Button> 
+                  <Button variant="outline-primary" onClick={() =>this.handleNumPad(5)}>5</Button> 
+                  <Button variant="outline-primary" onClick={() =>this.handleNumPad(6)}>6</Button> 
+              </div>
+              <div>
+                  <Button variant="outline-primary" onClick={() =>this.handleNumPad(7)}>7</Button> 
+                  <Button variant="outline-primary" onClick={() =>this.handleNumPad(8)}>8</Button> 
+                  <Button variant="outline-primary" onClick={() =>this.handleNumPad(9)}>9</Button> 
+              </div>
+              <div>
+                  {btnC}
+                  <Button variant="outline-primary" onClick={() =>this.handleNumPad(0)}>0</Button> 
+                  {btnD}
+              </div>
+            </div>
+            <div>
+              <div>เงื่อนไขการแทง</div>
+              <div>
+              <div>วิ่งบน จ่าย : 3.20</div>
+              <ul>
+                <li>แทงขั้นต่ำต่อครั้ง : 10.00</li>
+                <li>แทงสูงสุดต่อครั้ง : 20000.00</li>
+                <li>แทงสูงสุดต่อเลข : 20000.00</li>
+              </ul>
+              <div>วิ่งล่าง จ่าย : 4.20</div>
+              <ul>
+                <li>แทงขั้นต่ำต่อครั้ง : 10.00</li>
+                <li>แทงสูงสุดต่อครั้ง : 20000.00</li>
+                <li>แทงสูงสุดต่อเลข : 20000.00</li>
+              </ul>
+              </div>
             </div>
           </Col>
         </Row>
       </Container> 
+      </div>
     )
   }
 }
@@ -367,8 +860,8 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch) => {
 	return {
-    loadingOverlayActive: (isActivie) =>{
-      dispatch(loadingOverlayActive(isActivie))
+    loadingOverlayActive: (isActivie, loadingText) =>{
+      dispatch(loadingOverlayActive(isActivie, loadingText))
     }
 	}
 }

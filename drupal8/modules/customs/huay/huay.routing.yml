@@ -134,4 +134,11 @@ api.withdraw:
   requirements:
     _access: 'TRUE'
 
+api.bet:
+  path: '/api/bet.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::bet' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
 # api

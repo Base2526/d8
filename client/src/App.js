@@ -37,7 +37,7 @@ class App extends Component {
               <LoadingOverlay
                 active={this.props.isActive}
                 spinner={<ScaleLoader color="#00BFFF" />}
-                text='Loading your content...'>
+                text={this.props.loadingText}>
 
               <ToastContainer enableMultiContainer containerId={'toast_container_id'} position={toast.POSITION.TOP_RIGHT} />  
               
@@ -104,7 +104,9 @@ const mapStateToProps = (state, ownProps) => {
 		return {};
   }
 
-  let result = {isActive: state.loading_overlay.isActive};  
+  // loading_text
+
+  let result = {isActive: state.loading_overlay.isActive, loadingText: state.loading_overlay.loadingText};  
   if(state.auth.isLoggedIn){
     return {...result,  logged_in: true, user: state.auth.user};
   }else{
