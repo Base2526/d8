@@ -94,20 +94,7 @@ class RideSelect extends Component {
   }
 
   nextPath(path) {
-    
-    if(this.state.destination != null) {
-      this.handleBooking();
-      this.props.history.push(path);
-    }
-  }
-
-  nextPath2(path) {
     this.props.history.push(path);
-    
-    // toast('Wow so easy !')
-    // toast.success("Success Notification !", {
-    //   position: toast.POSITION.TOP_CENTER
-    // });
   }
 
   // notifyA(){
@@ -115,6 +102,17 @@ class RideSelect extends Component {
   // }
 
   render() {
+    let {user} = this.props
+
+    if(!user){
+      this.nextPath('/login')
+      return;
+    }
+
+    console.log(user)
+    let is_dealer = user.roles.find((element) => {
+                      return element === 'lottery_dealer';
+                    })
 
     return (
       <Card className={ useStyles.root }>
@@ -122,60 +120,68 @@ class RideSelect extends Component {
         <CardContent>
           
           <div style={{padding:'5px'}}>
-            <Button type="primary" size="large" onClick={ () => this.nextPath2('/deposit')}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath('/deposit')}>
               ฝากเงิน
             </Button>
           </div>
           <div style={{padding:'5px'}}>
-            <Button type="primary" size="large" onClick={ () => this.nextPath2('/withdraw')}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath('/withdraw')}>
               ถอนเงิน
             </Button>
           </div>
           <div style={{padding:'5px'}}>
-            <Button type="primary" size="large" onClick={ () => this.nextPath2('/add-bank')}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath('/add-bank')}>
             เพิ่มบัญชีธนาคาร
             </Button>
           </div>
           <div style={{padding:'5px'}}>
-            <Button type="primary" size="large" onClick={ () => this.nextPath2('/lottery-list')}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath('/lottery-list')}>
               แทงหวย
             </Button>
           </div>
           <div style={{padding:'5px'}}>
-            <Button type="primary" size="large" onClick={ () => this.nextPath2('/lottery-list-transaction')}>
-            รายการโพยทั้งหมด
+            <Button type="primary" size="large" onClick={ () => this.nextPath('/lottery-list-chits')}>
+            รายการโพยทั้งหมด (สำหรับลูกค้า)
             </Button>
           </div>
 
           <div style={{padding:'5px'}}>
-            <Button type="primary" size="large" onClick={ () => this.nextPath2('/affiliate-page')}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath('/affiliate-page')}>
               แนะนําเพือน
             </Button>
           </div>
 
           <div style={{padding:'5px'}}>
-            <Button type="primary" size="large" onClick={ () => this.nextPath2('/statement')}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath('/statement')}>
               รายงานการเงิน
             </Button>
           </div>
 
           <div style={{padding:'5px'}}>
-            <Button type="primary" size="large" onClick={ () => this.nextPath2('/request-all')}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath('/request-all')}>
               สถานะ ฝากเงิน
             </Button>
           </div>
 
           <div style={{padding:'5px'}}>
-            <Button type="primary" size="large" onClick={ () => this.nextPath2('/contact-us')}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath('/contact-us')}>
               ติดต่อเรา
             </Button>
           </div> 
 
           <div style={{padding:'5px'}}>
-            <Button type="primary" size="large" onClick={ () => this.nextPath2('/help')}>
+            <Button type="primary" size="large" onClick={ () => this.nextPath('/help')}>
             วิธีการใช้งาน
             </Button>
           </div> 
+
+          {
+            !is_dealer ?'':<div style={{padding:'5px'}}>
+                              <Button type="primary" size="large" onClick={ () => this.nextPath('/setting-dealers')}>
+                              ตั้งค่าสำหรับเจ้ามือหวย
+                              </Button>
+                            </div> 
+          }
         </CardContent>
       </Card>
     );
@@ -188,7 +194,7 @@ const mapStateToProps = (state, ownProps) => {
   }
   
   if(state.auth.isLoggedIn){
-    return { logged_in: true };
+    return { logged_in: true, user: state.auth.user};
   }else{
     return { logged_in: false };
   }

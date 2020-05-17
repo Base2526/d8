@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 use Drupal\user\Entity\User;
+use Drupal\node\Entity\Node;
 
 use Drupal\huay\Utils\Utils;
 /**
@@ -605,116 +606,404 @@ class API extends ControllerBase {
       
       $data_decode = json_decode(base64_decode($data));
 
-      $list_bet_paragraphs =array();
-      foreach ($data_decode->data as $ii=>$vv){
-        // $type = $vv->type;
-        // $response['type']    = $vv->type;
-        // $response['items']   = $vv->items;
-
-        $item_chit_paragraphs = array();
-        foreach ($vv->items as $item_key=>$item_value){
-          // item_chit
-          $item_chit = Paragraph::create([
-            'type'                    => 'item_chit',
-            'field_item_chit_price'   => $item_value->quantity,
-            'field_item_chit_number'  => $item_value->number,      // รอบ
-          ]);
-          $item_chit->save();
-
-          $item_chit_paragraphs[] = array('target_id'=> $item_chit->id(), 'target_revision_id' => $item_chit->getRevisionId());
+      switch($data_decode->chit_type){
+        // ยี่กี
+        case 67:{
+          // bet_yeekee()
+          $this->bet_yeekee($uid, $data_decode);
+          break;
         }
 
-        $item_chit_type = 0;
-        switch($vv->type){
-          // สามตัวบน
-          case 'type_3_up':{
-            $item_chit_type = 21;
+        default:{
+          $this->bet_other($uid, $data_decode);
           break;
-          }
-
-          // สามตัวโต๊ด
-          case 'type_3_toot':{
-            $item_chit_type = 22;
-          break;
-          }
-
-          // สองตัวบน
-          case 'type_2_up':{
-            $item_chit_type = 23;
-          break;
-          }
-
-          // สองตัวล่าง
-          case 'type_2_down':{
-            $item_chit_type = 24;
-          break;
-          }
-
-          // สามตัวกลับ
-          case 'type_3_undo':{
-            $item_chit_type = 25;
-          break;
-          }
-
-          // สองตัวกลับ
-          case 'type_2_undo':{
-            $item_chit_type = 26;
-          break;
-          }
-
-          // วิ่งบน
-          case 'type_1_up':{
-            $item_chit_type = 27;
-          break;
-          }
-
-          // วิ่งล่าง
-          case 'type_1_down':{
-            $item_chit_type = 28;
-          break;
-          }
         }
-
-        // list_bet
-        $list_bet = Paragraph::create([
-          'type'                   => 'list_bet',
-          'field_bet_item'         => $item_chit_paragraphs,
-          'field_bet_type'         => $item_chit_type
-        ]);
-        $list_bet->save();
-
-        $list_bet_paragraphs[] = array('target_id'=> $list_bet->id(), 'target_revision_id' => $list_bet->getRevisionId());
       }
 
-      $user = User::load($uid);
-      $chits_paragraphs = array();
-      foreach ($user->get('field_chits')->getValue() as $ii=>$vv){
-          $p = Paragraph::load( $vv['target_id'] );
-          $chits_paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
-      }
-
-      // chit
-      $chit = Paragraph::create([
-        'type'                   => 'chit',
-        'field_yeekee_round'     => $data_decode->yeekee_round,       // รอบการแทงหวยยีกี
-        'field_chit_type'        => $data_decode->chit_type,          // ยี่กี หรือ หวยรัฐบาลไทย
-        'field_list_bet'         => $list_bet_paragraphs
-      ]);
-      $chit->save();
-
-      $chits_paragraphs[] = array('target_id'=> $chit->id(), 'target_revision_id' => $chit->getRevisionId());
-      
-      $user->set('field_chits', $chits_paragraphs);
-      $user->save();
-      
       $response['result']           = TRUE;
-      // $response['base64_decode']    = $data_decode;
-      // $response['base64_decode_type']    = gettype($data_decode);
       $response['execution_time']   = microtime(true) - $time1;
       return new JsonResponse( $response );
     }
 
     $response['result']   = FALSE;
+    return new JsonResponse( $response );
+  }
+
+  public function bet_yeekee($uid, $data_decode){
+
+    $lottery_dealer = 1;
+
+    $list_bet_paragraphs =array();
+    foreach ($data_decode->data as $ii=>$vv){
+      $item_chit_paragraphs = array();
+      foreach ($vv->items as $item_key=>$item_value){
+        // item_chit
+        $item_chit = Paragraph::create([
+          'type'                    => 'item_chit',
+          'field_item_chit_price'   => $item_value->quantity,
+          'field_item_chit_number'  => $item_value->number,      // รอบ
+        ]);
+        $item_chit->save();
+
+        $item_chit_paragraphs[] = array('target_id'=> $item_chit->id(), 'target_revision_id' => $item_chit->getRevisionId());
+      }
+
+      $item_chit_type = 0;
+      switch($vv->type){
+        // สามตัวบน
+        case 'type_3_up':{
+          $item_chit_type = 21;
+        break;
+        }
+
+        // สามตัวโต๊ด
+        case 'type_3_toot':{
+          $item_chit_type = 22;
+        break;
+        }
+
+        // สองตัวบน
+        case 'type_2_up':{
+          $item_chit_type = 23;
+        break;
+        }
+
+        // สองตัวล่าง
+        case 'type_2_down':{
+          $item_chit_type = 24;
+        break;
+        }
+
+        // สามตัวกลับ
+        case 'type_3_undo':{
+          $item_chit_type = 25;
+        break;
+        }
+
+        // สองตัวกลับ
+        case 'type_2_undo':{
+          $item_chit_type = 26;
+        break;
+        }
+
+        // วิ่งบน
+        case 'type_1_up':{
+          $item_chit_type = 27;
+        break;
+        }
+
+        // วิ่งล่าง
+        case 'type_1_down':{
+          $item_chit_type = 28;
+        break;
+        }
+      }
+
+      // list_bet
+      $list_bet = Paragraph::create([
+        'type'                   => 'list_bet',
+        'field_bet_item'         => $item_chit_paragraphs,
+        'field_bet_type'         => $item_chit_type
+      ]);
+      $list_bet->save();
+
+      $list_bet_paragraphs[] = array('target_id'=> $list_bet->id(), 'target_revision_id' => $list_bet->getRevisionId());
+    }
+
+    /*
+    $user = User::load($uid);
+    $chits_paragraphs = array();
+    foreach ($user->get('field_chits')->getValue() as $ii=>$vv){
+        $p = Paragraph::load( $vv['target_id'] );
+        $chits_paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+    }
+
+    // chit
+    $chit = Paragraph::create([
+      'type'                   => 'chit',
+      'field_yeekee_round'     => $data_decode->yeekee_round,       // รอบการแทงหวยยีกี
+      'field_chit_type'        => $data_decode->chit_type,          // ยี่กี หรือ หวยรัฐบาลไทย
+      'field_list_bet'         => $list_bet_paragraphs,
+      'field_lottery_dealer'   => $lottery_dealer, // 
+    ]);
+    $chit->save();
+
+    $chits_paragraphs[] = array('target_id'=> $chit->id(), 'target_revision_id' => $chit->getRevisionId());
+    
+    $user->set('field_chits', $chits_paragraphs);
+    $user->save();
+    */
+
+    $user_lottery_customer = User::load($uid);              // ลูกค้า
+    $user_lottery_dealer   = User::load($lottery_dealer);   // เจ้ามือหวย
+
+    //           User::load($lottery_dealer)->getUsername();
+    $node = Node::create([
+      'type'                   => 'chits',
+      'uid'                    => $uid,
+      'status'                 => 1,
+      'title'                  => "ลูกค้า : " . $user_lottery_customer->getUsername() ." > เจ้ามือ : ". $user_lottery_dealer->getUsername() ,
+      'field_yeekee_round'     => $data_decode->round_tid,       // รอบการแทงหวยยีกี
+      'field_chit_type'        => $data_decode->chit_type,          // ยี่กี หรือ หวยรัฐบาลไทย
+      'field_list_bet'         => $list_bet_paragraphs,
+      'field_lottery_dealer'   => $lottery_dealer, // 
+      'field_lottery_custom'   => $uid
+    ]);
+    $node->save();
+
+    // Update to custom
+    $chits_paragraphs = array();
+    foreach ($user_lottery_customer->get('field_chits')->getValue() as $ii=>$vv){
+        $p = Paragraph::load( $vv['target_id'] );
+        $chits_paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+    }
+
+    $chit = Paragraph::create([
+      'type'              => 'chit',
+      'field_chit_id'     => $node->id(),       // รอบการแทงหวยยีกี
+    ]);
+    $chit->save();
+    
+    $chits_paragraphs[] = array('target_id'=> $chit->id(), 'target_revision_id' => $chit->getRevisionId());
+    
+    $user_lottery_customer->set('field_chits', $chits_paragraphs);
+    $user_lottery_customer->save();
+    // Update to custom
+
+    // Update to dealer
+    $list_lotterys_paragraphs = array();
+    foreach ($user_lottery_dealer->get('field_list_lotterys')->getValue() as $ii=>$vv){
+        $p = Paragraph::load( $vv['target_id'] );
+        $list_lotterys_paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+    }
+
+    $list_lottery = Paragraph::create([
+      'type'              => 'list_lotterys',
+      'field_chit_id'     => $node->id(),       // รอบการแทงหวยยีกี
+    ]);
+    $list_lottery->save();
+    
+    $list_lotterys_paragraphs[] = array('target_id'=> $list_lottery->id(), 'target_revision_id' => $list_lottery->getRevisionId());
+    
+    $user_lottery_dealer->set('field_list_lotterys', $list_lotterys_paragraphs);
+    $user_lottery_dealer->save();
+    // Update to dealer
+  }
+
+  public function bet_other($uid, $data_decode){
+
+    $lottery_dealer = 1;
+
+    $list_bet_paragraphs =array();
+    foreach ($data_decode->data as $ii=>$vv){
+      $item_chit_paragraphs = array();
+      foreach ($vv->items as $item_key=>$item_value){
+        // item_chit
+        $item_chit = Paragraph::create([
+          'type'                    => 'item_chit',
+          'field_item_chit_price'   => $item_value->quantity,
+          'field_item_chit_number'  => $item_value->number,      // รอบ
+        ]);
+        $item_chit->save();
+
+        $item_chit_paragraphs[] = array('target_id'=> $item_chit->id(), 'target_revision_id' => $item_chit->getRevisionId());
+      }
+
+      $item_chit_type = 0;
+      switch($vv->type){
+        // สามตัวบน
+        case 'type_3_up':{
+          $item_chit_type = 21;
+        break;
+        }
+
+        // สามตัวโต๊ด
+        case 'type_3_toot':{
+          $item_chit_type = 22;
+        break;
+        }
+
+        // สองตัวบน
+        case 'type_2_up':{
+          $item_chit_type = 23;
+        break;
+        }
+
+        // สองตัวล่าง
+        case 'type_2_down':{
+          $item_chit_type = 24;
+        break;
+        }
+
+        // สามตัวกลับ
+        case 'type_3_undo':{
+          $item_chit_type = 25;
+        break;
+        }
+
+        // สองตัวกลับ
+        case 'type_2_undo':{
+          $item_chit_type = 26;
+        break;
+        }
+
+        // วิ่งบน
+        case 'type_1_up':{
+          $item_chit_type = 27;
+        break;
+        }
+
+        // วิ่งล่าง
+        case 'type_1_down':{
+          $item_chit_type = 28;
+        break;
+        }
+      }
+
+      // list_bet
+      $list_bet = Paragraph::create([
+        'type'                   => 'list_bet',
+        'field_bet_item'         => $item_chit_paragraphs,
+        'field_bet_type'         => $item_chit_type
+      ]);
+      $list_bet->save();
+
+      $list_bet_paragraphs[] = array('target_id'=> $list_bet->id(), 'target_revision_id' => $list_bet->getRevisionId());
+    }
+
+    /*
+    $user = User::load($uid);
+    $chits_paragraphs = array();
+    foreach ($user->get('field_chits')->getValue() as $ii=>$vv){
+        $p = Paragraph::load( $vv['target_id'] );
+        $chits_paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+    }
+
+    // chit
+    $chit = Paragraph::create([
+      'type'                   => 'chit',
+      'field_yeekee_round'     => $data_decode->yeekee_round,       // รอบการแทงหวยยีกี
+      'field_chit_type'        => $data_decode->chit_type,          // ยี่กี หรือ หวยรัฐบาลไทย
+      'field_list_bet'         => $list_bet_paragraphs,
+      'field_lottery_dealer'   => $lottery_dealer, // 
+    ]);
+    $chit->save();
+
+    $chits_paragraphs[] = array('target_id'=> $chit->id(), 'target_revision_id' => $chit->getRevisionId());
+    
+    $user->set('field_chits', $chits_paragraphs);
+    $user->save();
+    */
+
+    $user_lottery_customer = User::load($uid);              // ลูกค้า
+    $user_lottery_dealer   = User::load($lottery_dealer);   // เจ้ามือหวย
+
+    //           User::load($lottery_dealer)->getUsername();
+    $node = Node::create([
+      'type'                   => 'chits',
+      'status'                 => 1,
+      'title'                  => "ลูกค้า : " . $user_lottery_customer->getUsername() ." > เจ้ามือ : ". $user_lottery_dealer->getUsername() ,
+      // 'field_yeekee_round'     => $data_decode->round_tid,       // รอบการแทงหวยยีกี
+      'field_chit_type'        => $data_decode->chit_type,          // ยี่กี หรือ หวยรัฐบาลไทย 
+      'field_list_bet'         => $list_bet_paragraphs,
+      'field_lottery_dealer'   => $lottery_dealer, // 
+      'field_lottery_custom'   => $uid
+    ]);
+    $node->save();
+
+    // Update to custom
+    $chits_paragraphs = array();
+    foreach ($user_lottery_customer->get('field_chits')->getValue() as $ii=>$vv){
+        $p = Paragraph::load( $vv['target_id'] );
+        $chits_paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+    }
+
+    $chit = Paragraph::create([
+      'type'              => 'chit',
+      'field_chit_id'     => $node->id(),       // รอบการแทงหวยยีกี
+    ]);
+    $chit->save();
+    
+    $chits_paragraphs[] = array('target_id'=> $chit->id(), 'target_revision_id' => $chit->getRevisionId());
+    
+    $user_lottery_customer->set('field_chits', $chits_paragraphs);
+    $user_lottery_customer->save();
+    // Update to custom
+
+    // Update to dealer
+    $list_lotterys_paragraphs = array();
+    foreach ($user_lottery_dealer->get('field_list_lotterys')->getValue() as $ii=>$vv){
+        $p = Paragraph::load( $vv['target_id'] );
+        $list_lotterys_paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+    }
+
+    $list_lottery = Paragraph::create([
+      'type'              => 'list_lotterys',
+      'field_chit_id'     => $node->id(),       // รอบการแทงหวยยีกี
+    ]);
+    $list_lottery->save();
+    
+    $list_lotterys_paragraphs[] = array('target_id'=> $list_lottery->id(), 'target_revision_id' => $list_lottery->getRevisionId());
+    
+    $user_lottery_dealer->set('field_list_lotterys', $list_lotterys_paragraphs);
+    $user_lottery_dealer->save();
+    // Update to dealer
+  }
+
+  // ยิงเลขหวยยี่กี่
+  public function shoot_number(Request $request){
+
+    $time1 = microtime(true);
+    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+      $content = json_decode( $request->getContent(), TRUE );
+
+      $uid                = trim( $content['uid'] );
+      $data               = trim( $content['data'] ); 
+      $round_tid          = trim( $content['round_tid'] );
+      $time               = trim( $content['time'] );
+
+      $user = User::load($uid);
+      if( empty($uid) ||  
+          empty($data) ||
+          empty($user) ||
+          empty($round_tid) ||
+          empty($time) ){
+        $response['result']   = FALSE;
+        return new JsonResponse( $response );
+      }
+
+      $node = Node::create([
+        'type'                   => 'shoot_number',
+        'uid'                    => $uid,
+        'status'                 => 1,
+        'title'                  => $data, 
+        'field_yeekee_round'     => $round_tid,
+      ]);
+      $node->save();
+
+      $response['result']           = TRUE;
+      $response['execution_time']   = microtime(true) - $time1;
+      return new JsonResponse( $response );
+    }
+
+    $response['result']   = FALSE;
+    return new JsonResponse( $response );
+  }
+
+  // https://crontab.guru/every-15-minutes
+  public function every15minute(Request $request){
+    $mode = \Drupal::request()->query->get('mode');
+    if(empty($mode) || strcmp(Utils::decode($mode), 'cron') !== 0 ){
+      \Drupal::logger('every15minute')->error('not cron');
+      $response['result']  = FALSE;
+      return new JsonResponse( $response );
+    }
+
+    \Drupal::logger('every15minute')->notice('is cron');
+
+
+
+    $response['result']  = TRUE;  
     return new JsonResponse( $response );
   }
 }

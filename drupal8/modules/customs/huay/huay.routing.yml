@@ -141,4 +141,19 @@ api.bet:
   requirements:
     _access: 'TRUE'
 
+# ยิงเลขหวยยี่กี่
+api.shoot_number:
+  path: '/api/shoot_number.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::shoot_number' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.every15minute:
+  path: '/api/every15minute.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::every15minute' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
 # api

@@ -19,7 +19,11 @@ import {  loadingOverlayActive,
           updateHuayListBank, 
           updateTransferMethod, 
           updateContactUs,
-          updateListBank} from './actions/huay'
+          updateListBank,
+          // updateYeekeeRound,
+          updateLotterys,
+          updateShootNumbers
+        } from './actions/huay'
 
 import './App.css';
 import routes from "./routes";
@@ -133,6 +137,15 @@ const mapDispatchToProps = (dispatch) => {
     },
     updateListBank:  (data) =>{
       dispatch(updateListBank(data))
+    },
+    // updateYeekeeRound:  (data) =>{
+    //   dispatch(updateYeekeeRound(data))
+    // },
+    updateLotterys: (data)=>{
+      dispatch(updateLotterys(data))
+    },
+    updateShootNumbers: (data)=>{
+      dispatch(updateShootNumbers(data))
     },
 	}
 }

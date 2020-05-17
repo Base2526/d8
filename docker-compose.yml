@@ -3,6 +3,8 @@ services:
   drupal8:
     build: './drupal8'
     container_name: "drupal8"
+    # command: cron
+    # command: sh -c "cron"
     ports:
       - 8055:80
     environment:
@@ -15,6 +17,7 @@ services:
       - ./drupal8/themes:/var/www/html/sites/default/themes
       - ./drupal8/info.php:/var/www/html/info.php
       - ./drupal8/composer.json:/var/www/html/composer.json
+      # - ./drupal8/composer.lock:/var/www/html/composer.lock
       # - ./drupal8/drupal-nodejs:/var/www/html/drupal-nodejs
       - ./drupal8/settings.php:/var/www/html/sites/default/settings.php
       # - ./drupal8/vendor:/var/www/html/vendor
@@ -165,7 +168,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_SERVER: mongo1  # กรณีเรา set replset เราต้องกำหนด  ME_CONFIG_MONGODB_SERVER ด้วย
+      ME_CONFIG_MONGODB_SERVER: localmongo1  # กรณีเรา set replset เราต้องกำหนด  ME_CONFIG_MONGODB_SERVER ด้วย
 
   # wmcached:
   #   image: wodby/memcached:1.4-2.0.0

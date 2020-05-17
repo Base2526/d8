@@ -9,3 +9,7 @@ export const UPDATE_HUAY_LIST_BANK   = "update_huay_list_bank";
 export const UPDATE_TRANSFER_METHOD  = "update_transfer_method";
 export const UPDATE_CONTACT_US       = "update_contact_us";
 export const UPDATE_LIST_BANK        = "update_list_bank";
+
+export const UPDATE_YEEKEE_ROUND     = "update_yeekee_round";
+export const UPDATE_LOTTERYS         = "update_lotterys";
+export const SHOOT_NUMBERS           = "update_shoot_numbers";

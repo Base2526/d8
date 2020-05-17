@@ -20,7 +20,9 @@ const HuayListBank    = require('./models/huay_list_bank')
 const TransferMethod  = require('./models/transfer_method')
 const ListBank        = require('./models/list_banck')
 const Sessions        = require('./models/sessions')
-const YeekeeRound     = require('./models/yeekee_round')
+// const YeekeeRound     = require('./models/yeekee_round')
+const Lotterys        = require('./models/lotterys')
+const ShootNumbers     = require('./models/shoot_numbers')
 
 const connectDb       = require("./src/connection");
 const User            = require("./src/User.model");
@@ -311,10 +313,29 @@ app.post('/api/withdraw', (req, res) => {
 app.post('/api/bet', (req, res) => {
   var data = {
     "uid"       : req.body.uid,
-    "data"      : req.body.data
+    "data"      : req.body.data,
+    "time"      : req.body.time
   }
 
   fetch(config.d8.api_bet, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+    .then((res) => {
+      return res.json()
+  })
+  .then((json) => {
+    console.log(json);
+    res.send(json);
+  });
+});
+
+app.post('/api/shoot_number', (req, res) => {
+  var data = {
+    "uid"       : req.body.uid,
+    "data"      : req.body.data,
+    "round_tid" : req.body.round_tid,
+    "time"      : req.body.time
+  }
+
+  fetch(config.d8.api_shoot_number, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
     .then((res) => {
       return res.json()
   })
@@ -617,45 +638,45 @@ server.listen(PORT, function (err) {
     });
 
     // รอบหวยยี่กี่
-    YeekeeRound.watch().on('change', async data =>{
-      console.log(new Date(), data)
-      //operationType
-      switch(data.operationType){
-        case 'insert':{
-          console.log('YeekeeRound > insert');
-          break;
-        }
-        case 'delete':{
-          console.log('YeekeeRound > delete');
-          break;
-        }
-        case 'replace':{
-          console.log('YeekeeRound > replace');
-          break;
-        }
-        case 'update':{
-          console.log('YeekeeRound > update');
-          // socket_local.emit("transfer_method", JSON.stringify(await TransferMethod.find({})));
-          break;
-        }
-        case 'drop':{
-          console.log('YeekeeRound > drop');
-          break;
-        }
-        case 'rename':{
-          console.log('YeekeeRound > rename');
-          break;
-        }
-        case 'dropDatabase':{
-          console.log('YeekeeRound > dropDatabase');
-          break;
-        }
-        case 'invalidate':{
-          console.log('YeekeeRound > dropDatabase');
-          break;
-        }
-      }
-    });
+    // YeekeeRound.watch().on('change', async data =>{
+    //   console.log(new Date(), data)
+    //   //operationType
+    //   switch(data.operationType){
+    //     case 'insert':{
+    //       console.log('YeekeeRound > insert');
+    //       break;
+    //     }
+    //     case 'delete':{
+    //       console.log('YeekeeRound > delete');
+    //       break;
+    //     }
+    //     case 'replace':{
+    //       console.log('YeekeeRound > replace');
+    //       break;
+    //     }
+    //     case 'update':{
+    //       console.log('YeekeeRound > update');
+    //       socket_local.emit("yeekee_round", JSON.stringify(await YeekeeRound.find({})));
+    //       break;
+    //     }
+    //     case 'drop':{
+    //       console.log('YeekeeRound > drop');
+    //       break;
+    //     }
+    //     case 'rename':{
+    //       console.log('YeekeeRound > rename');
+    //       break;
+    //     }
+    //     case 'dropDatabase':{
+    //       console.log('YeekeeRound > dropDatabase');
+    //       break;
+    //     }
+    //     case 'invalidate':{
+    //       console.log('YeekeeRound > dropDatabase');
+    //       break;
+    //     }
+    //   }
+    // });
 
     // ข้อมูลติดต่อเว็บฯ
     ContactUs.watch().on('change', async data =>{
@@ -779,7 +800,88 @@ server.listen(PORT, function (err) {
         }
       }
     });
+    
+    Lotterys.watch().on('change', async data =>{
+      console.log(new Date(), data)
+      //operationType
+      switch(data.operationType){
+        case 'insert':{
+          console.log('Lotterys > insert');
+          break;
+        }
+        case 'delete':{
+          console.log('Lotterys > delete');
+          break;
+        }
+        case 'replace':{
+          console.log('Lotterys > replace');
+          break;
+        }
+        case 'update':{
+          console.log('Lotterys > update');
+          
+          socket_local.emit("lotterys", JSON.stringify(await Lotterys.find({})));
+          break;
+        }
+        case 'drop':{
+          console.log('Lotterys > drop');
+          break;
+        }
+        case 'rename':{
+          console.log('Lotterys > rename');
+          break;
+        }
+        case 'dropDatabase':{
+          console.log('Lotterys > dropDatabase');
+          break;
+        }
+        case 'invalidate':{
+          console.log('Lotterys > dropDatabase');
+          break;
+        }
+      }
+    });
 
+    ShootNumbers.watch().on('change', async data =>{
+      console.log(new Date(), data)
+      //operationType
+      switch(data.operationType){
+        case 'insert':{
+          console.log('ShootNumbers > insert');
+          break;
+        }
+        case 'delete':{
+          console.log('ShootNumbers > delete');
+          break;
+        }
+        case 'replace':{
+          console.log('ShootNumbers > replace');
+          break;
+        }
+        case 'update':{
+          console.log('ShootNumbers > update');
+          
+          socket_local.emit("shoot_numbers", JSON.stringify(await ShootNumbers.find({})));
+          break;
+        }
+        case 'drop':{
+          console.log('ShootNumbers > drop');
+          break;
+        }
+        case 'rename':{
+          console.log('ShootNumbers > rename');
+          break;
+        }
+        case 'dropDatabase':{
+          console.log('ShootNumbers > dropDatabase');
+          break;
+        }
+        case 'invalidate':{
+          console.log('ShootNumbers > dropDatabase');
+          break;
+        }
+      }
+    });
     /*
     
     socket.on('huay_list_bank', (data) => {

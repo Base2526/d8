@@ -9,6 +9,9 @@ import huay_list_bank   from './huay_list_bank'
 import transfer_method  from './transfer_method'
 import contact_us       from './contact_us'
 import list_bank        from './list_bank'
+import yeekee_round     from './yeekee_round'
+import lotterys         from './lotterys'
+import shoot_numbers     from './shoot_numbers'
 
 export default combineReducers({
   auth,
@@ -19,5 +22,9 @@ export default combineReducers({
   huay_list_bank,
   transfer_method,
   contact_us,
-  list_bank
+  list_bank,
+
+  yeekee_round,
+  lotterys,
+  shoot_numbers,
 })

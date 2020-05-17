@@ -135,3 +135,34 @@ step 5
 */
 
 
+# cron job
+> run  = cron
+service cron status
+service cron stop
+service cron start
+
+# Drupal 8  query datetime BETWEEN, created, changed
+$query = \Drupal::entityQuery('node');
+$query->condition('type', 'chits');
+$now = time();
+$last_year = '1589101320';//$now - 60*60*24*365; 
+// $query->condition('created', $last_year', '>=');
+// $query->condition('changed', $last_year, '>=');
+// $query->condition('changed', '1589101440', '<=');
+$query->condition('changed', ['1589101320', '1589101440'], 'BETWEEN');
+$results = $query->execute();
+
+dpm($results);
+
+// 05/10/2020 - 16:02
+$timestamp = strtotime("05/10/2020 16:04");
+dpm( $timestamp );
+
+$d = date("Y-m-d H:i:s", $timestamp);
+dpm($d);
+
+
+
+// reactjs  timestamp to date
+https://makitweb.com/convert-unix-timestamp-to-date-time-with-javascript/
+

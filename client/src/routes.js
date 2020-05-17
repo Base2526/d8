@@ -16,8 +16,14 @@ import RequestAllPage from './Components/Members/RequestAllPage'
 import LotteryListPage from './Components/Lottery/LotteryListPage';
 import GovernmentPage from './Components/Lottery/GovernmentPage';
 
+import SettingDealers from './Components/Dealers/SettingDealers';
+import ListDealers from './Components/Dealers/ListDealers';
+import LotteryDistribute from './Components/Dealers/LotteryDistribute';
+import LotterySuppress from './Components/Dealers/LotterySuppress'
+
 import YeekeeListPage from './Components/Lottery/YeekeeListPage';
-import YeekeePage from './Components/Lottery/YeekeePage';
+import ChitPage from './Components/Lottery/ChitPage';
+import RewardPage from './Components/Lottery/RewardPage'
 
 import ProfilePage from './Components/ProfilePage/ProfilePage';
 import ForgetPasswordPage from './Components/ForgetPasswordPage/ForgetPasswordPage';
@@ -25,7 +31,7 @@ import RegisterPage from './Components/RegisterPage/RegisterPage';
 
 import HelpPage from './Components/Help/HelpPage';
 
-import LotteryListTransactionPage from './Components/Lottery/LotteryListTransactionPage'
+import LotteryListChitsPage from './Components/Lottery/LotteryListChitsPage'
 
 const toppings = [
   { id: "1", name: "Cheese" },
@@ -110,9 +116,12 @@ export default [
     { path: "/request-all", name: "สถานะ ฝากเงิน", Component: RequestAllPage },
 
     { path: "/lottery-list", name: "แทงหวย", Component: LotteryListPage },
-    { path: "/lottery-list/government", name: "หวยรัฐบาลไทย", Component: GovernmentPage },
-    { path: "/lottery-list/yeekee-list", name: "จับยี่กี VIP", Component: YeekeeListPage },
-    { path: "/lottery-list/yeekee-list/:id", name: "Yeekee", Component: YeekeePage },
+    { path: "/lottery/government", name: "หวยรัฐบาลไทย", Component: GovernmentPage },
+    { path: "/lottery/yeekee-list", name: "จับยี่กี VIP", Component: YeekeeListPage },
+    { path: "/lottery/yeekee-list/:type/:id", name: "โพย", Component: ChitPage },
+
+    // /lottery/yeekee
+    { path: "/lottery-list/reward/:type/:id", name:"ผลรางวัล", Component: RewardPage },
 
     { path: "/deposit", name: "ฝากเงิน", Component: DepositPage },
     { path: "/withdraw", name: "ถอนเงิน", Component: WithdrawPage },
@@ -120,6 +129,13 @@ export default [
     { path: "/contact-us", name: "ติดต่อเรา", Component: ContactUsPage},
 
     { path: "/help", name:"วิธีการใช้งาน", Component: HelpPage},
+    { path: "/lottery-list-chits", name:"รายการโพยทั้งหมด (สำหรับลูกค้า)", Component: LotteryListChitsPage},
 
-    { path: "/lottery-list-transaction", name:"รายการโพยทั้งหมด", Component: LotteryListTransactionPage}
+    { path: "/setting-dealers", name:"ตั้งค่าสำหรับเจ้ามือหวย", Component: SettingDealers},
+    { path: "/setting-dealers/list-dealers", name:"รายการโพยทั้งหมด", Component: ListDealers},
+    { path: "/setting-dealers/lottery-distribute", name:"รายการหวยที่รับซื้อ", Component: LotteryDistribute},
+    { path: "/setting-dealers/lottery-suppress", name:"อั้นหวย", Component: LotterySuppress},
+    // 
+
+    // 
 ];

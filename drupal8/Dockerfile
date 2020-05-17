@@ -6,7 +6,7 @@ FROM drupal:8.7.8
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y git && \
-    apt-get install nano
+    apt-get install nano 
 
 RUN apt-get update -y && \
     pecl install mongodb && \
@@ -52,7 +52,7 @@ RUN mkdir sites/default/files && \
 #     composer require mongodb/mongodb
 
 COPY composer.json composer.json
-# COPY composer.lock composer.lock
+COPY composer.lock composer.lock
 COPY modules sites/default/modules
 COPY themes sites/default/themes
 # COPY vendor vendor
@@ -60,4 +60,23 @@ COPY themes sites/default/themes
 RUN apt-get update -y && \
     composer install
 
+# cron job
+# https://github.com/Base2526/docker-cron
+# Add crontab file in the cron directory
+# ADD crontab /etc/cron.d/huay-cron
+
+# # Give execution rights on the cron job
+# RUN chmod 0644 /etc/cron.d/huay-cron
+
+# # Create the log file to be able to run tail
+# RUN touch /var/log/cron.log
+
+# Run the command on container startup
+# RUN cron
+# CMD ["cron", "-f"]
+# cron job
+
 EXPOSE 80
+
+# CMD ["cron", "-f"]
+

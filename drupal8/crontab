@@ -1,0 +1,1 @@
+*/15 * * * * root wget http://localhost/api/every15minute.json?mode=j5p4v5s5

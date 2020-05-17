@@ -49,6 +49,21 @@ export function connect_socketIO(props){
         console.log(JSON.parse(data));
         props.updateListBank(JSON.parse(data));
       })
+      // 
+      // socket.on('yeekee_round', (data) => {
+      //   console.log(JSON.parse(data));
+      //   props.updateYeekeeRound(JSON.parse(data));
+      // })
+
+      socket.on('lotterys', (data) => {
+        console.log(JSON.parse(data));
+        props.updateLotterys(JSON.parse(data));
+      })
+
+      socket.on('shoot_numbers', (data) => {
+        console.log(JSON.parse(data));
+        props.updateShootNumbers(JSON.parse(data));
+      })
     }
     
     return true;

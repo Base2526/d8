@@ -25,3 +25,18 @@ export const updateListBank = (data) => ({
     type: types.UPDATE_LIST_BANK,
     data
 });
+
+export const updateYeekeeRound = (data) => ({
+    type: types.UPDATE_YEEKEE_ROUND,
+    data
+});
+
+export const updateLotterys = (data) => ({
+    type: types.UPDATE_LOTTERYS,
+    data
+});
+
+export const updateShootNumbers = (data) => ({
+    type: types.SHOOT_NUMBERS,
+    data
+});

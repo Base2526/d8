@@ -24,6 +24,9 @@ class LoginPage extends Component {
       email: '',
       password: '',
 
+      is_active:false,
+      loading_text: '',
+
       error: false,
       error_message:'',
     };
@@ -47,7 +50,7 @@ class LoginPage extends Component {
       event.stopPropagation();
       this.setState({validated: true});
     }else{
-      this.props.loadingOverlayActive(true);
+      this.setState({is_active:true, loading_text:'รอสักครู่'})
 
       let { email, password } = this.state;   
       let response  = await axios.post('/api/login', 
@@ -84,12 +87,17 @@ class LoginPage extends Component {
         }
       }
 
-      this.props.loadingOverlayActive(false);
+      this.setState({is_active:false })
     } 
   }
 
   nextPath(path) {
     this.props.history.push(path);
+  }
+
+  loadingOverlayActive(){
+    let {is_active, loading_text} = this.state
+    this.props.loadingOverlayActive(is_active, loading_text);
   }
 
   render(){
@@ -98,6 +106,8 @@ class LoginPage extends Component {
     if(logged_in){
       return <Redirect to="/" />
     }
+
+    this.loadingOverlayActive();
 
     return( <Form noValidate validated={validated} onSubmit={this.handleSubmit}>   
               { error ? <Alert variant={'danger'}>{error_message}</Alert> : '' }
