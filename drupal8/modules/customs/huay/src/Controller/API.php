@@ -57,20 +57,19 @@ class API extends ControllerBase {
           $user = User::load($uid);
           $user_login_finalize = user_login_finalize($user);
           
-          // $image_url = '';  
-          // if (!$user->get('user_picture')->isEmpty()) {
-          //   $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
-          // }
+          $image_url = '';  
+          if (!$user->get('user_picture')->isEmpty()) {
+            $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
+          }
 
           $cookie = $request->headers->get('session');
 
           $data = array('uid'      =>$uid, 
-                        // 'name'     =>$user->getUsername(),
-                        // 'email'    =>$user->getEmail(),
-                        // 'roles'    =>$user->getRoles(),
-                        // 'image_url'=>$image_url,
-                        // 'session'  =>\Drupal::service('session')->getId(),
-                        // 'cookie'    =>$cookie, //Utils::encode('uid='.$uid."&time=".\Drupal::time()->getCurrentTime()),
+                        'name'     =>$user->getUsername(),
+                        'email'    =>$user->getEmail(),
+                        'roles'    =>$user->getRoles(),
+                        'image_url'=>$image_url,
+                        'session'  =>$cookie, //Utils::encode('uid='.$uid."&time=".\Drupal::time()->getCurrentTime()),
                         );
 
           /*
@@ -111,11 +110,13 @@ class API extends ControllerBase {
             $user->save();
             // เก็บ user_access
           }
+
+          Utils::mongodb_people( $uid );
   
           $response['result']           = TRUE;
           $response['execution_time']   = microtime(true) - $time1;
-
           $response['data']             = $data;
+          
           return new JsonResponse( $response );
         }
       } 

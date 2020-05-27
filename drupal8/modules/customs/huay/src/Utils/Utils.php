@@ -418,17 +418,34 @@ class Utils extends ControllerBase {
         if(!empty($node)){
             $name = $node->label();
 
-            // สถานะโพย
-            $status_id    = $node->get('field_chit_status')->target_id;
-
-            // ประเภทโพยหวย (หวยเด่น & หวยหุ้น)
+            // สถานะโพย รอดำเนินการ/ยกเลิก/อนุมัติ
+            $chit_status_name = '';
+            $status_id  = $node->get('field_chit_status')->target_id;
+            if(empty($status_id)){
+              continue;
+            }
+            $chit_status_term = Term::load($status_id);
+            $chit_status_name = $chit_status_term->getName();
+            
+            // ประเภทโพยหวย (หวยเด่น & หวยหุ้น) หวยรัฐบาลไทย/ยี้กี่/หวยลาว
+            $chit_type_name = '';
             $type_id    = $node->get('field_chit_type')->target_id;
-
+            if(empty($type_id)){
+              continue;
+            }
+            $chit_type_term = Term::load($type_id);
+            $chit_type_name = $chit_type_term->getName();
+            
+            $round_name = '';
             $round_id =0;
             if($type_id == 67){
                 // ยี่กี่ 
                 // ถ้าเป็น ยี่กี่เราต้องดึงรอบมาด้วย
                 $round_id = $node->get('field_yeekee_round')->target_id;
+                // if(empty($round_id)){
+                //   continue;
+                // }
+                $round_name = Term::load($round_id)->getName();
             }
 
             // หมายเหตุ
@@ -482,10 +499,15 @@ class Utils extends ControllerBase {
 
             $chits[] = array( 'nid'       => $chit_id,
                               'name'      => $name,
-                              'status_id' => $status_id,
-                              'type_id'   => $type_id,
-                              'round_id'  => $round_id,
+
+                              'type_id'   =>$type_id,
+                              
+                              'chit_status_name' => $chit_status_name,
+                              'chit_type_name'   => $chit_type_name,
+                              'round_name'=> $round_name,
+                              'round_id'=>$round_id,
                               'note'      => $note,
+                              'changed'   => $node->getChangedTime(),
                               'list_bet'  => $list_bet);
         } 
       }

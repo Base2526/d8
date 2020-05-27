@@ -131,7 +131,7 @@ app.post('/api/login', async(req, res) => {
   console.log(req.body);
   console.log(config.d8.headers);
 
-  session_local=req.session;
+  // session_local=req.session;
 
   config.d8.headers['session'] = req.session.id;
   var data = {
@@ -142,6 +142,14 @@ app.post('/api/login', async(req, res) => {
   const response = await responses.json();
   console.log(response); 
   if(response.result){
+    session_local = response.data;
+
+    res.send({
+      result: true,
+      data: response.data
+    })
+
+    /*
     const peoples          = await People.find({uid: response.data.uid});
     if (peoples === undefined || peoples.length == 0) {
       res.send({
@@ -149,7 +157,7 @@ app.post('/api/login', async(req, res) => {
         message: 'Error, no user id ' + response.data.uid
       });
     }else{
-      const user          = peoples[0];
+      const user            = peoples[0];
       const huay_list_bank  = await HuayListBank.find({});
       const transfer_method = await TransferMethod.find({});
       const contact_us      = (await ContactUs.find({}))[0];
@@ -167,6 +175,7 @@ app.post('/api/login', async(req, res) => {
         list_bank
       });
     }
+    */
   }else{
     res.send(response);
   }
