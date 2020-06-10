@@ -33,10 +33,12 @@ class HomePage extends Component {
   render() {
     let {user} = this.props
     
+    console.log(user);
     let is_dealer = undefined;
     if(!isEmpty(user)){
       is_dealer = user.roles.find((element) => { return element === 'lottery_dealer' })
 
+      console.log(user);
       return (
         <Container style={{minHeight: 600}}>
             <div style={{padding:'5px'}}>

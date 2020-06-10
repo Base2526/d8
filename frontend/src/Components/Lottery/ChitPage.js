@@ -371,6 +371,9 @@ class ChitPage extends Component {
                                             time: date_time}, 
                                           {headers:headers()});
     console.log(response);
+
+    this.setState({is_active:false})
+
     if( response.status==200 && response.statusText == "OK" ){
       if(response.data.result){
         this.nextPath('/');
@@ -388,11 +391,6 @@ class ChitPage extends Component {
     }else{
       showToast('error', 'Error');
     }
-
-    console.log(match.params.type)
-    /*
-    
-    */
   }
 
   /*
@@ -1079,7 +1077,9 @@ class ChitPage extends Component {
   }
 
   gotoPageReward(){
-    let {history, match, time} = this.state;
+    let {history, match} = this.props; 
+    let {time} = this.state;
+    console.log(history);
     if(time == -1){
       history.push('/lottery-list/reward/'+ match.params.type +'/' + match.params.id)
     }

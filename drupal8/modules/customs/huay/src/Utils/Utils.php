@@ -153,6 +153,40 @@ class Utils extends ControllerBase {
     return  !empty($file) ? $file->url() : '';
   }
 
+  public function credit_balance($user){
+    // ยอดฝากเงินทั้งหมด
+    $amount_of_money = 0;
+    foreach ($user->get('field_deposit')->getValue() as $bi=>$bv){
+        $p = Paragraph::load( $bv['target_id'] );
+            
+        $deposit_status = $p->get('field_deposit_status')->target_id;
+        if($deposit_status == 15){
+            // จำนวนเงินที่โอน
+            $field_amount_of_money = $p->get('field_amount_of_money')->getValue();
+            if(!empty($field_amount_of_money)){
+                $amount_of_money += $field_amount_of_money[0]['value'];
+            }
+        }
+    }
+
+    //  ถอนเงิน field_withdraw
+    $withdraw = 0;
+    foreach ($user->get('field_withdraw')->getValue() as $bi=>$bv){
+        $p = Paragraph::load( $bv['target_id'] );
+        $deposit_status = $p->get('field_withdraw_status')->target_id;
+        // เอาทุกสถานะ ยกเว้น สถานะไม่อนุมัติเท่านั้น
+        if($deposit_status != 17){
+            // จำนวนเงินที่โอน
+            $field_amount_of_withdraw = $p->get('field_amount_of_withdraw')->getValue();
+            if(!empty($field_amount_of_withdraw)){
+                $withdraw += $field_amount_of_withdraw[0]['value'];
+            }
+        }
+    }
+
+    return $amount_of_money - $withdraw;   
+  }
+
   public static function mongodb_people($uid){
     if(empty($uid)){
       return FALSE;
@@ -182,7 +216,7 @@ class Utils extends ControllerBase {
                 'email'    =>$user->getEmail(),
                 'roles'    =>$user->getRoles(),
                 'image_url'=>$image_url,
-                'credit_balance' =>credit_balance($user),
+                'credit_balance' =>Utils::credit_balance($user),
             );
 
     $banks = array();
@@ -617,5 +651,352 @@ class Utils extends ControllerBase {
         $collection->insertOne($data);
     }
     return TRUE;
+  }
+
+  // public static function mongodb_fetch_lotterys(){
+  //   // เราควรจะทำ file cache ระบบไว้ด้วย เพือไม่ต้องวิง่ไปดึง mongodb every time.
+  //   $collection = Utils::GetMongoDB()->lotterys;
+  //   $cursor = $collection->find();
+  //   $datas = array();
+  //   foreach ( $cursor as $id => $value ){
+  //       $value = $value->jsonSerialize();
+  //       $data = array();
+  //       $data['_id']          = $value->_id->__toString();
+  //       $data['tid']          = $value->tid;
+  //       $data['name']         = $value->name;
+  //       $data['end_time']     = $value->end_time;
+  //       $data['is_open']      = $value->is_open;
+  //       $data['image_url']    = $value->image_url;
+  //       $data['type_lottery'] = $value->type_lottery;
+  //       $data['weight']       = $value->weight;
+  //       $data['createdAt']    = $value->createdAt->toDateTime()->format(\DateTimeInterface::W3C);
+  //       $data['updatedAt']    = $value->updatedAt->toDateTime()->format(\DateTimeInterface::W3C);
+  //       if(isset($value->rounds)){
+  //         $rounds = array();
+  //         foreach ( $value->rounds as $round_id => $round_value ){
+  //           $round_value = $round_value->jsonSerialize();
+  //           $rounds[] = array('tid'     =>$round_value->tid, 
+  //                             'name'    =>$round_value->name, 
+  //                             'end_time'=>$round_value->end_time, 
+  //                             'weight'  =>$round_value->weight);
+  //         }
+  //         $data['rounds'] = $rounds;
+  //       }else{
+  //         $data['rounds'] = array();
+  //       }
+  //       $datas[] = $data;
+  //   }
+  //   return $datas;
+  // }
+
+  public static function huay_init(){
+    Utils::mongodb_contact_us(null);
+    Utils::mongodb_transfer_method(null);
+    Utils::mongodb_huay_list_bank(null);
+    Utils::mongodb_list_bank(null);
+    Utils::mongodb_lotterys(null);
+  }
+
+  // Contact us
+  public function mongodb_contact_us($id){
+    $contact_us = ConfigPages::config('contact_us');
+
+    $data = array(
+        'id'            => $id,
+        'line_at'       => $contact_us->get('field_contact_us_line_at')->value,
+        'url_qrcode'    => Utils::get_file_url($contact_us->get('field_contact_us_qrcode')->getValue()[0]['target_id']),
+        'description'   => $contact_us->get('field_contact_us_description')->value,
+        'tel'           => $contact_us->get('field_contact_us_tel')->value,
+    );
+
+    $collection = Utils::GetMongoDB()->contact_us;
+    $filter = array('id'=>$id);
+    if($collection->count($filter)){
+        // udpate
+        $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+        $collection->updateOne($filter, array('$set' =>$data) );
+    }else{
+        // create
+        $data['createdAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+        $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+        $collection->insertOne($data);
+    }
+  }
+
+  // ช่องทางการโอนเงิน
+  public function mongodb_transfer_method($tid){
+    // if(empty($tid)){
+    //     return FALSE;
+    // }
+
+    $type = 'taxonomy_term';
+    $cid = 'transfer_method';
+    $branchs_terms = \Drupal::entityManager()->getStorage($type)->loadTree($cid);
+
+    $collection = Utils::GetMongoDB()->transfer_method;
+    foreach($branchs_terms as $tag_term) {
+        $data = array();
+        $data['tid']    = $tag_term->tid;
+        $data['name']   = $tag_term->name;
+
+        $filter = array('tid'=>$tag_term->tid);
+        if($collection->count($filter)){
+            $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+            $collection->updateOne($filter, array('$set' =>$data) );
+        }else{
+            // create
+            $data['createdAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+            $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+            $collection->insertOne($data);
+        }
+    }
+  }
+
+  // รายชื่อธนาคาร ของเว็บฯ
+  public function mongodb_huay_list_bank($tid){
+    // if(empty($tid)){
+    //     return FALSE;
+    // }
+
+    $type = 'taxonomy_term';
+    $cid = 'huay_list_bank';
+    $branchs_terms = \Drupal::entityManager()->getStorage($type)->loadTree($cid);
+
+    $collection = Utils::GetMongoDB()->huay_list_bank;
+    foreach($branchs_terms as $tag_term) {
+      $data = array();
+      $data['tid']    = $tag_term->tid;
+      $data['name']   = $tag_term->name;
+
+      $load = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tag_term->tid);
+
+      $huay_name_bank = '';
+      $field_huay_name_bank = $load->get('field_huay_name_bank')->getValue();
+      if(!empty($field_huay_name_bank)){
+          $huay_name_bank = $field_huay_name_bank[0]['value'];
+      }
+
+      $huay_number_bank = '';
+      $field_huay_number_bank = $load->get('field_huay_number_bank')->getValue();
+      if(!empty($field_huay_number_bank)){
+          $huay_number_bank = $field_huay_number_bank[0]['value'];
+      }
+      $data['huay_name_bank']    = $huay_name_bank;
+      $data['huay_number_bank']   = $huay_number_bank;
+
+      $filter = array('tid'=>$tag_term->tid);
+      if($collection->count($filter)){
+          $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+          $collection->updateOne($filter, array('$set' =>$data) );
+      }else{
+          // create
+          $data['createdAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+          $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+          $collection->insertOne($data);
+      }
+    }
+  }
+
+  // รายชื่อธนาคาร
+  public function mongodb_list_bank($tid){
+    // if(empty($tid)){
+    //     return FALSE;
+    // }
+
+    $type = 'taxonomy_term';
+    $cid  = 'list_bank';
+    $branchs_terms = \Drupal::entityManager()->getStorage($type)->loadTree($cid);
+
+    $collection = Utils::GetMongoDB()->list_bank;
+    foreach($branchs_terms as $tag_term) {
+      $data = array();
+      $data['tid']    = $tag_term->tid;
+      $data['name']   = $tag_term->name;
+
+      $filter = array('tid'=>$tag_term->tid);
+      if($collection->count($filter)){
+          $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+          $collection->updateOne($filter, array('$set' =>$data) );
+      }else{
+          // create
+          $data['createdAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+          $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+          $collection->insertOne($data);
+      }
+    }
+  }
+
+  // ประเภทหวย
+  public function mongodb_lotterys($tid){
+    // if(empty($tid)){
+    //     return FALSE;
+    // }
+
+    $type = 'taxonomy_term';
+    $cid  = 'lotterys';
+    $branchs_terms = \Drupal::entityManager()->getStorage($type)->loadTree($cid);
+
+    $collection = Utils::GetMongoDB()->lotterys;
+    foreach($branchs_terms as $tag_term) {
+
+        $child_term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tag_term->tid);
+   
+        // $huay_name_bank = '';
+        // $field_huay_name_bank = $load->get('field_huay_name_bank')->getValue();
+        // if(!empty($field_huay_name_bank)){
+        //     $huay_name_bank = $field_huay_name_bank[0]['value'];
+        // }
+
+        $data = array();
+        $end_time = 0;
+        $field_end_time = $child_term->get('field_end_time')->getValue();
+        if(!empty($field_end_time)){
+            $end_time = $field_end_time[0]['value'];
+        }
+
+        // field_open
+        $is_open = FALSE;
+        $field_open = $child_term->get('field_open')->getValue();
+        if(!empty($field_open)){
+            if ($field_open[0]['value']) {
+                $is_open = TRUE;
+            }
+        }
+
+        $image_url = '';
+        $field_image = $child_term->get('field_image')->getValue();
+        if(!empty($field_image)){
+            $image_url = Utils::get_file_url($field_image[0]['target_id']);
+        }
+
+        $type_lottery = $child_term->get('field_type_lottery')->target_id;
+
+        $data['tid']       = $tag_term->tid;
+        $data['name']      = $tag_term->name;;
+        $data['end_time']  = $end_time;
+        $data['is_open']   = $is_open;
+        $data['image_url'] = $image_url;
+        $data['weight']    = $tag_term->weight;;
+        $data['type_lottery']= $type_lottery;
+
+        // หวยรัฐบาลไทย
+        if($tag_term->tid == 66){
+            $date = '';
+            $field_date = $child_term->get('field_date')->getValue();
+            if(!empty($field_date)){
+                $date = $field_date[0]['value'];
+                
+                $data['date']= $date;
+            }
+        }
+
+        // จับยี่กี VIP
+        if($tag_term->tid == 67){
+            $type = 'taxonomy_term';
+            $yeekee_round_terms = \Drupal::entityManager()->getStorage($type)->loadTree('yeekee_round');
+
+            $rounds = array();
+            foreach($yeekee_round_terms as $yeekee_round_tag_term) {
+                $round = array();
+                $round['tid']    = $yeekee_round_tag_term->tid;
+                $round['name']   = $yeekee_round_tag_term->name;
+                $round['weight'] = $yeekee_round_tag_term->weight;
+
+                $load = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($yeekee_round_tag_term->tid);
+                $field_end_time = $load->get('field_end_time')->getValue();
+                if(!empty($field_end_time)){
+                    $round['end_time'] = $field_end_time[0]['value'];
+                }
+
+                $rounds[] = $round;
+            }
+            $data['rounds'] = $rounds;
+        }
+
+        $filter = array('tid'=>$tag_term->tid);
+        if($collection->count($filter)){
+            $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+            $collection->updateOne($filter, array('$set' =>$data) );
+        }else{
+            // create
+            $data['createdAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+            $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime($today))->getTimestamp()*1000);
+            $collection->insertOne($data);
+        }
+    }
+  }
+
+  public static function mongodb_shoot_number($tid){
+    if(empty($tid)){
+        return FALSE;
+    }
+
+    $collection = Utils::GetMongoDB()->shoot_number;
+    $node = Node::load($tid);
+    if(!empty($node)){
+      $round_id    = $node->get('field_yeekee_round')->target_id;
+
+      $end_time = '';
+      $round = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($round_id);
+      $field_end_time = $round->get('field_end_time')->getValue();
+      if(!empty($field_end_time)){
+          $field_end_time = explode(".", $field_end_time[0]['value']);
+          $dt = new DateTime();
+
+          $round_name = $round->get('name')->getValue()[0]['value'];
+          if($round_name > 72){
+              $dt->modify('+1 day');
+          }
+          
+          $dt->setTime($field_end_time[0], $field_end_time[1]);
+          $end_time = $dt->getTimestamp();
+      }
+
+      $query = \Drupal::entityQuery('node');
+      $query->condition('type', 'shoot_number');
+      $query->condition('status', 1);
+      $query->condition('field_yeekee_round', $round_id);
+      // $query->condition('changed', $end_time, '<=');
+
+      $start_time = new DateTime();
+      $start_time->setTime(6, 0);
+      
+      $query->condition('changed', [$start_time->getTimestamp(), $end_time], 'BETWEEN');
+      $nids = $query->execute();
+
+      if(!empty($nids)){
+          $nodes = Node::loadMultiple($nids);
+
+          $numbers = array();
+          foreach ($nodes as $node) {
+              $nid = $node->id();
+              $number = $node->label();
+              $uid = $node->getOwnerId();
+              $user = User::load($uid);
+              $user_name = $user->getUsername();
+              // dpm($user_name);
+  
+              $changed = $node->getChangedTime();
+              // dpm($changed);
+
+              $numbers[] = array('nid'=>$node->id(), 'uid'=>$uid, 'number'=>$number, 'name'=>$user_name, 'update'=>$changed);
+          }  
+
+          $data = array();
+          $data['round_id']      = $round_id;
+          $data['numbers']       = $numbers;
+          
+          $filter = array('round_id'=>$round_id);
+          if($collection->count($filter)){
+              $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+              $collection->updateOne($filter, array('$set' =>$data) );
+          }else{
+              // create
+              $data['createdAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+              $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime($today))->getTimestamp()*1000);
+              $collection->insertOne($data);
+          }
+      }
+    }
   }
 }

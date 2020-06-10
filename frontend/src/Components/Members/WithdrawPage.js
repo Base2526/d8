@@ -9,6 +9,7 @@ import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import axios from 'axios';
 import _ from 'lodash';
+import { Redirect} from 'react-router-dom';
 
 import { loadingOverlayActive } from '../../actions/huay'
 import { headers, showToast } from '../Utils/Config';
@@ -111,6 +112,11 @@ class WithdrawPage extends Component {
           error_message} = this.state;
 
     let {user} = this.props
+
+    if(!user.banks.length){
+      return <Redirect to="/add-bank" />
+    }
+
 
     this.loadingOverlayActive();
 

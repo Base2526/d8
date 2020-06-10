@@ -5,17 +5,16 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 import axios from 'axios';
-
 import { Base64 } from 'js-base64';
 
 import { headers, isEmpty } from '../Utils/Config';
 import { userLogin } from '../../actions/auth'
-
 import {  loadingOverlayActive, 
-          updateHuayListBank, 
-          updateTransferMethod, 
+          updateLotterys,
+          updateHuayListBank,
+          updateTransferMethod,
           updateContactUs,
-          updateListBank} from '../../actions/huay'
+          updateListBank } from '../../actions/huay'
 
 class LoginPage extends Component {
   constructor(props) {
@@ -39,20 +38,13 @@ class LoginPage extends Component {
   }
 
   componentDidMount(){
-    // this.props.loadingOverlayActive(false);
-
     let local_storage_login =localStorage.getItem('login');
     if(!isEmpty(local_storage_login)){
       let local_decode =  JSON.parse(Base64.decode(local_storage_login));      
       this.setState({ email: local_decode.e,
                       password: Base64.decode(Base64.decode(local_decode.p)),
                       remember: true});
-
-                      
     }
-
-    localStorage.removeItem('myData');
-    localStorage.removeItem('origin');
   }
 
   handleChange(event) {
@@ -81,44 +73,47 @@ class LoginPage extends Component {
         localStorage.removeItem('login');
       }
 
-      /*
       this.setState({is_active:true, loading_text:'รอสักครู่'})
 
-      let { email, password } = this.state;   
+      // let { email, password } = this.state;   
       let response  = await axios.post('/api/login', 
                                       {name: email, pass: password}, 
                                       {headers:headers()});
+
+      this.setState({ is_active:false })
       console.log(response);
       if( response.status==200 && response.statusText == "OK" ){
         if(response.data.result){
-          // let { userLogin, 
-          //       updateHuayListBank,
-          //       updateTransferMethod,
-          //       updateContactUs,
-          //       updateListBank} = this.props;
-          // let { session, 
-          //       user, 
-          //       huay_list_bank,
-          //       transfer_method, 
-          //       contact_us,
-          //       list_bank} = response.data;
-          // userLogin(user);
-          // updateHuayListBank(huay_list_bank);
-          // updateTransferMethod(transfer_method);
-          // updateContactUs(contact_us);
-          // updateListBank(list_bank);
+          let { user, 
+                lotterys,
+                huay_list_bank,
+                transfer_method, 
+                contact_us,
+                list_bank} = response.data;
+
+          let {
+            userLogin, 
+            updateLotterys,
+            updateHuayListBank,
+            updateTransferMethod,
+            updateContactUs,
+            updateListBank
+          } = this.props
+
+          userLogin(user);
+          updateLotterys(lotterys);
+          updateHuayListBank(huay_list_bank);
+          updateTransferMethod(transfer_method);
+          updateContactUs(contact_us);
+          updateListBank(list_bank);
         }else{
           this.setState({
             error: true,
             error_message: response.data.message,
-
             password:''
           });
         }
       }
-
-      this.setState({is_active:false })
-      */
     } 
   }
 
@@ -134,11 +129,12 @@ class LoginPage extends Component {
   render(){
     let {validated, email, password, error, error_message} = this.state;
     let {logged_in} = this.props;
+
+    this.loadingOverlayActive();
+
     if(logged_in){
       return <Redirect to="/" />
     }
-
-    this.loadingOverlayActive();
 
     return( <Form noValidate validated={validated} onSubmit={this.handleSubmit}>   
               { error ? <Alert variant={'danger'}>{error_message}</Alert> : '' }
@@ -231,8 +227,8 @@ const mapDispatchToProps = (dispatch) => {
     userLogin: (data) =>{
       dispatch(userLogin(data))
     },
-    loadingOverlayActive: (isActivie) =>{
-      dispatch(loadingOverlayActive(isActivie))
+    loadingOverlayActive: (data) =>{
+      dispatch(loadingOverlayActive(data))
     },
     updateHuayListBank: (data) =>{
       dispatch(updateHuayListBank(data))
@@ -245,6 +241,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     updateListBank:  (data) =>{
       dispatch(updateListBank(data))
+    },
+    updateLotterys: (data)=>{
+      dispatch(updateLotterys(data))
     },
 	}
 }

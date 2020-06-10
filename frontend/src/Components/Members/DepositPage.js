@@ -11,6 +11,8 @@ import DatePicker from "react-datepicker";
 import axios from 'axios';
 import _ from 'lodash';
 
+import { Redirect} from 'react-router-dom';
+
 import "react-datepicker/dist/react-datepicker.css";
 import { headers, showToast } from '../Utils/Config';
 import { loadingOverlayActive } from '../../actions/huay'
@@ -121,6 +123,12 @@ class DepositPage extends Component {
     console.log(this.state);
 
     // this.props.user.banks[0]
+
+    let {user} = this.props
+    
+    if(!user.banks.length){
+      return <Redirect to="/add-bank" />
+    }
 
     this.loadingOverlayActive();
 
@@ -315,7 +323,9 @@ const mapStateToProps = (state, ownProps) => {
     let transfer_method = state.transfer_method.data;
     let list_bank = state.list_bank.data;
     
-    return {...{huay_list_bank, transfer_method, list_bank}, logged_in:true, user: state.auth.user};
+    return {...{huay_list_bank, transfer_method, list_bank}, 
+            logged_in:true, 
+            user: state.auth.user};
   }else{
     return { logged_in:false };
   }

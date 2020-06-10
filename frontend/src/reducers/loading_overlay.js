@@ -17,6 +17,7 @@ const loading_overlay = (state = initialState, action) => {
     default:
       return state;
   }
+  return state;
 };
 
 export default loading_overlay;

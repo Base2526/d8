@@ -24,6 +24,32 @@ class API extends ControllerBase {
 
   /*
   https://github.com/BoldizArt/D8_Register-Login/blob/master/src/Controller/RegisterLoginController.php
+  
+  ////////////////
+  use Drupal\huay\Utils\Utils;
+
+  $collection = Utils::GetMongoDB()->lotterys;
+
+  $cursor = $collection->find();
+
+  $datas = array();
+  foreach ( $cursor as $id => $value ){
+    $data = array();
+    $data['tid'] = $value['tid'];
+    $data['name'] = $value['name'];
+    $data['end_time'] = $value['end_time'];
+    $data['is_open'] = $value['is_open'];
+    $data['image_url'] = $value['is_open'];
+    $data['type_lottery'] = $value['type_lottery'];
+    if(isset($value['rounds'])){
+      $data['rounds'] = $value['rounds'];
+    }
+
+    $datas[] = $data;
+  }
+  dpm($datas);
+  ////////////////
+  
   */
   public function login(Request $request){
     $time1 = microtime(true);
@@ -111,11 +137,12 @@ class API extends ControllerBase {
             // เก็บ user_access
           }
 
-          Utils::mongodb_people( $uid );
+          // Utils::mongodb_people( $uid );
   
           $response['result']           = TRUE;
           $response['execution_time']   = microtime(true) - $time1;
           $response['data']             = $data;
+          // $response['lotterys']         = Utils::mongodb_fetch_lotterys();
           
           return new JsonResponse( $response );
         }

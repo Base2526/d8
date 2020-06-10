@@ -64,7 +64,9 @@ class AddBankPage extends Component {
         let { select_bank, name_bank, number_bank, number_bank_confirm} = this.state;   
         if(number_bank.trim() !== number_bank_confirm.trim())
         {
+
           this.setState({
+            is_active: false,
             error: true,
             error_message: 'เลขที่บัญชี กับ ยืนยันเลขที่บัญชี ไม่เท่ากัน ',
           });
@@ -76,6 +78,8 @@ class AddBankPage extends Component {
                                         number_bank}, 
                                       {headers:headers()});
           console.log(response);
+
+          this.setState({is_active: false});
           if( response.status==200 && response.statusText == "OK" ){
             if(response.data.result){
               this.nextPath('/');
@@ -95,7 +99,7 @@ class AddBankPage extends Component {
           }
         }
 
-        this.setState({is_active: false});
+        
       }
     };
 
@@ -142,7 +146,6 @@ class AddBankPage extends Component {
                       <option value="30">ธ. กรุงไทย</option> */}
                       {
                          _.map(this.state.list_bank, (val, key) => {
-                          // console.log(val, key)
                           return <option key={key} value={key}>{val}</option>
                         })                  
                       }
@@ -207,7 +210,10 @@ const mapStateToProps = (state, ownProps) => {
 	if(!state._persist.rehydrated){
 		return {};
   }
-  
+
+  console.log(state.auth);
+
+  // user.banks
   if(state.auth.isLoggedIn){
     return { logged_in: true, user: state.auth.user};
   }else{

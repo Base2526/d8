@@ -25,8 +25,6 @@ class LotteryListPage extends Component {
     this.renderSquareShareItem   = this.renderSquareShareItem.bind(this);
   }
 
-
-
   componentDidMount() {
 
     let {lotterys} = this.props
@@ -275,58 +273,42 @@ class LotteryListPage extends Component {
 
   render() {
     let {lotterys} = this.state
+
+    console.log(lotterys)
     return lotterys.map((value, key) =>{
       switch(key){
         case 0:{
-          return  <div className={'lotterys-1'} key={key}>
-                    <p>หวยเด่น</p>
-                    <ReactList
-                      key={key}
-                      itemRenderer={this.renderSquareNotableItem}
-                      length={value.length}
-                      type='uniform'/>
-                  </div>
+          if(value.length > 0){
+            return  <div className={'lotterys-1'} key={key}>
+                      <p>หวยเด่น</p>
+                      <ReactList
+                        key={key}
+                        itemRenderer={this.renderSquareNotableItem}
+                        length={value.length}
+                        type='uniform'/>
+                    </div>
+          }else{
+            return  <div></div>
+          }
         }
 
         case 1:{
-          return  <div key={key}>
-                    <p>หวยหุ้น</p>
-                    <ReactList
-                      key={key}
-                      itemRenderer={this.renderSquareShareItem}
-                      length={value.length}
-                      type='uniform'/>
-                  </div>
+          if(value.length > 0){
+            return  <div key={key}>
+                      <p>หวยหุ้น</p>
+                      <ReactList
+                        key={key}
+                        itemRenderer={this.renderSquareShareItem}
+                        length={value.length}
+                        type='uniform'/>
+                    </div>
+          }else{
+            return  <div></div>
+          }
         }
       }
     })
-
-    // return  <ReactList
-    //           itemRenderer={this.renderSquareItem}
-    //           length={2}
-    //           type='uniform'/>;
   }
-
-  // render2() {
-  //   let {history} = this.props
-  //   let lotterys = [{'id':1, 'name': 'หวยรัฐบาลไทย'}, 
-  //                   {'id':2, 'name': 'จับยี่กี VIP'}];
-
-  //   return( <Container>
-  //             <div>หวย</div>
-  //             <Row style={styles.pStyle}>
-  //               {
-  //               lotterys.map((item, i) => {
-  //                 return  <Col xs={6} md={3} key={item.id}>
-  //                           <div >
-  //                             <button data-id={item.id} onClick={e => this.handleClick(e.target.getAttribute('data-id'))}>{item.name}</button>
-  //                           </div>
-  //                         </Col>
-  //               })
-  //               }
-  //             </Row>
-  //           </Container>);
-  // }
 }
 
 const mapStateToProps = (state, ownProps) => {
@@ -342,8 +324,6 @@ const mapStateToProps = (state, ownProps) => {
 
     let notables = lotterys.filter(v => v.type_lottery == 90)
     let shares   = lotterys.filter(v => v.type_lottery == 91)
-
-    console.log([notables, shares])
 
     return {  loggedIn: true, 
               user:state.auth.user,

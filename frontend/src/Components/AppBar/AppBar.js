@@ -19,24 +19,34 @@ class ButtonAppBar extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      is_active:false,
+      loading_text: '',
+    }
+
     this.handleLogout = this.handleLogout.bind(this);
   }
 
   handleLogout = async (event) =>  {
     let {loadingOverlayActive, userLogout, user} = this.props;
 
-    loadingOverlayActive(true);
+    this.setState({is_active:true, loading_text:'รอสักครู่'})
     let response  = await axios.post('/api/logout', 
                                       {uid: user.uid }, 
                                       {headers:headers()});
     console.log(response);
+
+    this.setState({is_active:false})
     if( response.status==200 && response.statusText == "OK" ){
       if(response.data.result){
         userLogout();
       }
     }
+  }
 
-    loadingOverlayActive(false);
+  loadingOverlayActive(){
+    let {is_active, loading_text} = this.state
+    this.props.loadingOverlayActive(is_active, loading_text);
   }
 
   render() {
@@ -44,6 +54,9 @@ class ButtonAppBar extends Component {
               <Link  href="#" style={{color: 'white', paddingRight:'5px'}} to="/login">เข้าสู่ระบบ</Link>
               <Link  href="#" style={{color: 'white'}} to="/register">สมัครสมาชิก</Link>
             </div>;
+
+    loadingOverlayActive();
+    
     if(this.props.loggedIn){
 
       let {user} =this.props;

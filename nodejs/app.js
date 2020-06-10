@@ -22,7 +22,7 @@ const ListBank        = require('./models/list_banck')
 const Sessions        = require('./models/sessions')
 // const YeekeeRound     = require('./models/yeekee_round')
 const Lotterys        = require('./models/lotterys')
-const ShootNumbers     = require('./models/shoot_numbers')
+const ShootNumbers    = require('./models/shoot_numbers')
 
 const connectDb       = require("./src/connection");
 const User            = require("./src/User.model");
@@ -144,13 +144,24 @@ app.post('/api/login', async(req, res) => {
   if(response.result){
     session_local = response.data;
 
+    const lotterys        = await Lotterys.find({});
+    const huay_list_bank  = await HuayListBank.find({});
+    const transfer_method = await TransferMethod.find({});
+    const contact_us      = (await ContactUs.find({}))[0];
+    const list_bank       = await ListBank.find({});
+
     res.send({
       result: true,
-      data: response.data
+      user: response.data,
+      lotterys,
+      huay_list_bank,
+      transfer_method,
+      contact_us,
+      list_bank
     })
 
     /*
-    const peoples          = await People.find({uid: response.data.uid});
+    const peoples = await People.find({uid: response.data.uid});
     if (peoples === undefined || peoples.length == 0) {
       res.send({
         result: false,
