@@ -17,7 +17,13 @@ import { Accordion, AccordionItem } from 'react-sanfona';
 
 import NumericInput from 'react-numeric-input';
 import OtpInput from '../Utils/OtpInput';
-import { headers, showToast, isEmpty, getCurrentDate, getCurrentTime, getTime} from '../Utils/Config';
+import {headers, 
+        showToast, 
+        isEmpty, 
+        getCurrentDate, 
+        getCurrentTime, 
+        getTime,
+        getTimeWithDate} from '../Utils/Config';
 import { loadingOverlayActive } from '../../actions/huay'
 
 import '../../index.css';
@@ -144,6 +150,9 @@ class ChitPage extends Component {
 
   componentDidMount() {
     let {match, round} = this.props; 
+
+    console.log(round);
+
     switch(match.params.type){
       case 'yeekee':{
         this.setState({time: getTime(round), date_time: new Date().getTime()});
@@ -154,10 +163,10 @@ class ChitPage extends Component {
         break;
       }
       default:{
-        this.setState({time: getTime(round, false), date_time: new Date().getTime()});
+        this.setState({time: getTimeWithDate(round, false), date_time: new Date().getTime()});
         interval = setInterval(() => {
           let {round} = this.props; 
-          this.setState({time: getTime(round, false)});
+          this.setState({time: getTimeWithDate(round, false)});
         }, 1000);
       }
     }
@@ -951,7 +960,7 @@ class ChitPage extends Component {
     // }, 1500);
     console.log('fetchMoreData #0');
 
-  };
+  }
 
   shootNumberHeader(){
     
@@ -1088,10 +1097,11 @@ class ChitPage extends Component {
   }
 
   render() {
+
     let {history, match, user, round} = this.props; 
     let {error, error_message, total, equal_price, otp, m, time} = this.state;
 
-    this.gotoPageReward();
+    // this.gotoPageReward();
     this.loadingOverlayActive();
 
     let btnC = <Button variant="outline-primary" onClick={() =>this.handleNumPad("C")} disabled>C</Button>;
@@ -1102,6 +1112,7 @@ class ChitPage extends Component {
     }
     
     let header_row;
+    let view_shoot_number_show = <div />;
     switch(match.params.type){
       case 'yeekee':{
         header_row = <Row>
@@ -1113,7 +1124,15 @@ class ChitPage extends Component {
                     เวลาเหลือ {time}
                   </div>
                 </Col>
-              </Row>
+              </Row>;
+
+        view_shoot_number_show =  <Button
+                                    variant="outline-primary"
+                                    onClick={() =>{
+                                      this.setState({shoot_number_show: true})
+                                    }}>
+                                    ยิงเลข
+                                  </Button>;
         break;
       }
       default:{
@@ -1150,14 +1169,7 @@ class ChitPage extends Component {
                 } }>
                 กดส่งโพย
               </Button>
-
-              <Button
-                variant="outline-primary"
-                onClick={() =>{
-                  this.setState({shoot_number_show: true})
-                }}>
-                ยิงเลข
-              </Button>
+            { view_shoot_number_show }
             </Col>
           </Row>
           <Row>

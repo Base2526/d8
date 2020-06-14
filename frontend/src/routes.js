@@ -117,9 +117,11 @@ export default [
     { path: "/request-all", name: "สถานะ ฝากเงิน", Component: RequestAllPage },
 
     { path: "/lottery-list", name: "แทงหวย", Component: LotteryListPage },
+    { path: "/lottery-list/:type/:id", name: "โพย", Component: ChitPage },
     { path: "/lottery/government", name: "หวยรัฐบาลไทย", Component: GovernmentPage },
-    { path: "/lottery/yeekee-list", name: "จับยี่กี VIP", Component: YeekeeListPage },
-    { path: "/lottery/yeekee-list/:type/:id", name: "โพย", Component: ChitPage },
+
+    { path: "/lottery-list/yeekee-list", name: "จับยี่กี VIP", Component: YeekeeListPage },
+    { path: "/lottery-list/yeekee-list/:type/:id", name: "โพย", Component: ChitPage },
 
     // /lottery/yeekee
     { path: "/lottery-list/reward/:type/:id", name:"ผลรางวัล", Component: RewardPage },
@@ -130,7 +132,7 @@ export default [
     { path: "/contact-us", name: "ติดต่อเรา", Component: ContactUsPage},
 
     { path: "/help", name:"วิธีการใช้งาน", Component: HelpPage},
-    { path: "/lottery-list-chits", name:"รายการโพยทั้งหมด (สำหรับลูกค้า)", Component: LotteryListChitsPage},
+    { path: "/list-chit-customer", name:"รายการโพยทั้งหมด (สำหรับลูกค้า)", Component: LotteryListChitsPage},
 
     { path: "/setting-dealers", name:"ตั้งค่าสำหรับเจ้ามือหวย", Component: SettingDealers},
     { path: "/setting-dealers/list-dealers", name:"รายการโพยทั้งหมด", Component: ListDealers},

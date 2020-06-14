@@ -51,6 +51,7 @@ class API extends ControllerBase {
   ////////////////
   
   */
+
   public function login(Request $request){
     $time1 = microtime(true);
 
@@ -99,7 +100,7 @@ class API extends ControllerBase {
                         );
 
           /*
-            กรณีที่ใช้ browser เดียวกัน login ได้หลายๆครั้งจะได้ cookie เดิมเสมอนอกจะ clear cache browser cookie ถึงจะเปลียนแปลง
+          กรณีที่ใช้ browser เดียวกัน login ได้หลายๆครั้งจะได้ cookie เดิมเสมอนอกจะ clear cache browser cookie ถึงจะเปลียนแปลง
           */
           $is_new_cookie = TRUE;
           $paragraphs = array();
@@ -426,8 +427,7 @@ class API extends ControllerBase {
       }
 
       $paragraphs[] = array('target_id'=> $user_banks->id(), 'target_revision_id' => $user_banks->getRevisionId());
-      
-      
+    
       $user->set('field_bank', $paragraphs);
       $user->save();
 
@@ -782,8 +782,10 @@ class API extends ControllerBase {
     // Update to custom
     $chits_paragraphs = array();
     foreach ($user_lottery_customer->get('field_chits')->getValue() as $ii=>$vv){
-        $p = Paragraph::load( $vv['target_id'] );
+      $p = Paragraph::load( $vv['target_id'] );
+      if(!empty($p)){
         $chits_paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+      } 
     }
 
     $chit = Paragraph::create([
@@ -801,8 +803,10 @@ class API extends ControllerBase {
     // Update to dealer
     $list_lotterys_paragraphs = array();
     foreach ($user_lottery_dealer->get('field_list_lotterys')->getValue() as $ii=>$vv){
-        $p = Paragraph::load( $vv['target_id'] );
+      $p = Paragraph::load( $vv['target_id'] );
+      if(!empty($p)){
         $list_lotterys_paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+      } 
     }
 
     $list_lottery = Paragraph::create([
@@ -976,6 +980,87 @@ class API extends ControllerBase {
     $user_lottery_dealer->set('field_list_lotterys', $list_lotterys_paragraphs);
     $user_lottery_dealer->save();
     // Update to dealer
+  }
+
+  public function bet_cancel(Request $request){
+    $time1 = microtime(true);
+    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+      $content = json_decode( $request->getContent(), TRUE );
+      $uid                = trim( $content['uid'] );
+      $nid               = trim( $content['nid'] ); 
+      if( empty($uid) ||  
+          empty($nid) ||
+          empty(User::load($uid)) ){
+        $response['result']   = FALSE;
+        return new JsonResponse( $response );
+      }
+      
+      $node = Node::load($nid);
+
+      $chit_status = $node->field_chit_status->target_id;
+      if(strcmp($chit_status, 55) == 0){
+        // update status ยกเลิก
+        $node->field_chit_status = 56;
+        $node->setPublished(FALSE);
+        $node->save();
+
+        // ลบ ออกจากลูกค้า 
+        $lottery_custom = User::load($node->field_lottery_custom->target_id);
+        $parag_chits  =array();
+        foreach($lottery_custom->get('field_chits')->getValue() as $i=>$v){
+          $p = Paragraph::load( $v['target_id'] );
+
+          if(!empty($p)){
+            $chit_id = $p->field_chit_id->value;
+          
+            if(strcmp($nid, $chit_id) == 0){
+              $entity = \Drupal::entityTypeManager()->getStorage('paragraph')->load($v['target_id']);
+              if ($entity) $entity->delete();
+            }else{
+              
+              $parag_chits[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+            }
+          }
+        }
+
+        $lottery_custom->field_chits = $parag_chits;
+        $lottery_custom->save();
+
+        // Update mongodb user 
+        // Utils::mongodb_people($node->field_lottery_custom->target_id);
+
+        // ลบ ออกจากเจ้ามือ
+        $lottery_dealer = User::load($node->field_lottery_dealer->target_id);
+        $parag_list_lotterys  =array();
+        foreach($lottery_dealer->get('field_list_lotterys')->getValue() as $i=>$v){
+          $p = Paragraph::load( $v['target_id'] );
+
+          if(!empty($p)){
+            $chit_id = $p->field_chit_id->value;
+          
+            if(strcmp($nid, $chit_id) == 0){
+              $entity = \Drupal::entityTypeManager()->getStorage('paragraph')->load($v['target_id']);
+              if ($entity) $entity->delete();
+            }else{
+              $parag_list_lotterys[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+            }
+          }
+        }
+
+        $lottery_dealer->field_list_lotterys = $parag_list_lotterys;
+        $lottery_dealer->save();
+
+        // Update mongodb user 
+        // Utils::mongodb_people($node->field_lottery_dealer->target_id);
+      }
+
+      $response['result']           = TRUE;
+      $response['execution_time']   = microtime(true) - $time1;
+      return new JsonResponse( $response );
+    }
+
+    $response['result']   = FALSE;
+    return new JsonResponse( $response );
   }
 
   // ยิงเลขหวยยี่กี่

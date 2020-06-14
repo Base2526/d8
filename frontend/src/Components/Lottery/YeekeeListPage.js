@@ -42,7 +42,7 @@ class YeekeeListPage extends Component {
     if(round.time == -1){
       this.props.history.push('/lottery-list/reward/yeekee/' + round.tid)
     }else{
-      history.push('/lottery/yeekee-list/yeekee/' + round.tid)
+      history.push('/lottery-list/yeekee-list/yeekee/' + round.tid)
     }
   }
 

@@ -162,11 +162,11 @@ class LotteryListPage extends Component {
     if(item.is_open){
       switch(item.tid){
         case 67:{
-          history.push('/lottery/yeekee-list');
+          history.push('/lottery-list/yeekee-list');
           break;
         }
         default:{
-          history.push('/lottery/yeekee-list/'+ type +'/' + item.tid)
+          history.push('/lottery-list/'+ type +'/' + item.tid)
         }
       }
     }else{
@@ -200,8 +200,6 @@ class LotteryListPage extends Component {
 
   renderSquareNotableItem(index, key){ 
     let item = this.state.lotterys[0][index];
-    console.log(item)
-
     switch(item.tid){
       case 67:{
         if(item.is_open){
@@ -223,7 +221,6 @@ class LotteryListPage extends Component {
             </div>
           </a>
         }
-        
       }
     }
     if(item.is_open && item.time != -1){
@@ -312,7 +309,7 @@ class LotteryListPage extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log(state)
+  // console.log(state)
   if(!state._persist.rehydrated){
     return {};
   }
@@ -322,8 +319,8 @@ const mapStateToProps = (state, ownProps) => {
       return obj1.weight - obj2.weight;
     });
 
-    let notables = lotterys.filter(v => v.type_lottery == 90)
-    let shares   = lotterys.filter(v => v.type_lottery == 91)
+    let notables = lotterys.filter(v => v.type_lottery == 90 && v.is_display)
+    let shares   = lotterys.filter(v => v.type_lottery == 91 && v.is_display)
 
     return {  loggedIn: true, 
               user:state.auth.user,

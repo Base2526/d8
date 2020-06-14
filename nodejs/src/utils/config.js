@@ -37,6 +37,7 @@ config.d8.api_update_socket_io      = config.d8.host + '/api/update_socket_io.js
 
 // แทงพนัน 
 config.d8.api_bet                   = config.d8.host + '/api/bet.json';
+config.d8.api_bet_cancel            = config.d8.host + '/api/bet_cancel.json';
 config.d8.api_shoot_number          = config.d8.host + '/api/shoot_number.json';
 
 config.d8.headers = {

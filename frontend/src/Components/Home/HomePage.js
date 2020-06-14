@@ -39,6 +39,18 @@ class HomePage extends Component {
       is_dealer = user.roles.find((element) => { return element === 'lottery_dealer' })
 
       console.log(user);
+
+      /*
+          let chits = state.auth.user.chits;
+    console.log(chits); // 
+      */
+
+      let chit_length = 0;
+      if(!isEmpty(user.chits)){
+        chit_length =user.chits.length;
+      }
+      // user.chits.length;
+      // console.log(user.chits.length);
       return (
         <Container style={{minHeight: 600}}>
             <div style={{padding:'5px'}}>
@@ -62,8 +74,8 @@ class HomePage extends Component {
               </Button>
             </div>
             <div style={{padding:'5px'}}>
-              <Button type="primary" size="large" onClick={ () => this.nextPath('/lottery-list-chits')}>
-              รายการโพยทั้งหมด (สำหรับลูกค้า)
+              <Button type="primary" size="large" onClick={ () => this.nextPath('/list-chit-customer')}>
+              รายการโพยทั้งหมด (สำหรับลูกค้า) ( { chit_length } )
               </Button>
             </div>
   
@@ -131,11 +143,14 @@ const mapStateToProps = (state, ownProps) => {
   }
   
   if(state.auth.isLoggedIn){
+
+
     return { logged_in: true, user: state.auth.user};
   }else{
     return { logged_in: false };
   }
 }
+
 
 const mapDispatchToProps = (dispatch) => {
 	return {

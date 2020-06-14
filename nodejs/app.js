@@ -347,6 +347,24 @@ app.post('/api/bet', (req, res) => {
   });
 });
 
+// 
+app.post('/api/bet_cancel', (req, res) => {
+  var data = {
+    "uid"      : req.body.uid,
+    "nid"      : req.body.nid,
+    "time"     : req.body.time
+  }
+
+  fetch(config.d8.api_bet_cancel, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+    .then((res) => {
+      return res.json()
+  })
+  .then((json) => {
+    console.log(json);
+    res.send(json);
+  });
+});
+
 app.post('/api/shoot_number', (req, res) => {
   var data = {
     "uid"       : req.body.uid,
