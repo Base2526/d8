@@ -100,6 +100,7 @@ class LoginPage extends Component {
             updateListBank
           } = this.props
 
+
           userLogin(user);
           updateLotterys(lotterys);
           updateHuayListBank(huay_list_bank);

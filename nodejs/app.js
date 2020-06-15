@@ -13,6 +13,11 @@ const http  = require('http');
 const server= http.createServer(app);
 let io = require('socket.io')(server);
 
+
+var cookie = require('cookie');
+
+// var mongoAdapter = require('socket.io-adapter-mongo');
+
 const Product         = require('./models/product')
 const People          = require('./models/people')
 const ContactUs       = require('./models/contact_us')
@@ -23,9 +28,10 @@ const Sessions        = require('./models/sessions')
 // const YeekeeRound     = require('./models/yeekee_round')
 const Lotterys        = require('./models/lotterys')
 const ShootNumbers    = require('./models/shoot_numbers')
+const UserSocketID  = require('./models/user_socket_id')
 
-const connectDb       = require("./src/connection");
-const User            = require("./src/User.model");
+const connectDb       = require("./src/connection")
+const User            = require("./src/User.model")
 const config          = require("./src/utils/config")
 
 var socket_local;
@@ -68,7 +74,6 @@ io.use(function(socket, next){
 io.use(function(socket, next){
   passportSession(socket.client.request, socket.client.request.res, next);
 });
-
 
 app.get('/session', (req, res) => {
   let sess = req.session
@@ -347,7 +352,6 @@ app.post('/api/bet', (req, res) => {
   });
 });
 
-// 
 app.post('/api/bet_cancel', (req, res) => {
   var data = {
     "uid"      : req.body.uid,
@@ -408,6 +412,7 @@ app.post("/api/contact-us", async (req, res) => {
 });
 
 // var request = require('request');
+// io.adapter(mongoAdapter( config.mongo.url ));
 io.on('connection', (socket) => { 
   let handshake = socket.handshake;
   console.log(socket);
@@ -419,7 +424,24 @@ io.on('connection', (socket) => {
 
   socket_local = socket;
 
-  update_socket_io(socket);
+  update_socket_id(socket);
+
+  // connectDb().then( async (db) => {
+  //   console.log("MongoDb connected >> connection");
+
+  //   var payload = {
+  //     uid:socket.handshake.query.uid,
+  //     socket
+  //   };
+  //   console.log(payload);
+  //   const __io = new _io(payload)
+  //   await __io.save()
+
+  //   // const people = new People(payload)
+  //   // await people.save()
+  // });  
+
+
 
   // console.log("user-agent: "+socket.request.headers['user-agent']);
   // request('http://localhost/rest/api/get?_format=json', function (error, response, body) {
@@ -480,7 +502,7 @@ io.on('connection', (socket) => {
   
   socket.on('disconnect', () => {
     
-    update_socket_io(socket);
+    update_socket_id(socket);
     console.log(`Socket ${socket.id} disconnected.`);
   });
 
@@ -495,23 +517,87 @@ io.on('connection', (socket) => {
   });
 });
 
-async function update_socket_io(socket){
-  var data = {
-    "uid"           : socket.handshake.query.uid,
-    "socket_id"     : socket.id,
-    "connected"     : socket.connected,
-    "disconnected"  : socket.disconnected
-  }
-  console.log(socket);
+async function update_socket_id(socket){
 
-  config.d8.headers['session'] = socket.client.request.session.id;
-  await fetch(config.d8.api_update_socket_io, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-    .then((res) => {
-      return res.json()
-  })
-  .then((json) => {
-    console.log(json);
-  });
+  var cookief =socket.handshake.headers.cookie; 
+
+  var cookies = cookie.parse(socket.handshake.headers.cookie);
+
+  console.log(socket.connected);
+  console.log(cookief);
+  console.log(cookies);
+  console.log(session_local);
+
+  if(socket.connected){
+    // https://mongoosejs.com/docs/tutorials/findoneandupdate.html
+    let doc = await UserSocketID.findOne({ uid: socket.handshake.query.uid });
+
+    if(!_.isEmpty(doc)){
+      var new_data=[]
+
+      var isset = true;
+      doc.data.forEach(function(element) 
+      { 
+        if(element.session == socket.handshake.query.session){
+          isset = false;
+          new_data.push({session:element.session, socket_id: socket.id});
+        }else{
+          new_data.push(element);
+        }
+      });
+
+      if(isset){
+        new_data.push({session:socket.handshake.query.session, socket_id: socket.id});
+      }
+
+      const filter = { uid:socket.handshake.query.uid };
+      const update = { data: new_data };
+      await UserSocketID.findOneAndUpdate(filter, update, {
+        new: true,
+        upsert: true // Make this update into an upsert กรณีทียังไม่มีจะทำการสร้างให้
+      });
+    }else{
+      const filter = { uid:socket.handshake.query.uid };
+      const update = { data: new_data };
+      await UserSocketID.findOneAndUpdate(filter, update, {
+        new: true,
+        upsert: true // Make this update into an upsert กรณีทียังไม่มีจะทำการสร้างให้
+      });
+
+    }
+  }else{
+    let doc = await UserSocketID.findOne({ uid: socket.handshake.query.uid });
+    var new_data=[]
+    doc.data.forEach(function(element){ 
+        if(element.session != socket.handshake.query.session){
+          new_data.push(element);
+        }
+    });
+
+    const filter = { uid:socket.handshake.query.uid };
+    const update = { data: new_data };
+    await UserSocketID.findOneAndUpdate(filter, update, {
+      new: true,
+      upsert: true // Make this update into an upsert กรณีทียังไม่มีจะทำการสร้างให้
+    });
+  }
+
+  // var data = {
+  //   "uid"           : socket.handshake.query.uid,
+  //   "socket_id"     : socket.id,
+  //   "connected"     : socket.connected,
+  //   "disconnected"  : socket.disconnected
+  // }
+  // console.log(socket);
+
+  // config.d8.headers['session'] = socket.client.request.session.id;
+  // await fetch(config.d8.api_update_socket_io, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+  //   .then((res) => {
+  //     return res.json()
+  // })
+  // .then((json) => {
+  //   console.log(json);
+  // });
 }
 // main();
 
