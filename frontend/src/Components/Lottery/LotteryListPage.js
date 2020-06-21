@@ -271,7 +271,6 @@ class LotteryListPage extends Component {
   render() {
     let {lotterys} = this.state
 
-    // console.log(lotterys)
     return lotterys.map((value, key) =>{
       switch(key){
         case 0:{

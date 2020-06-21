@@ -8,7 +8,7 @@ import DepositPage from './Components/Members/DepositPage';
 import WithdrawPage from './Components/Members/WithdrawPage';
 import ContactUsPage from './Components/Members/ContactUsPage';
 import AddBankPage from './Components/Members/AddBankPage';
-import LoginPage from './Components/LoginPage/LoginPage';
+import LoginPage from './Components/Setting/LoginPage';
 
 import AffiliatePage from './Components/Members/AffiliatePage'
 import StatementPage from './Components/Members/StatementPage'
@@ -26,9 +26,9 @@ import YeekeeListPage from './Components/Lottery/YeekeeListPage';
 import ChitPage from './Components/Lottery/ChitPage';
 import RewardPage from './Components/Lottery/RewardPage'
 
-import ProfilePage from './Components/ProfilePage/ProfilePage';
-import ForgetPasswordPage from './Components/ForgetPasswordPage/ForgetPasswordPage';
-import RegisterPage from './Components/RegisterPage/RegisterPage';
+import ProfilePage from './Components/Setting/ProfilePage';
+import ForgetPasswordPage from './Components/Setting/ForgetPasswordPage';
+import RegisterPage from './Components/Setting/RegisterPage';
 
 import HelpPage from './Components/Help/HelpPage';
 
@@ -138,7 +138,4 @@ export default [
     { path: "/setting-dealers/list-dealers", name:"รายการโพยทั้งหมด", Component: ListDealers},
     { path: "/setting-dealers/lottery-distribute", name:"รายการหวยที่รับซื้อ", Component: LotteryDistribute},
     { path: "/setting-dealers/lottery-suppress", name:"อั้นหวย", Component: LotterySuppress},
-    // 
-
-    // 
 ];
