@@ -1,9 +1,4 @@
 import React, { Component } from 'react';
-import TextField from '@material-ui/core/TextField';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
 import { Redirect, Link} from 'react-router-dom';
 
 import { connect } from 'react-redux'
@@ -18,6 +13,7 @@ class RegisterPage extends Component {
 
     this.state = {
       validated: false,
+      name: '',
       email: '',
       password: '',
 
@@ -32,9 +28,9 @@ class RegisterPage extends Component {
   }
 
   componentDidMount() {
-    this.callApi()
-      .then(res => console.log(res.express) )
-      .catch(err => console.log(err));
+    // this.callApi()
+    //   .then(res => console.log(res.express) )
+    //   .catch(err => console.log(err));
   }
 
   handleChange(event) {
@@ -47,13 +43,13 @@ class RegisterPage extends Component {
     });
   }
 
-  callApi = async () => {
-    const response = await fetch('/api/hello');
-    const body = await response.json();
-    if (response.status !== 200) throw Error(body.message);
+  // callApi = async () => {
+  //   const response = await fetch('/api/hello');
+  //   const body = await response.json();
+  //   if (response.status !== 200) throw Error(body.message);
     
-    return body;
-  };
+  //   return body;
+  // };
 
   // submitForm(e) {
   submitForm = async e => {
@@ -77,26 +73,30 @@ class RegisterPage extends Component {
         error_message: "Password is empty."
           });
     }
+
+    // let response  = await axios.post('/api/login', 
+    //                     {name: email, pass: password}, 
+    //                     {headers:headers()});
  
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name:user, pass}),
-    });
+    // const response = await fetch('/api/register', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ name:user, pass}),
+    // });
 
-    let body = await response.text();
+    // let body = await response.text();
 
-    body = JSON.parse(body);
-    if(!body.result){
-      console.log(body.message);
-    }else{
-      let data = body.data;
-      console.log(data);
+    // body = JSON.parse(body);
+    // if(!body.result){
+    //   console.log(body.message);
+    // }else{
+    //   let data = body.data;
+    //   console.log(data);
 
-      this.props.userLogin(data);
-    }
+    //   this.props.userLogin(data);
+    // }
 
     // if(username === "admin" && password === "admin") {
     //   ls.set("token", "56@cysXs");
@@ -146,13 +146,24 @@ class RegisterPage extends Component {
   }
 
   render(){
-    let {validated, email, password} = this.state;
+    let {validated, name, email, password} = this.state;
 
     if(this.props.loggedIn){
       return <Redirect to="/" />
     }
 
     return( <Form noValidate validated={validated} onSubmit={this.handleSubmit}>
+             <Form.Group controlId="name">
+                <Form.Label>ชื่อ</Form.Label>
+                <Form.Control 
+                    type="text" 
+                    placeholder="ชื่อ" 
+                    required 
+                    value={name} onChange={this.handleChange}/>
+                <Form.Control.Feedback type="invalid">
+                    กรุณากรอบชื่อ.
+                </Form.Control.Feedback>
+              </Form.Group>
               <Form.Group controlId="email">
                 <Form.Label>อีเมลล์</Form.Label>
                 <Form.Control 

@@ -12,7 +12,7 @@ import { toast } from 'react-toastify';
 export const assets = 'yuuu';
 
 export function headers() {
-    return { 'Content-Type': 'application/json' };
+    return { 'Content-Type': 'application/json', 'authorization': 'aHVheQ==' };
 }
 
 /*
@@ -184,7 +184,7 @@ export function getTime(round, is_yeekee = true){
 
     if(is_yeekee){
         let arr_end_time =round.end_time.split(".");
-        console.log(round);
+        // console.log(round);
        
         let hours =0;
         let mins =0;
@@ -229,7 +229,7 @@ export function getTime(round, is_yeekee = true){
             // console.log(hours, mins, secs);
         }
     
-        console.log(hours);
+        // console.log(hours);
         if(hours < 0){
             return -1;
         }

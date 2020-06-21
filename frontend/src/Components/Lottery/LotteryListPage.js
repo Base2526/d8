@@ -271,7 +271,7 @@ class LotteryListPage extends Component {
   render() {
     let {lotterys} = this.state
 
-    console.log(lotterys)
+    // console.log(lotterys)
     return lotterys.map((value, key) =>{
       switch(key){
         case 0:{
@@ -285,7 +285,7 @@ class LotteryListPage extends Component {
                         type='uniform'/>
                     </div>
           }else{
-            return  <div></div>
+            return  <div key={key}></div>
           }
         }
 
@@ -300,7 +300,7 @@ class LotteryListPage extends Component {
                         type='uniform'/>
                     </div>
           }else{
-            return  <div></div>
+            return  <div key={key}></div>
           }
         }
       }

@@ -63,6 +63,14 @@ huay.bank:
   requirements:
     _access: 'TRUE'
 
+huay_mongo_log.form:
+  path: '/admin/reports/mglog'
+  defaults:
+    _title: 'Recent mongo log messages'
+    _form: '\Drupal\huay\Form\MongoLogForm'
+  requirements:
+    _access: 'TRUE'
+
 # api
 api.login:
   path: '/api/login.json'

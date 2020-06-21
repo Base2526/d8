@@ -14,7 +14,7 @@ const server= http.createServer(app);
 let io = require('socket.io')(server);
 
 
-var cookie = require('cookie');
+// var cookie = require('cookie');
 
 // var mongoAdapter = require('socket.io-adapter-mongo');
 
@@ -28,14 +28,16 @@ const Sessions        = require('./models/sessions')
 // const YeekeeRound     = require('./models/yeekee_round')
 const Lotterys        = require('./models/lotterys')
 const ShootNumbers    = require('./models/shoot_numbers')
-const UserSocketID  = require('./models/user_socket_id')
+const UserSocketID    = require('./models/user_socket_id')
 
-const connectDb       = require("./src/connection")
+const connectMongoose = require("./src/connection")
 const User            = require("./src/User.model")
 const config          = require("./src/utils/config")
 
 var socket_local;
-var session_local;
+// var session_local;
+
+require('./src/utils/log-interceptor')(server);
 
 var sessionMiddleware = session({ 
   store: new MongoStore({url: config.mongo.url}),
@@ -98,6 +100,7 @@ app.get('/', async (req, res) => {
   // const product = new Product(payload)
   // await product.save()
 
+  /*
   var payload = {
     roles: [
       'authenticated'
@@ -123,6 +126,7 @@ app.get('/', async (req, res) => {
   await people.save()
 
   res.send('OOP Chat Server is running on port 8080');
+  */
 
   // fetch('http://localhost:8055/api/login.json', {method: 'GET', body: 'a=1'})
 	// .then(res => res.json()) // expecting a json response
@@ -132,68 +136,109 @@ app.get('/', async (req, res) => {
 });
 
 app.post('/api/login', async(req, res) => {
-  console.log(req);
-  console.log(req.body);
-  console.log(config.d8.headers);
-
-  // session_local=req.session;
-
-  config.d8.headers['session'] = req.session.id;
-  var data = {
-    "name": req.body.name,
-    "pass": req.body.pass
+  if(config.d8.debug){
+    console.log(req);
+    console.log(req.body);
+    console.log(config.d8.headers);
   }
-  const responses = await fetch(config.d8.api_login, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)});
-  const response = await responses.json();
-  console.log(response); 
-  if(response.result){
-    session_local = response.data;
-
-    const lotterys        = await Lotterys.find({});
-    const huay_list_bank  = await HuayListBank.find({});
-    const transfer_method = await TransferMethod.find({});
-    const contact_us      = (await ContactUs.find({}))[0];
-    const list_bank       = await ListBank.find({});
-
-    res.send({
-      result: true,
-      user: response.data,
-      lotterys,
-      huay_list_bank,
-      transfer_method,
-      contact_us,
-      list_bank
-    })
-
-    /*
-    const peoples = await People.find({uid: response.data.uid});
-    if (peoples === undefined || peoples.length == 0) {
-      res.send({
-        result: false,
-        message: 'Error, no user id ' + response.data.uid
-      });
-    }else{
-      const user            = peoples[0];
+  
+  if (req.headers.authorization == "aHVheQ==" ) {
+    config.d8.headers['session'] = req.session.id;
+    var data = {
+      "name": req.body.name,
+      "pass": req.body.pass
+    }
+    const responses = await fetch(config.d8.api_login, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)});
+    const response = await responses.json();
+    console.log(response); 
+    if(response.result){
+      // session_local = response.data;
+  
+      const lotterys        = await Lotterys.find({});
       const huay_list_bank  = await HuayListBank.find({});
       const transfer_method = await TransferMethod.find({});
       const contact_us      = (await ContactUs.find({}))[0];
       const list_bank       = await ListBank.find({});
 
-      session_local.uid = response.data.uid;
+      var _people = await People.findOne({ uid: response.data.uid });
 
-      res.send({
-        result: true,
-        session: req.session.id,
-        user,
-        huay_list_bank,
-        transfer_method,
-        contact_us,
-        list_bank
-      });
+      if(!_.isEmpty(_people)){  
+        var user = _people.toObject();
+        user.session =  req.session.id;
+
+        res.send({
+          result: true,
+          user,
+          lotterys,
+          huay_list_bank,
+          transfer_method,
+          contact_us,
+          list_bank
+        })
+      }else{
+        res.send({'result': false});
+      }
+    }else{
+      res.send(response);
+    }
+  }else{
+    // http://expressjs.com/en/4x/api.html#res.status
+    res.status(403).send({ error: "Forbidden" });
+  }
+});
+
+// 
+app.post('/api/register', async(req, res) => {
+  if(config.d8.debug){
+    console.log(req);
+    console.log(req.body);
+    console.log(config.d8.headers);
+  }
+  
+  if (req.headers.authorization == "aHVheQ==" ) {
+    config.d8.headers['session'] = req.session.id;
+    var data = {
+      "name": req.body.name,
+      "pass": req.body.pass
+    }
+    /*
+    const responses = await fetch(config.d8.api_login, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)});
+    const response = await responses.json();
+    console.log(response); 
+    if(response.result){
+      // session_local = response.data;
+  
+      const lotterys        = await Lotterys.find({});
+      const huay_list_bank  = await HuayListBank.find({});
+      const transfer_method = await TransferMethod.find({});
+      const contact_us      = (await ContactUs.find({}))[0];
+      const list_bank       = await ListBank.find({});
+
+      var _people = await People.findOne({ uid: response.data.uid });
+
+      if(!_.isEmpty(_people)){  
+        var user = _people.toObject();
+        user.session =  req.session.id;
+
+        res.send({
+          result: true,
+          user,
+          lotterys,
+          huay_list_bank,
+          transfer_method,
+          contact_us,
+          list_bank
+        })
+      }else{
+        res.send({'result': false});
+      }
+    }else{
+      res.send(response);
     }
     */
   }else{
-    res.send(response);
+    // http://expressjs.com/en/4x/api.html#res.status
+    res.status(403).send({ error: "Forbidden" });
   }
 });
 
@@ -202,6 +247,10 @@ app.post('/api/logout', (req, res) => {
   console.log(req.body);
   console.log(config.d8.headers);
 
+  req.session.destroy();
+  res.send({'result': true});
+
+  /*
   config.d8.headers['session'] = req.session.id;
   var data = {
     "uid": req.body.uid
@@ -215,17 +264,21 @@ app.post('/api/logout', (req, res) => {
     // Do something with the returned data.
 
     req.session.destroy();
-    session_local = null;
+    // session_local = null;
 
     res.send(json);
   });
+  */
 });
 
 app.post('/api/list_bank', (req, res) => {
-  console.log(req.body);
-  console.log(config.d8.headers);
-  var data = {}
+  if(config.d8.debug){
+    console.log(req);
+    console.log(req.body);
+    console.log(config.d8.headers);
+  }
 
+  var data = {}
   fetch(config.d8.api_list_bank, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
     .then((res) => {
       return res.json()
@@ -238,46 +291,60 @@ app.post('/api/list_bank', (req, res) => {
   });
 });
 
-app.post('/api/add_bank', (req, res) => {
-  console.log(req.body);
-  console.log(config.d8.headers);
-  var data = {
-    "uid": req.body.uid,
-    "tid_bank": req.body.tid_bank,
-    "name_bank": req.body.name_bank,
-    "number_bank": req.body.number_bank,
+app.post('/api/add_bank', async (req, res) => {
+  if(config.d8.debug){
+    console.log(req);
+    console.log(config.d8.headers);
   }
 
-  fetch(config.d8.api_add_bank, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-    .then((res) => {
-      return res.json()
-  })
-  .then((json) => {
-    console.log(json);
-    // Do something with the returned data.
-
-    res.send(json);
-  });
+  if(!permission(req)){
+    res.send({'result': false});
+  }else{
+    var data = {
+      "uid": req.body.uid,
+      "tid_bank": req.body.tid_bank,
+      "name_bank": req.body.name_bank,
+      "number_bank": req.body.number_bank,
+    }
+  
+    fetch(config.d8.api_add_bank, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+      .then((res) => {
+        return res.json()
+    })
+    .then((json) => {
+      console.log(json);
+      // Do something with the returned data.
+  
+      res.send(json);
+    });
+  }
 });
 
 app.post('/api/delete_bank', (req, res) => {
-  console.log(req.body);
-  console.log(config.d8.headers);
-  var data = {
-    "uid": req.body.uid,
-    "target_id": req.body.target_id,
+  if(config.d8.debug){
+    console.log(req.body);
+    console.log(config.d8.headers);
   }
 
-  fetch(config.d8.api_delete_bank, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-    .then((res) => {
-      return res.json()
-  })
-  .then((json) => {
-    console.log(json);
-    // Do something with the returned data.
-
-    res.send(json);
-  });
+  if(!permission(req)){
+    res.send({'result': false});
+  }else{
+    var data = {
+      "uid": req.body.uid,
+      "target_id": req.body.target_id,
+    }
+  
+    fetch(config.d8.api_delete_bank, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+      .then((res) => {
+        return res.json()
+    })
+    .then((json) => {
+      console.log(json);
+      // Do something with the returned data.
+  
+      res.send(json);
+    });
+  }
 });
 
 
@@ -291,100 +358,121 @@ app.post('/api/delete_bank', (req, res) => {
   $annotation         = trim( $content['annotation'] ); // ID ธนาคารของเว็บฯ
 */
 app.post('/api/add-deposit', (req, res) => {
-  console.log(req.body);
-  console.log(config.d8.headers);
-  var data = {
-    "uid"             : req.body.uid,
-    "hauy_id_bank"    : req.body.hauy_id_bank,
-    "user_id_bank"    : req.body.user_id_bank,
-    "amount_of_money" : req.body.amount_of_money,
-    "transfer_method" : req.body.transfer_method,
-    "date_transfer"   : req.body.date_transfer,
-    "annotation"      : req.body.annotation,
+  if(config.d8.debug){
+    console.log(req.body);
+    console.log(config.d8.headers);
   }
 
-  fetch(config.d8.api_add_deposit, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-    .then((res) => {
-      return res.json()
-  })
-  .then((json) => {
-    console.log(json);
-    // Do something with the returned data.
-
-    res.send(json);
-  });
+  if(!permission(req)){
+    res.send({'result': false});
+  }else{
+    var data = {
+      "uid"             : req.body.uid,
+      "hauy_id_bank"    : req.body.hauy_id_bank,
+      "user_id_bank"    : req.body.user_id_bank,
+      "amount_of_money" : req.body.amount_of_money,
+      "transfer_method" : req.body.transfer_method,
+      "date_transfer"   : req.body.date_transfer,
+      "annotation"      : req.body.annotation,
+    }
+  
+    fetch(config.d8.api_add_deposit, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+      .then((res) => {
+        return res.json()
+    })
+    .then((json) => {
+      res.send(json);
+    });
+  }
 });
 
 app.post('/api/withdraw', (req, res) => {
-  var data = {
-    "uid"               : req.body.uid,
-    "user_id_bank"      : req.body.user_id_bank,
-    "amount_of_withdraw": req.body.amount_of_withdraw,
-    "annotation"        : req.body.annotation
+
+  if(!permission(req)){
+    res.send({'result': false});
+  }else{
+    var data = {
+      "uid"               : req.body.uid,
+      "user_id_bank"      : req.body.user_id_bank,
+      "amount_of_withdraw": req.body.amount_of_withdraw,
+      "annotation"        : req.body.annotation
+    }
+  
+    fetch(config.d8.api_withdraw, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+      .then((res) => {
+        return res.json()
+    })
+    .then((json) => {
+      console.log(json);
+      // Do something with the returned data.
+  
+      res.send(json);
+    });
   }
-
-  fetch(config.d8.api_withdraw, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-    .then((res) => {
-      return res.json()
-  })
-  .then((json) => {
-    console.log(json);
-    // Do something with the returned data.
-
-    res.send(json);
-  });
 });
 
 app.post('/api/bet', (req, res) => {
-  var data = {
-    "uid"       : req.body.uid,
-    "data"      : req.body.data,
-    "time"      : req.body.time
-  }
+  if(!permission(req)){
+    res.send({'result': false});
+  }else{
+    var data = {
+      "uid"       : req.body.uid,
+      "data"      : req.body.data,
+      "time"      : req.body.time
+    }
 
-  fetch(config.d8.api_bet, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-    .then((res) => {
-      return res.json()
-  })
-  .then((json) => {
-    console.log(json);
-    res.send(json);
-  });
+    fetch(config.d8.api_bet, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+      .then((res) => {
+        return res.json()
+    })
+    .then((json) => {
+      console.log(json);
+      res.send(json);
+    });
+  }
 });
 
 app.post('/api/bet_cancel', (req, res) => {
-  var data = {
-    "uid"      : req.body.uid,
-    "nid"      : req.body.nid,
-    "time"     : req.body.time
-  }
+  if(!permission(req)){
+    res.send({'result': false});
+  }else{
+    var data = {
+      "uid"      : req.body.uid,
+      "nid"      : req.body.nid,
+      "time"     : req.body.time
+    }
 
-  fetch(config.d8.api_bet_cancel, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-    .then((res) => {
-      return res.json()
-  })
-  .then((json) => {
-    console.log(json);
-    res.send(json);
-  });
+    fetch(config.d8.api_bet_cancel, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+      .then((res) => {
+        return res.json()
+    })
+    .then((json) => {
+      console.log(json);
+      res.send(json);
+    });
+  }
 });
 
 app.post('/api/shoot_number', (req, res) => {
-  var data = {
-    "uid"       : req.body.uid,
-    "data"      : req.body.data,
-    "round_tid" : req.body.round_tid,
-    "time"      : req.body.time
-  }
+  if(!permission(req)){
+    res.send({'result': false});
+  }else{
+    var data = {
+      "uid"       : req.body.uid,
+      "data"      : req.body.data,
+      "round_tid" : req.body.round_tid,
+      "time"      : req.body.time
+    }
 
-  fetch(config.d8.api_shoot_number, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-    .then((res) => {
-      return res.json()
-  })
-  .then((json) => {
-    console.log(json);
-    res.send(json);
-  });
+    fetch(config.d8.api_shoot_number, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+      .then((res) => {
+        return res.json()
+    })
+    .then((json) => {
+      console.log(json);
+      res.send(json);
+    });
+  }
 });
 
 app.get("/users", async (req, res) => {
@@ -404,11 +492,16 @@ app.get("user-create", async (req, res) => {
 });
 
 app.post("/api/contact-us", async (req, res) => {
-  let ct = await ContactUs.find({});
-  if (ct === undefined || ct.length == 0) {
-    // array empty or does not exist
+  
+  if(!permission(req)){
+    res.send({'result': false});
+  }else{
+    let ct = await ContactUs.find({});
+    if (ct === undefined || ct.length == 0) {
+      // array empty or does not exist
+    }
+    res.send({result: true, data: ct[0]});
   }
-  res.send({result: true, data: ct[0]});
 });
 
 // var request = require('request');
@@ -468,8 +561,8 @@ io.on('connection', (socket) => {
   // })
 
   socket.conn.on('heartbeat', function() {
-    console.log('#1');
-    console.log(socket);
+    // console.log('#1');
+    // console.log(socket);
     if (!socket.authenticated) {
       // Don't start counting as present until they authenticate.
       return;
@@ -518,15 +611,12 @@ io.on('connection', (socket) => {
 });
 
 async function update_socket_id(socket){
-
-  var cookief =socket.handshake.headers.cookie; 
-
-  var cookies = cookie.parse(socket.handshake.headers.cookie);
-
-  console.log(socket.connected);
-  console.log(cookief);
-  console.log(cookies);
-  console.log(session_local);
+  // var cookief =socket.handshake.headers.cookie; 
+  // var cookies = cookie.parse(socket.handshake.headers.cookie);
+  // console.log(socket.connected);
+  // console.log(cookief);
+  // console.log(cookies);
+  // console.log(session_local);
 
   if(socket.connected){
     // https://mongoosejs.com/docs/tutorials/findoneandupdate.html
@@ -540,14 +630,14 @@ async function update_socket_id(socket){
       { 
         if(element.session == socket.handshake.query.session){
           isset = false;
-          new_data.push({session:element.session, socket_id: socket.id});
+          new_data.push({session:element.session, socket_id: socket.id, updated: new Date});
         }else{
           new_data.push(element);
         }
       });
 
       if(isset){
-        new_data.push({session:socket.handshake.query.session, socket_id: socket.id});
+        new_data.push({session:socket.handshake.query.session, socket_id: socket.id, updated: new Date});
       }
 
       const filter = { uid:socket.handshake.query.uid };
@@ -557,15 +647,16 @@ async function update_socket_id(socket){
         upsert: true // Make this update into an upsert กรณีทียังไม่มีจะทำการสร้างให้
       });
     }else{
+      
       const filter = { uid:socket.handshake.query.uid };
-      const update = { data: new_data };
+      const update = { data: {session:socket.handshake.query.session, socket_id: socket.id,updated: new Date} };
       await UserSocketID.findOneAndUpdate(filter, update, {
         new: true,
         upsert: true // Make this update into an upsert กรณีทียังไม่มีจะทำการสร้างให้
       });
-
     }
   }else{
+    // ลบกรณี disconnected
     let doc = await UserSocketID.findOne({ uid: socket.handshake.query.uid });
     var new_data=[]
     doc.data.forEach(function(element){ 
@@ -601,6 +692,22 @@ async function update_socket_id(socket){
 }
 // main();
 
+/*async*/ function permission(req){
+  return true;
+  /*
+  let user = await UserSocketID.findOne({ uid: req.headers.uid });
+  if(!_.isEmpty(user)){
+    var result = user.data.find(item => item.session === req.headers.authorization);
+    
+    console.log(result)
+    if(!_.isEmpty(result)){
+      return true;
+    }
+  }
+  return false;
+  */
+}
+
 const getApiAndEmit = socket => {
   const response = new Date();
   // Emitting a new message. Will be consumed by the client
@@ -619,7 +726,7 @@ const getApiAndEmit = socket => {
 server.listen(PORT, function (err) {
   console.log('listening on port 8080')
 
-  connectDb().then((db) => {
+  connectMongoose().then((db) => {
     console.log("MongoDb connected");
 
     console.log(db);
@@ -644,19 +751,23 @@ server.listen(PORT, function (err) {
         }
         case 'update':{
           // data.documentKey._id.toString() << จะได้ _id ที่ update 
+          People.findById(data.documentKey._id.toString(), async function (err, user) { 
+            // _.each( user.user_access, ( uv, uk ) => { 
+            //   // จะ emit ตาม socket.id ของแต่ละ device ที่ user access
+            //   io.to(uv.socket_id).emit('update_user', JSON.stringify(user));
+            // });
 
-          console.log(socket_local);
-          People.findById(data.documentKey._id.toString(), function (err, user) { 
-            console.log(user);
-            // console.log(user.user_access);
-            // console.log(socket_local);
-
-            _.each( user.user_access, ( uv, uk ) => { 
-              // จะ emit ตาม socket.id ของแต่ละ device ที่ user access
-              io.to(uv.socket_id).emit('update_user', JSON.stringify(user));
-            });
+            if(_.isEmpty(err)){
+              var result = await UserSocketID.findOne({ uid: user.uid });
+              if(!_.isEmpty(result)){
+                result.data.forEach(function(item){ 
+                  console.log(item.socket_id);
+                  io.to(item.socket_id).emit('update_user', JSON.stringify(user));
+                });
+              }
+            }
           });
-          console.log('People > update');
+          // console.log('People > update > ' + data.documentKey._id.toString());
           break;
         }
         case 'drop':{
@@ -676,7 +787,6 @@ server.listen(PORT, function (err) {
           break;
         }
       }
-     
     });
 
     // รายชือบัญชาธนาคารของ เว็บฯ
@@ -698,7 +808,9 @@ server.listen(PORT, function (err) {
         }
         case 'update':{
           console.log('HuayListBank > update');
-          socket_local.emit("huay_list_bank", JSON.stringify(await HuayListBank.find({})));
+          if(socket_local.connected){
+            socket_local.emit("huay_list_bank", JSON.stringify(await HuayListBank.find({})));
+          }
           break;
         }
         case 'drop':{
@@ -739,7 +851,9 @@ server.listen(PORT, function (err) {
         }
         case 'update':{
           console.log('TransferMethod > update');
-          socket_local.emit("transfer_method", JSON.stringify(await TransferMethod.find({})));
+          if(socket_local.connected){
+            socket_local.emit("transfer_method", JSON.stringify(await TransferMethod.find({})));
+          }
           break;
         }
         case 'drop':{
@@ -821,8 +935,9 @@ server.listen(PORT, function (err) {
         }
         case 'update':{
           console.log('ContactUs > update');
-
-          socket_local.emit("contact_us", JSON.stringify(await ContactUs.find({})));
+          if(socket_local.connected){
+            socket_local.emit("contact_us", JSON.stringify(await ContactUs.find({})));
+          }
           break;
         }
         case 'drop':{
@@ -864,7 +979,9 @@ server.listen(PORT, function (err) {
         case 'update':{
           console.log('ListBank > update');
 
-          socket_local.emit("list_bank", JSON.stringify(await ListBank.find({})));
+          if(socket_local.connected){
+            socket_local.emit("list_bank", JSON.stringify(await ListBank.find({})));
+          }
           break;
         }
         case 'drop':{
@@ -944,7 +1061,9 @@ server.listen(PORT, function (err) {
         case 'update':{
           console.log('Lotterys > update');
           
-          socket_local.emit("lotterys", JSON.stringify(await Lotterys.find({})));
+          if(socket_local.connected){
+            socket_local.emit("lotterys", JSON.stringify(await Lotterys.find({})));
+          }
           break;
         }
         case 'drop':{
@@ -985,7 +1104,9 @@ server.listen(PORT, function (err) {
         case 'update':{
           console.log('ShootNumbers > update');
           
-          socket_local.emit("shoot_numbers", JSON.stringify(await ShootNumbers.find({})));
+          if(socket_local.connected){
+            socket_local.emit("shoot_numbers", JSON.stringify(await ShootNumbers.find({})));
+          }  
           break;
         }
         case 'drop':{
@@ -1006,45 +1127,47 @@ server.listen(PORT, function (err) {
         }
       }
     });
-    /*
-    
-    socket.on('huay_list_bank', (data) => {
-        props.updateHuayListBank(JSON.parse(data));
-      })
-      socket.on('transfer_method', (data) => {
-        props.updateTransferMethod(JSON.parse(data));
-      })
-      socket.on('contact_us', (data) => {
-        props.updateContactUs(JSON.parse(data));
-      })
-    */
-
-    // (new Product).watch().on('change', data => console.log(new Date(), data));
-
-    // var conn = db.connection;
-    // var ObjectID = require('mongodb').ObjectID;
-
-    // var user = {
-    //   a: 'abc',
-    //   _id: new ObjectID()
-    // };
-    // conn.collection('superheroes').insert(user);
-
-    // const collection = db.collection("superheroes");
-    // db.collection("sample_collection").insertOne({
-    //   field1: "abcderrr"
-    // }, (err, result) => {
-    //     if(err) console.log(err);
-    //     else console.log(result.ops[0].field1)
-    // });
-
-    // var dbo = db.db("mydb");
-    // var myobj = { name: "Company Inc", address: "Highway 37" };
-    // dbo.collection("customers").insertOne(myobj, function(err, res) {
-    //   if (err) throw err;
-    //   console.log("1 document inserted");
-    //   db.close();
-    // });
+   
+    UserSocketID.watch().on('change', async data =>{
+      console.log(new Date(), data)
+      //operationType
+      switch(data.operationType){
+        case 'insert':{
+          console.log('UserSocketID > insert');
+          break;
+        }
+        case 'delete':{
+          console.log('UserSocketID > delete');
+          break;
+        }
+        case 'replace':{
+          console.log('UserSocketID > replace');
+          break;
+        }
+        case 'update':{
+          console.log('UserSocketID > update');
+          
+          // socket_local.emit("shoot_numbers", JSON.stringify(await ShootNumbers.find({})));
+          break;
+        }
+        case 'drop':{
+          console.log('UserSocketID > drop');
+          break;
+        }
+        case 'rename':{
+          console.log('UserSocketID > rename');
+          break;
+        }
+        case 'dropDatabase':{
+          console.log('UserSocketID > dropDatabase');
+          break;
+        }
+        case 'invalidate':{
+          console.log('UserSocketID > dropDatabase');
+          break;
+        }
+      }
+    });
   });
 
 })

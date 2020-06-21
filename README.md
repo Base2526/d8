@@ -161,8 +161,8 @@ dpm( $timestamp );
 $d = date("Y-m-d H:i:s", $timestamp);
 dpm($d);
 
-
-
 // reactjs  timestamp to date
 https://makitweb.com/convert-unix-timestamp-to-date-time-with-javascript/
 
+# nodejs log mongodb
+https://www.techighness.com/post/hook-node-js-console-log-insert-in-mongodb/

@@ -17,6 +17,7 @@ config.redis.host = 'hostname';
 config.redis.port = 6379;
 config.web.port = process.env.WEB_PORT || 9980;
 
+config.d8.debug             = true;
 config.d8.host              = 'http://drupal8';
 config.d8.api_login         = config.d8.host + '/api/login.json';
 config.d8.api_logout        = config.d8.host + '/api/logout.json';

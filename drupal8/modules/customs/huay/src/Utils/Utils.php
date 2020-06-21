@@ -251,28 +251,28 @@ class Utils extends ControllerBase {
       }
       $data['banks'] = $banks;
 
-      $user_access = array();
-      foreach ($user->get('field_user_access')->getValue() as $bi=>$bv){
-          $p = Paragraph::load( $bv['target_id'] );
+      // $user_access = array();
+      // foreach ($user->get('field_user_access')->getValue() as $bi=>$bv){
+      //     $p = Paragraph::load( $bv['target_id'] );
 
-          // cookie
-          $cookie = '';
-          $field_cookie = $p->get('field_cookie')->getValue();
-          if(!empty($field_cookie)){
-              $cookie = $field_cookie[0]['value'];
-          }
+      //     // cookie
+      //     $cookie = '';
+      //     $field_cookie = $p->get('field_cookie')->getValue();
+      //     if(!empty($field_cookie)){
+      //         $cookie = $field_cookie[0]['value'];
+      //     }
 
-          // field_socket_id
-          $socket_id = '';
-          $field_socket_id = $p->get('field_socket_id')->getValue();
-          if(!empty($field_socket_id)){
-              $socket_id = $field_socket_id[0]['value'];
-          }
+      //     // field_socket_id
+      //     $socket_id = '';
+      //     $field_socket_id = $p->get('field_socket_id')->getValue();
+      //     if(!empty($field_socket_id)){
+      //         $socket_id = $field_socket_id[0]['value'];
+      //     }
           
-          $user_access[$bv['target_id']] = array('cookie' =>$cookie, 'socket_id' =>$socket_id);
-      }
+      //     $user_access[$bv['target_id']] = array('cookie' =>$cookie, 'socket_id' =>$socket_id);
+      // }
 
-      $data['user_access'] = $user_access;
+      // $data['user_access'] = $user_access;
 
       // ฝากเงิน field_deposit
       $deposit = array();
@@ -1080,4 +1080,32 @@ class Utils extends ControllerBase {
     }
   }
   ///////////////////////////  Clear  ///////////////////////////////////
+
+  public static function check_user_access(){
+    $cursor = Utils::GetMongoDB()->user_socket_id->find();
+
+    $uids = array();
+    foreach ($cursor as $document) {
+      $uids[] =  $document['uid'];
+    }
+
+    return 'User online :' . count($cursor) . ', uid : ' . implode(", ",$uids);;
+    // foreach ($cursor as $document) {
+    //   dpm( $document['uid'] );
+    // }
+  }
+
+  /*
+    ดึง logs จาก mongodb
+  */ 
+  public static function fetch_mg_log(){
+    $cursor = Utils::GetMongoDB()->logs->find();
+
+    $ids = array();
+    foreach ($cursor as $document) {
+      $ids[] =  $document['_id'];// . " >> " . $document['text'];
+    }
+
+    return implode(", ", $ids);
+  }
 }

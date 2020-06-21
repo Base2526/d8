@@ -16,10 +16,10 @@ mongoose.connect('mongodb://mongo1:27017,mongo2:27018,mongo3:27019/mongo_test', 
 */
 
 
-const connectDb = () => {
+const connectMongoose = () => {
   // return mongoose.connect(connection);
   console.log('Mongoose version:', mongoose.version);
-  mongoose.set('useUnifiedTopology', true);
+  // mongoose.set('useUnifiedTopology', true);
   // mongoose.set('useNewUrlParser', true);
   // mongoose.connect(connectionString, { useFindAndModify: false });
 
@@ -27,9 +27,10 @@ const connectDb = () => {
                                         useNewUrlParser : true,
                                         useFindAndModify: false, // optional
                                         useCreateIndex  : true,
+                                        useUnifiedTopology : true,
                                         // replicaSet      : 'rs0', // We use this from the entrypoint in the docker-compose file
                                         // dbName: 'mongo_test'
                                       });
 };
 
-module.exports = connectDb;
+module.exports = connectMongoose;

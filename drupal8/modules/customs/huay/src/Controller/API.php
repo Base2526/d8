@@ -84,24 +84,24 @@ class API extends ControllerBase {
           $user = User::load($uid);
           $user_login_finalize = user_login_finalize($user);
           
-          $image_url = '';  
-          if (!$user->get('user_picture')->isEmpty()) {
-            $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
-          }
+          // $image_url = '';  
+          // if (!$user->get('user_picture')->isEmpty()) {
+          //   $image_url = file_create_url($user->get('user_picture')->entity->getFileUri());
+          // }
 
-          $cookie = $request->headers->get('session');
+          // $cookie = $request->headers->get('session');
 
           $data = array('uid'      =>$uid, 
-                        'name'     =>$user->getUsername(),
-                        'email'    =>$user->getEmail(),
-                        'roles'    =>$user->getRoles(),
-                        'image_url'=>$image_url,
-                        'session'  =>$cookie, //Utils::encode('uid='.$uid."&time=".\Drupal::time()->getCurrentTime()),
+                        // 'name'     =>$user->getUsername(),
+                        // 'email'    =>$user->getEmail(),
+                        // 'roles'    =>$user->getRoles(),
+                        // 'image_url'=>$image_url,
+                        // 'session'  =>$cookie, //Utils::encode('uid='.$uid."&time=".\Drupal::time()->getCurrentTime()),
                         );
 
           /*
           กรณีที่ใช้ browser เดียวกัน login ได้หลายๆครั้งจะได้ cookie เดิมเสมอนอกจะ clear cache browser cookie ถึงจะเปลียนแปลง
-          */
+          
           $is_new_cookie = TRUE;
           $paragraphs = array();
           foreach ($user->get('field_user_access')->getValue() as $ii=>$vv){
@@ -137,13 +137,14 @@ class API extends ControllerBase {
             $user->save();
             // เก็บ user_access
           }
+          */
 
           // Utils::mongodb_people( $uid );
   
           $response['result']           = TRUE;
           $response['execution_time']   = microtime(true) - $time1;
           $response['data']             = $data;
-          // $response['lotterys']         = Utils::mongodb_fetch_lotterys();
+          // $response['lotterys']      = Utils::mongodb_fetch_lotterys();
           
           return new JsonResponse( $response );
         }
@@ -190,6 +191,7 @@ class API extends ControllerBase {
         $user->setAccount(new AnonymousUserSession());
         */
 
+        /*
         $cookie = $request->headers->get('session');
 
         $user = User::load($uid);
@@ -210,6 +212,7 @@ class API extends ControllerBase {
           }
           
         }
+        */
 
         $response['result']           = TRUE;
         $response['execution_time']   = microtime(true) - $time1; 

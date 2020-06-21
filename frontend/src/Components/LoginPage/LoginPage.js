@@ -100,13 +100,23 @@ class LoginPage extends Component {
             updateListBank
           } = this.props
 
-
           userLogin(user);
           updateLotterys(lotterys);
           updateHuayListBank(huay_list_bank);
           updateTransferMethod(transfer_method);
           updateContactUs(contact_us);
           updateListBank(list_bank);
+
+          var new_headers = headers();
+          new_headers.authorization = user.session;
+          new_headers.uid = user.uid;
+
+          localStorage.removeItem('headers');
+          localStorage.setItem('headers', Base64.encode(Base64.encode( JSON.stringify(new_headers) )));
+
+          
+          // let de_password = Base64.decode(Base64.decode( en_headers ));
+          // console.log(JSON.parse(de_password));
         }else{
           this.setState({
             error: true,
@@ -114,6 +124,12 @@ class LoginPage extends Component {
             password:''
           });
         }
+      }else if( response.status==403 ){
+        this.setState({
+          error: true,
+          error_message: '',
+          password:''
+        });
       }
     } 
   }

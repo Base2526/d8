@@ -3,9 +3,11 @@ import Container from 'react-bootstrap/Container'
 import Button from 'react-bootstrap/Button'
 import { connect } from 'react-redux'
 
+import { Base64 } from 'js-base64';
+
 
 import {loadingOverlayActive} from '../../actions/huay'
-import { isEmpty } from '../Utils/Config';
+import { headers, isEmpty } from '../Utils/Config';
 
 class HomePage extends Component {
   constructor(props) {
@@ -24,7 +26,17 @@ class HomePage extends Component {
     };
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    // let en_password = Base64.encode(Base64.encode( JSON.stringify({ 'Content-Type': 'application/json' }) ));
+    // console.log(en_password);
+
+    // let de_password = Base64.decode(Base64.decode('ZXlKRGIyNTBaVzUwTFZSNWNHVWlPaUpoY0hCc2FXTmhkR2x2Ymk5cWMyOXVJbjA9'));
+    // console.log(de_password);
+    // 
+
+    // let local_storage_headers =;
+    // console.log( JSON.parse(Base64.decode(Base64.decode(localStorage.getItem('headers')))) );
+  }
 
   nextPath(path) {
     this.props.history.push(path);
@@ -144,7 +156,7 @@ const mapStateToProps = (state, ownProps) => {
   
   if(state.auth.isLoggedIn){
 
-
+    console.log(state.auth.user);
     return { logged_in: true, user: state.auth.user};
   }else{
     return { logged_in: false };

@@ -10,6 +10,7 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import InputMask from "react-input-mask";
 import axios from 'axios';
 import _ from 'lodash';
+import { Base64 } from 'js-base64';
 
 import { headers, showToast  } from '../Utils/Config';
 import { loadingOverlayActive } from '../../actions/huay'
@@ -76,7 +77,7 @@ class AddBankPage extends Component {
                                         tid_bank: select_bank, 
                                         name_bank,
                                         number_bank}, 
-                                      {headers:headers()});
+                                      {headers:JSON.parse(Base64.decode(Base64.decode(localStorage.getItem('headers'))))});
           console.log(response);
 
           this.setState({is_active: false});
