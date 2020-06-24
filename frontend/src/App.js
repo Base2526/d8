@@ -14,13 +14,14 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { Breadcrumbs } from './Components/Breadcrumbs'
 
-import { userUpdate } from './actions/auth'
+import { userUpdate, userLogout } from './actions/auth'
 import {  loadingOverlayActive, 
           updateHuayListBank, 
           updateTransferMethod, 
           updateContactUs,
           updateListBank,
           // updateYeekeeRound,
+          
           updateLotterys,
           updateShootNumbers
         } from './actions/huay'
@@ -138,9 +139,9 @@ const mapDispatchToProps = (dispatch) => {
     updateListBank:  (data) =>{
       dispatch(updateListBank(data))
     },
-    // updateYeekeeRound:  (data) =>{
-    //   dispatch(updateYeekeeRound(data))
-    // },
+    userLogout:  () =>{
+      dispatch(userLogout())
+    },
     updateLotterys: (data)=>{
       dispatch(updateLotterys(data))
     },

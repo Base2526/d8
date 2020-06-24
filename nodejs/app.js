@@ -13,9 +13,7 @@ const http  = require('http');
 const server= http.createServer(app);
 let io = require('socket.io')(server);
 
-
 // var cookie = require('cookie');
-
 // var mongoAdapter = require('socket.io-adapter-mongo');
 
 const Product         = require('./models/product')
@@ -24,7 +22,7 @@ const ContactUs       = require('./models/contact_us')
 const HuayListBank    = require('./models/huay_list_bank')
 const TransferMethod  = require('./models/transfer_method')
 const ListBank        = require('./models/list_banck')
-const Sessions        = require('./models/sessions')
+// const Sessions        = require('./models/sessions')
 // const YeekeeRound     = require('./models/yeekee_round')
 const Lotterys        = require('./models/lotterys')
 const ShootNumbers    = require('./models/shoot_numbers')
@@ -39,8 +37,9 @@ var socket_local;
 
 require('./src/utils/log-interceptor')(server);
 
+var sessionMongoStore =  new MongoStore({url: config.mongo.url});
 var sessionMiddleware = session({ 
-  store: new MongoStore({url: config.mongo.url}),
+  store: sessionMongoStore,
   secret: config.session.secret, 
   resave: false, 
   saveUninitialized: true,
@@ -87,9 +86,67 @@ app.get('/api/hello', (req, res) => {
   res.send({ express: 'Hello From Express' });
 });
 
-app.get('/', async (req, res) => {
 
-  // console.log(mongo)
+/*
+// mongoStore.all(function(error, sessions){
+    //   console.log(sessions);
+    // })
+    .get(sid, callback)
+*/
+var sid = 0
+app.get('/s', async (req, res) => {
+  console.log(sid);
+})
+
+app.get('/c', async (req, res) => {
+  sessionMongoStore.get(sid, function(error, session){
+    console.log(error);
+    console.log(session);
+  })
+})
+
+app.get('/d', async (req, res) => {
+  req.session.destroy(function(err) {
+    // cannot access session here
+  })
+})
+
+app.get('/',  async(req, res) => {
+
+  let sess = req.session;
+
+  sid = sess.id;
+  console.log(sess.id);
+
+  // console.log(sessionMongoStore);
+
+  // let perm = await permission2(req);
+  // console.log(perm);
+
+  // sessionMongoStore.get(req.session.id, function(error, session){
+  //   if (error === null){
+      
+  //   }else{
+  //     res.send({result:false, status: '0', message: error}); ;
+  //   }
+  // })
+
+  let is_session = await sessionMongoStore.get(req.session.id);
+  if (is_session !== undefined) {
+    res.send({'result': true});
+  }else{
+    res.send({result:false, status: '-1'}); ;
+  }
+
+  // mongoStore.all(function(error, sessions){
+  //   console.log(sessions);
+  // })
+
+  // mongoStore.clear(function(error){
+  //   console.log(error);
+  // })
+
+  
 
   // var payload = {
   //                 "name": "My Product from Postman",
@@ -141,6 +198,9 @@ app.post('/api/login', async(req, res) => {
     console.log(req.body);
     console.log(config.d8.headers);
   }
+  // sessionMongoStore.touch(req.session.id, req.session, function(error){
+  //   console.log('mongoStore.touch');
+  // })
   
   if (req.headers.authorization == "aHVheQ==" ) {
     config.d8.headers['session'] = req.session.id;
@@ -560,15 +620,43 @@ io.on('connection', (socket) => {
   //      // }
   // })
 
-  socket.conn.on('heartbeat', function() {
-    // console.log('#1');
+  socket.conn.on('heartbeat', async function() {
+    console.log('#1 > ');
     // console.log(socket);
-    if (!socket.authenticated) {
-      // Don't start counting as present until they authenticate.
+
+    let is_session = await sessionMongoStore.get(handshake.query.session);
+
+    if (is_session !== undefined) {
       return;
+    }else{
+      let doc = await UserSocketID.findOne({ uid: handshake.query.uid });
+      console.log(doc);
+
+      if(!_.isEmpty(doc)){
+
+        var socket_id = 0;
+        doc.data.forEach(function(element) 
+        { 
+          if(element.session == handshake.query.session){
+            socket_id = element.socket_id;
+          }
+        });
+
+        await sessionMongoStore.destroy(handshake.query.session);
+        
+        io.to(socket_id).emit('force_logout', JSON.stringify({'system': true}));
+      }
     }
 
-    console.log('#2');
+    // 
+ 
+    // console.log(is_session);
+    // if (!socket.authenticated) {
+    //   // Don't start counting as present until they authenticate.
+    //   return;
+    // }
+
+    // console.log('#2');
     //Presence.upsert(socket.id, {
     //  username: socket.username
     //});
@@ -706,7 +794,30 @@ async function update_socket_id(socket){
   }
   return false;
   */
+
+  // let sess = req.session;
+
+//  sid = sess.id;
+//  console.log(sess.id);
+
+//  console.log(sessionMongoStore);
+
+  // sessionMongoStore.get(req.session.id, function(error, session){
+  //   console.log(error);
+  //   console.log(session);
+
+  //   if (error === null){
+  //     if (session !== undefined) {
+  //       console.log('#1');
+  //     }else{
+  //       console.log('#2');
+  //     }
+  //   }else{
+  //     console.log('#3');
+  //   }
+  // })
 }
+
 
 const getApiAndEmit = socket => {
   const response = new Date();
@@ -757,6 +868,7 @@ server.listen(PORT, function (err) {
             //   io.to(uv.socket_id).emit('update_user', JSON.stringify(user));
             // });
 
+            
             if(_.isEmpty(err)){
               var result = await UserSocketID.findOne({ uid: user.uid });
               if(!_.isEmpty(result)){
@@ -1003,44 +1115,44 @@ server.listen(PORT, function (err) {
       }
     });
 
-    Sessions.watch().on('change', async data =>{
-      console.log(new Date(), data)
-      //operationType
-      switch(data.operationType){
-        case 'insert':{
-          console.log('Sessions > insert');
-          break;
-        }
-        case 'delete':{
-          console.log('Sessions > delete');
-          break;
-        }
-        case 'replace':{
-          console.log('Sessions > replace');
-          break;
-        }
-        case 'update':{
-          console.log('Sessions > update');
-          break;
-        }
-        case 'drop':{
-          console.log('Sessions > drop');
-          break;
-        }
-        case 'rename':{
-          console.log('Sessions > rename');
-          break;
-        }
-        case 'dropDatabase':{
-          console.log('Sessions > dropDatabase');
-          break;
-        }
-        case 'invalidate':{
-          console.log('Sessions > dropDatabase');
-          break;
-        }
-      }
-    });
+    // Sessions.watch().on('change', async data =>{
+    //   console.log(new Date(), data)
+    //   //operationType
+    //   switch(data.operationType){
+    //     case 'insert':{
+    //       console.log('Sessions > insert');
+    //       break;
+    //     }
+    //     case 'delete':{
+    //       console.log('Sessions > delete');
+    //       break;
+    //     }
+    //     case 'replace':{
+    //       console.log('Sessions > replace');
+    //       break;
+    //     }
+    //     case 'update':{
+    //       console.log('Sessions > update');
+    //       break;
+    //     }
+    //     case 'drop':{
+    //       console.log('Sessions > drop');
+    //       break;
+    //     }
+    //     case 'rename':{
+    //       console.log('Sessions > rename');
+    //       break;
+    //     }
+    //     case 'dropDatabase':{
+    //       console.log('Sessions > dropDatabase');
+    //       break;
+    //     }
+    //     case 'invalidate':{
+    //       console.log('Sessions > dropDatabase');
+    //       break;
+    //     }
+    //   }
+    // });
     
     Lotterys.watch().on('change', async data =>{
       console.log(new Date(), data)
@@ -1168,6 +1280,10 @@ server.listen(PORT, function (err) {
         }
       }
     });
+
+    sessionMongoStore.all(function(error, sessions){
+      console.log(sessions);
+    })
   });
 
 })

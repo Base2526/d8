@@ -74,6 +74,11 @@ export function connect_socketIO(props){
           console.log(JSON.parse(data));
           props.updateShootNumbers(JSON.parse(data));
         })
+
+        socket.on('force_logout', (data) => {
+          console.log(JSON.parse(data));
+          props.userLogout();
+        })
       }
     }
     

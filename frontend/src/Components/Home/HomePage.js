@@ -5,7 +5,6 @@ import { connect } from 'react-redux'
 
 import { Base64 } from 'js-base64';
 
-
 import {loadingOverlayActive} from '../../actions/huay'
 import { headers, isEmpty } from '../Utils/Config';
 
@@ -52,11 +51,7 @@ class HomePage extends Component {
 
       console.log(user);
 
-      /*
-          let chits = state.auth.user.chits;
-    console.log(chits); // 
-      */
-
+     
       let chit_length = 0;
       if(!isEmpty(user.chits)){
         chit_length =user.chits.length;
