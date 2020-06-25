@@ -48,10 +48,12 @@ var sessionMiddleware = session({
   //   expires = new Date(Date.now() + 720),
   //   maxAge  = 24
   // }
-  cookie:{
-    expires: new Date(Date.now() + 720),
-    maxAge: 60 * 60 * 1000
-  }
+  // cookie:{
+  //   expires: new Date(Date.now() + 720),
+  //   maxAge: 60 * 60 * 1000
+  // }
+  // https://stackoverflow.com/questions/18760461/nodejs-how-to-set-express-session-cookie-not-to-expire-anytime
+  cookie: {expires: new Date(253402300000000)} 
 })
 
 app.use(sessionMiddleware)
@@ -407,7 +409,6 @@ app.post('/api/delete_bank', (req, res) => {
   }
 });
 
-
 /*
   $uid                = trim( $content['uid'] );
   $hauy_id_bank       = trim( $content['hauy_id_bank'] ); // ID ธนาคารของเว็บฯ
@@ -417,25 +418,31 @@ app.post('/api/delete_bank', (req, res) => {
   $date_transfer      = trim( $content['date_transfer'] ); // วัน & เวลา ที่โอน
   $annotation         = trim( $content['annotation'] ); // ID ธนาคารของเว็บฯ
 */
-app.post('/api/add-deposit', (req, res) => {
+
+app.post('/api/add-deposit', async(req, res) => {
   if(config.d8.debug){
     console.log(req.body);
     console.log(config.d8.headers);
   }
 
-  if(!permission(req)){
-    res.send({'result': false});
-  }else{
+  let is_session = await sessionMongoStore.get(req.session.id);
+  if (is_session !== undefined) { 
+
+    // const attached_file = req.files.attached_file;
+    console.log(req.files)
+
+    res.send({result:true});
+    /*
     var data = {
       "uid"             : req.body.uid,
       "hauy_id_bank"    : req.body.hauy_id_bank,
       "user_id_bank"    : req.body.user_id_bank,
-      "amount_of_money" : req.body.amount_of_money,
       "transfer_method" : req.body.transfer_method,
+      "amount"          : req.body.amount,
       "date_transfer"   : req.body.date_transfer,
-      "annotation"      : req.body.annotation,
+      "note"            : req.body.note
     }
-  
+
     fetch(config.d8.api_add_deposit, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
       .then((res) => {
         return res.json()
@@ -443,14 +450,15 @@ app.post('/api/add-deposit', (req, res) => {
     .then((json) => {
       res.send(json);
     });
+    */
+  }else{
+    res.send({result:false, status: '-1'}); ;
   }
 });
 
-app.post('/api/withdraw', (req, res) => {
-
-  if(!permission(req)){
-    res.send({'result': false});
-  }else{
+app.post('/api/withdraw', async(req, res) => {
+  let is_session = await sessionMongoStore.get(req.session.id);
+  if (is_session !== undefined) {  
     var data = {
       "uid"               : req.body.uid,
       "user_id_bank"      : req.body.user_id_bank,
@@ -468,13 +476,14 @@ app.post('/api/withdraw', (req, res) => {
   
       res.send(json);
     });
+  }else{
+    res.send({result:false, status: '-1'}); ;
   }
 });
 
-app.post('/api/bet', (req, res) => {
-  if(!permission(req)){
-    res.send({'result': false});
-  }else{
+app.post('/api/bet', async(req, res) => {
+  let is_session = await sessionMongoStore.get(req.session.id);
+  if (is_session !== undefined) {  
     var data = {
       "uid"       : req.body.uid,
       "data"      : req.body.data,
@@ -489,13 +498,14 @@ app.post('/api/bet', (req, res) => {
       console.log(json);
       res.send(json);
     });
+  }else{
+    res.send({result:false, status: '-1'}); ;
   }
 });
 
-app.post('/api/bet_cancel', (req, res) => {
-  if(!permission(req)){
-    res.send({'result': false});
-  }else{
+app.post('/api/bet_cancel', async(req, res) => {
+  let is_session = await sessionMongoStore.get(req.session.id);
+  if (is_session !== undefined) {  
     var data = {
       "uid"      : req.body.uid,
       "nid"      : req.body.nid,
@@ -510,13 +520,14 @@ app.post('/api/bet_cancel', (req, res) => {
       console.log(json);
       res.send(json);
     });
+  }else{
+    res.send({result:false, status: '-1'}); ;
   }
 });
 
-app.post('/api/shoot_number', (req, res) => {
-  if(!permission(req)){
-    res.send({'result': false});
-  }else{
+app.post('/api/shoot_number', async(req, res) => {
+  let is_session = await sessionMongoStore.get(req.session.id);
+  if (is_session !== undefined) {  
     var data = {
       "uid"       : req.body.uid,
       "data"      : req.body.data,
@@ -532,6 +543,8 @@ app.post('/api/shoot_number', (req, res) => {
       console.log(json);
       res.send(json);
     });
+  }else{
+    res.send({result:false, status: '-1'}); ;
   }
 });
 
@@ -552,16 +565,11 @@ app.get("user-create", async (req, res) => {
 });
 
 app.post("/api/contact-us", async (req, res) => {
-  
-  if(!permission(req)){
-    res.send({'result': false});
-  }else{
-    let ct = await ContactUs.find({});
-    if (ct === undefined || ct.length == 0) {
-      // array empty or does not exist
-    }
-    res.send({result: true, data: ct[0]});
+  let ct = await ContactUs.find({});
+  if (ct === undefined || ct.length == 0) {
+    // array empty or does not exist
   }
+  res.send({result: true, data: ct[0]});
 });
 
 // var request = require('request');

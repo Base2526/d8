@@ -55,7 +55,7 @@ class API extends ControllerBase {
   public function login(Request $request){
     $time1 = microtime(true);
 
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
       $name = trim( $content['name'] );
@@ -162,7 +162,7 @@ class API extends ControllerBase {
   public function logout(Request $request){
     $time1 = microtime(true);
 
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
       $uid = trim( $content['uid']);
@@ -226,7 +226,7 @@ class API extends ControllerBase {
   public function register(Request $request){
     $time1 = microtime(true);
 
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
       $name = trim( $content['name']);
@@ -305,7 +305,7 @@ class API extends ControllerBase {
   public function reset_password(Request $request){
     $time1 = microtime(true);
 
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
       $name = trim( $content['name']);
@@ -367,7 +367,7 @@ class API extends ControllerBase {
   public function list_bank(Request $request){
     $time1 = microtime(true);
 
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
       $response['result']           = TRUE;
@@ -385,7 +385,7 @@ class API extends ControllerBase {
   public function add_bank(Request $request){
     $time1 = microtime(true);
 
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
       $uid          = trim( $content['uid'] );
@@ -447,7 +447,7 @@ class API extends ControllerBase {
   public function delete_bank(Request $request){
     $time1 = microtime(true);
 
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
       $uid          = trim( $content['uid'] );
@@ -472,7 +472,7 @@ class API extends ControllerBase {
 
   public function update_socket_io(Request $request){
     $time1 = microtime(true);
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
       $uid                = trim( $content['uid'] );
@@ -520,11 +520,13 @@ class API extends ControllerBase {
     return new JsonResponse( $response );
   }
 
+  // ฝากเงิน 
   public function add_deposit(Request $request){
     $time1 = microtime(true);
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
+      /*
       $uid                = trim( $content['uid'] );
       $hauy_id_bank       = trim( $content['hauy_id_bank'] ); // ID ธนาคารของเว็บฯ
       $user_id_bank       = trim( $content['user_id_bank'] ); // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
@@ -565,6 +567,43 @@ class API extends ControllerBase {
       
       $user->set('field_deposit', $paragraphs);
       $user->save();
+      */
+
+      /*
+      $uid                = trim( $content['uid'] );
+      $hauy_id_bank       = trim( $content['hauy_id_bank'] );     // ID ธนาคารของเว็บฯ
+      $user_id_bank       = trim( $content['user_id_bank'] );     // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
+      $transfer_method    = trim( $content['transfer_method'] );  // ช่องทางการโอนเงิน
+      $amount             = trim( $content['amount'] );           // จำนวนเงินที่โอน
+
+      $date_transfer      = trim( $content['date_transfer'] );    // วัน-เวลาโอน
+      $attached_file      = '';  // ไฟล์แนบ field_attached_file
+      $note               = trim( $content['note'] );             // หมายเหตุ
+
+      if( empty($uid) || 
+          empty($hauy_id_bank) || 
+          empty($user_id_bank) || 
+          empty($amount) || 
+          empty($transfer_method) ){
+        $response['result']   = FALSE;
+        return new JsonResponse( $response );
+      }
+
+      $user = User::load($uid);
+      $node = Node::create([
+        'type'                   => 'user_deposit',
+        'uid'                    => $uid,
+        'status'                 => 1,
+        'title'                  => "ฝากเงิน : " . $user->getUsername(),
+
+        'field_huay_list_bank'   => $hauy_id_bank,        // ธนาคารของเว็บฯ ที่โอนเข้า
+        'field_list_bank'        => $user_id_bank,        // ธนาคารที่ทำการโอนเงินเข้ามา
+        'field_transfer_method'  => $transfer_method,     // ช่องทางการโอนเงิน
+        'field_amount'           => $amount,              // จำนวนเงินที่โอน
+        'body'                   => $note,                // หมายเหตุ
+      ]);
+      $node->save();
+      */
 
       $response['result']           = TRUE;
       $response['execution_time']   = microtime(true) - $time1;
@@ -577,7 +616,7 @@ class API extends ControllerBase {
 
   public function withdraw(Request $request){
     $time1 = microtime(true);
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
       $uid                = trim( $content['uid'] );
@@ -623,7 +662,7 @@ class API extends ControllerBase {
 
   public function bet(Request $request){
     $time1 = microtime(true);
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
       $uid                = trim( $content['uid'] );
@@ -987,7 +1026,7 @@ class API extends ControllerBase {
 
   public function bet_cancel(Request $request){
     $time1 = microtime(true);
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
       $uid                = trim( $content['uid'] );
       $nid               = trim( $content['nid'] ); 
@@ -1070,7 +1109,7 @@ class API extends ControllerBase {
   public function shoot_number(Request $request){
 
     $time1 = microtime(true);
-    if (strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 ) {
+    if ( Utils::verify($request) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
       $uid                = trim( $content['uid'] );

@@ -44,7 +44,7 @@ config.d8.api_shoot_number          = config.d8.host + '/api/shoot_number.json';
 config.d8.headers = {
                         "Content-Type": "application/json",
                         // "client_id": "1001125",
-                        // "client_secret": "876JHG76UKFJYGVHf867rFUTFGHCJ8JHV"
+                        "client_secret": "YUhWaGVRPT0="
                     };
 // mongo 
 config.mongo.url = 'mongodb://mongo1:27017,mongo2:27017,mongo3:27017/huay?replicaSet=rs0';

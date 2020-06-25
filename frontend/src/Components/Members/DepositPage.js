@@ -11,13 +11,22 @@ import DatePicker from "react-datepicker";
 import axios from 'axios';
 import _ from 'lodash';
 
+import { Base64 } from 'js-base64';
+
 import { Redirect} from 'react-router-dom';
 
 import "react-datepicker/dist/react-datepicker.css";
-import { headers, showToast } from '../Utils/Config';
+import { showToast } from '../Utils/Config';
 import { loadingOverlayActive } from '../../actions/huay'
 
 // var _ = require('lodash');
+
+var styles = {
+  simage: {
+      width: '200px',
+      height: '200px',
+  }
+}
 
 class DepositPage extends Component {
   constructor(props) {
@@ -34,7 +43,10 @@ class DepositPage extends Component {
       amount_of_money: '', 
       transfer_method: '', 
       date_transfer: Date.parse((new Date()).toString()), 
-      annotation:''
+      note:'',
+
+
+      attached_file: null
     }
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -61,14 +73,65 @@ class DepositPage extends Component {
       event.stopPropagation();
       this.setState({validated: true});
     }else{
-      this.setState({is_active: true});
+      // this.setState({is_active: true});
       let { hauy_id_bank, 
             user_id_bank, 
-            amount_of_money, 
             transfer_method, 
+            amount, 
             date_transfer, 
-            annotation} = this.state;  
+            note} = this.state;  
 
+
+      console.log(this.state);
+
+      // Create an object of formData 
+      const formData = new FormData(); 
+    
+      // Update the formData object 
+      if(this.state.attached_file){
+        formData.append( 
+          "attached_file", 
+          this.state.attached_file, 
+          this.state.attached_file.name 
+        );
+      }
+      
+      formData.append('uid', this.props.user.uid); 
+      formData.append('hauy_id_bank', hauy_id_bank); 
+      formData.append('user_id_bank', user_id_bank); 
+      formData.append('transfer_method', transfer_method); 
+      formData.append('amount', amount); 
+      formData.append('date_transfer', date_transfer); 
+      formData.append('note', note); 
+
+
+      var headers = JSON.parse(Base64.decode(Base64.decode(localStorage.getItem('headers'))));
+
+      var new_headers = { 'Content-Type': 'multipart/form-data' };
+      new_headers.authorization = headers.authorization;
+      new_headers.uid           = headers.uid;
+
+      console.log(headers);
+      console.log(new_headers);
+
+      let response  = await axios.post('/api/add-deposit', 
+                                      formData,
+                                      {headers:new_headers});
+
+      console.log(response);
+
+                                    // { 'content-type': 'multipart/form-data' }
+      
+      /*
+      $uid                = trim( $content['uid'] );
+      $hauy_id_bank       = trim( $content['hauy_id_bank'] );     // ID ธนาคารของเว็บฯ
+      $user_id_bank       = trim( $content['user_id_bank'] );     // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
+      $transfer_method    = trim( $content['transfer_method'] );  // ช่องทางการโอนเงิน
+      $amount             = trim( $content['amount'] );           // จำนวนเงินที่โอน
+      $note               = trim( $content['note'] );             // หมายเหตุ
+      */
+
+      /*
       let response  = await axios.post('/api/add-deposit', 
                                       { uid: this.props.user.uid, 
                                         hauy_id_bank,      // ID ธนาคารของเว็บฯ
@@ -76,7 +139,7 @@ class DepositPage extends Component {
                                         amount_of_money,   // จำนวนเงินที่โอน
                                         transfer_method,   // ช่องทางการโอนเงิน
                                         date_transfer,     // วัน & เวลา ที่โอน
-                                        annotation},       // หมายเหตุ
+                                        note},       // หมายเหตุ
                                       {headers:headers()});
       console.log(response);
       if( response.status==200 && response.statusText == "OK" ){
@@ -98,6 +161,7 @@ class DepositPage extends Component {
         showToast('error', 'Error');
       }
       this.setState({is_active: false}); 
+      */
     }
   }
 
@@ -109,6 +173,35 @@ class DepositPage extends Component {
     this.props.loadingOverlayActive(this.state.is_active);
   }
 
+  // On file select (from the pop up) 
+  onFileChange = event => { 
+    // Update the state 
+    this.setState({ attached_file: event.target.files[0] });
+  }; 
+
+  // On file upload (click the upload button) 
+  onFileUpload = () => { 
+     
+    // Create an object of formData 
+    const formData = new FormData(); 
+   
+    // Update the formData object 
+    formData.append( 
+      "myFile", 
+      this.state.attached_file, 
+      this.state.attached_file.name 
+    ); 
+   
+    // Details of the uploaded file 
+    console.log(this.state.attached_file); 
+
+    
+   
+    // Request made to the backend api 
+    // Send formData object 
+    axios.post("api/uploadfile", formData); 
+  }; 
+
   render() {
     let { validated, 
           hauy_id_bank, 
@@ -116,7 +209,7 @@ class DepositPage extends Component {
           amount_of_money, 
           transfer_method, 
           date_transfer, 
-          annotation} = this.state
+          note} = this.state
 
     console.log(this.props.transfer_method)
     console.log(this.props);
@@ -267,38 +360,22 @@ class DepositPage extends Component {
                               // ]}
                               dateFormat="MMMM d, yyyy h:mm aa"
                             />
-                          
                         <Form.Control.Feedback type="invalid">
                         วัน-เวลาโอน
                         </Form.Control.Feedback>
                       </Form.Group>
                     </div>
-
-                    {/* <div>
-                      <Form.Group controlId="select_function">
-                        <Form.Label>เวลาที่โอน</Form.Label>
-                       
-                        <DatePicker
-                          selected={new Date()}
-                          // onChange={date => setStartDate(date)}
-                          showTimeSelect
-                          showTimeSelectOnly
-                          timeIntervals={15}
-                          timeCaption="Time"
-                          dateFormat="h:mm aa"
-                        />
-                        <Form.Control.Feedback type="invalid">
-                        เวลาที่โอน
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </div> */}
                     <div>
-                      <Form.Group controlId="annotation">
+                      <input type="file" onChange={this.onFileChange} /*style={{ display: 'none' }}*/  />
+                      <img style={{ width: '200px', height: '200px',}}  src={this.state.attached_file ? URL.createObjectURL(this.state.attached_file) : ""}/>
+                    </div>
+                    <div>
+                      <Form.Group controlId="note">
                         <Form.Label>หมายเหตุ</Form.Label>
                           <Form.Control 
                             as="textarea" 
                             rows="3" 
-                            value={annotation} 
+                            value={note} 
                             onChange={this.handleChange} />
                       </Form.Group>
                     </div>
@@ -322,6 +399,10 @@ const mapStateToProps = (state, ownProps) => {
     let huay_list_bank = state.huay_list_bank.data;
     let transfer_method = state.transfer_method.data;
     let list_bank = state.list_bank.data;
+
+    console.log(huay_list_bank)
+    console.log(transfer_method)
+    console.log(list_bank)
     
     return {...{huay_list_bank, transfer_method, list_bank}, 
             logged_in:true, 

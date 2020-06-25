@@ -26,7 +26,6 @@ class LotteryListPage extends Component {
   }
 
   componentDidMount() {
-
     let {lotterys} = this.props
     lotterys =  lotterys.map((v, k) =>{
                   return  v.map((vv, kk) =>{
