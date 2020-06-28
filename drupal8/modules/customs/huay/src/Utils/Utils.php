@@ -13,12 +13,16 @@ use \MongoDB\Client;
 class Utils extends ControllerBase {
 
   // client_secret : คือ YUhWaGVRPT0= : base64_encode(base64_encode('huay'))
-  public static function verify($request){
-    if (  strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 && 
-          strcmp( $request->headers->get('client_secret'), 'YUhWaGVRPT0=' ) === 0 ) {
+  public static function verify($request, $check = TRUE){
+    if($check){
+      if (  strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 && 
+            strcmp( $request->headers->get('client_secret'), 'YUhWaGVRPT0=' ) === 0 ) {
+        return TRUE;
+      }
+    }else{
       return TRUE;
     }
-
+    
     return FALSE;
   }
 

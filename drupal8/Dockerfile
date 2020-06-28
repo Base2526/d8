@@ -55,6 +55,8 @@ COPY composer.json composer.json
 COPY composer.lock composer.lock
 COPY modules sites/default/modules
 COPY themes sites/default/themes
+
+COPY core/modules/datetime core/modules/datetime
 # COPY vendor vendor
 
 RUN apt-get update -y && \

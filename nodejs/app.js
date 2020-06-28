@@ -13,6 +13,12 @@ const http  = require('http');
 const server= http.createServer(app);
 let io = require('socket.io')(server);
 
+
+const path = require("path");
+const multer = require("multer");
+const fs = require('fs');
+const FormData = require('form-data'); 
+
 // var cookie = require('cookie');
 // var mongoAdapter = require('socket.io-adapter-mongo');
 
@@ -55,6 +61,50 @@ var sessionMiddleware = session({
   // https://stackoverflow.com/questions/18760461/nodejs-how-to-set-express-session-cookie-not-to-expire-anytime
   cookie: {expires: new Date(253402300000000)} 
 })
+
+/////////  multer /////////////
+// const storage = multer.diskStorage({
+//   destination: "./public/uploads/",
+//   filename: function(req, file, cb){
+//      cb(null,"IMAGE-" + Date.now() + path.extname(file.originalname));
+//   }
+// });
+
+// const upload = multer({
+//   storage: storage,
+//   limits:{fileSize: 1000000},
+// }).single("myImage");
+
+// configure storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    /*
+      Files will be saved in the 'uploads' directory. Make
+      sure this directory already exists!
+    */
+    cb(null, './public/uploads/');
+  },
+  filename: (req, file, cb) => {
+    /*
+      uuidv4() will generate a random ID that we'll use for the
+      new filename. We use path.extname() to get
+      the extension from the original file name and add that to the new
+      generated ID. These combined will create the file name used
+      to save the file on the server and will be available as
+      req.file.pathname in the router handler.
+    */
+    console.log(file)
+
+    const newFilename = "IMAGE-" + Date.now() + `${path.extname(file.originalname)}`;
+    cb(null, newFilename);
+  },
+});
+// create the multer instance that will be used to upload/save the file
+const upload = multer({ storage });
+
+
+
+/////////  multer /////////////
 
 app.use(sessionMiddleware)
 app.use(bodyParser.json());
@@ -419,7 +469,7 @@ app.post('/api/delete_bank', (req, res) => {
   $annotation         = trim( $content['annotation'] ); // ID ธนาคารของเว็บฯ
 */
 
-app.post('/api/add-deposit', async(req, res) => {
+app.post('/api/add-deposit2', async(req, res) => {
   if(config.d8.debug){
     console.log(req.body);
     console.log(config.d8.headers);
@@ -571,6 +621,58 @@ app.post("/api/contact-us", async (req, res) => {
   }
   res.send({result: true, data: ct[0]});
 });
+
+
+/////////  multer /////////////
+app.post('/api/add-deposit', upload.single('attached_file'), async (req, res) => {
+  /*
+    We now have a new req.file object here. At this point the file has been saved
+    and the req.file.filename value will be the name returned by the
+    filename() function defined in the diskStorage configuration. Other form fields
+    are available here in req.body.
+  */
+
+  let is_session = await sessionMongoStore.get(req.session.id);
+  if (is_session !== undefined) {  
+    var formData = new FormData();
+    if(req.file !== undefined){
+      formData.append('attached_file', fs.createReadStream(req.file.path));
+    }
+    formData.append('uid', req.body.uid);
+    formData.append('hauy_id_bank', req.body.hauy_id_bank);
+    formData.append('user_id_bank', req.body.user_id_bank);
+    formData.append('transfer_method', req.body.transfer_method);
+    formData.append('amount', req.body.amount);
+    formData.append('date_transfer', req.body.date_transfer);
+    formData.append('note', req.body.note);
+  
+    fetch(config.d8.api_add_deposit, {
+      method: 'POST',
+      headers: formData.getHeaders(),
+      body: formData
+    }).then((res) => {
+      return res.json()
+    })
+    .then((json) => {
+
+      // ลบไฟล์เพราะจะเก็บไว้ที่ drupal เพราะมีระบบจัดไฟล์ทั้งหมด
+      if(req.file !== undefined){
+        fs.unlink(req.file.path, (err) => {
+          if (err) {
+            console.error(err)
+            return
+          }
+          //file removed
+        })
+      }
+
+      res.send(json);
+    });
+  }else{
+    res.send({result:false, status: '-1'}); ;
+  }
+});
+/////////  multer /////////////
 
 // var request = require('request');
 // io.adapter(mongoAdapter( config.mongo.url ));

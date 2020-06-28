@@ -35,6 +35,7 @@ class HomePage extends Component {
 
     // let local_storage_headers =;
     // console.log( JSON.parse(Base64.decode(Base64.decode(localStorage.getItem('headers')))) );
+  
   }
 
   nextPath(path) {
