@@ -33,6 +33,7 @@ const ListBank        = require('./models/list_banck')
 const Lotterys        = require('./models/lotterys')
 const ShootNumbers    = require('./models/shoot_numbers')
 const UserSocketID    = require('./models/user_socket_id')
+const DepositStatus   = require('./models/deposit_status')
 
 const connectMongoose = require("./src/connection")
 const User            = require("./src/User.model")
@@ -673,6 +674,27 @@ app.post('/api/add-deposit', upload.single('attached_file'), async (req, res) =>
   }
 });
 /////////  multer /////////////
+
+///////// ดึงรายการ ฝาก/ถอน //////////
+app.post('/api/request_all', async(req, res) => {
+  let is_session = await sessionMongoStore.get(req.session.id);
+  if (is_session !== undefined) {  
+    var data = {
+      "uid"       : req.body.uid,
+    }
+    console.log(config.d8.headers);
+    fetch(config.d8.api_request_all, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+      .then((res) => {
+        return res.json()
+    })
+    .then((json) => {
+      res.send(json);
+    });
+  }else{
+    res.send({result:false, status: '-1'}); ;
+  }
+});
+///////// ดึงรายการ ฝาก/ถอน //////////
 
 // var request = require('request');
 // io.adapter(mongoAdapter( config.mongo.url ));
@@ -1391,9 +1413,49 @@ server.listen(PORT, function (err) {
       }
     });
 
-    sessionMongoStore.all(function(error, sessions){
-      console.log(sessions);
-    })
+    DepositStatus.watch().on('change', async data =>{
+      switch(data.operationType){
+        case 'insert':{
+          console.log('DepositStatus > insert');
+          break;
+        }
+        case 'delete':{
+          console.log('DepositStatus > delete');
+          break;
+        }
+        case 'replace':{
+          console.log('DepositStatus > replace');
+          break;
+        }
+        case 'update':{
+          console.log('DepositStatus > update');
+          if(socket_local.connected){
+            socket_local.emit("deposit_status", JSON.stringify(await DepositStatus.find({})));
+          }
+          break;
+        }
+        case 'drop':{
+          console.log('DepositStatus > drop');
+          break;
+        }
+        case 'rename':{
+          console.log('DepositStatus > rename');
+          break;
+        }
+        case 'dropDatabase':{
+          console.log('DepositStatus > dropDatabase');
+          break;
+        }
+        case 'invalidate':{
+          console.log('DepositStatus > dropDatabase');
+          break;
+        }
+      }
+    });
+
+    // sessionMongoStore.all(function(error, sessions){
+    //   console.log(sessions);
+    // })
   });
 
 })

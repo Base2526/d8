@@ -75,6 +75,12 @@ export function connect_socketIO(props){
           props.updateShootNumbers(JSON.parse(data));
         })
 
+        // deposit_status
+        socket.on('deposit_status', (data) => {
+          console.log(JSON.parse(data));
+          props.updateDepositStatus(JSON.parse(data));
+        })
+
         socket.on('force_logout', (data) => {
           console.log(JSON.parse(data));
           props.userLogout();

@@ -42,7 +42,7 @@ class DepositPage extends Component {
       user_id_bank:'', 
       amount: '', 
       transfer_method: '', 
-      date_transfer: Date.parse((new Date()).toString()), 
+      date_transfer: '',//Date.parse((new Date()).toString()), 
       note:'',
 
 
@@ -362,7 +362,7 @@ class DepositPage extends Component {
                       <Form.Group controlId="select_function">
                         <Form.Label>วัน-เวลาโอน</Form.Label>
                           <DatePicker
-                              selected={(new Date(date_transfer))}
+                              selected={ date_transfer == "" ? '' : (new Date(date_transfer))}
                               // onChange={date => setStartDate(date)}
                               onChange={this.handleDateTransferChange}
                               showTimeSelect
@@ -373,6 +373,7 @@ class DepositPage extends Component {
                               //   setHours(setMinutes(new Date(), 5), 12),
                               //   setHours(setMinutes(new Date(), 59), 23)
                               // ]}
+                              required
                               dateFormat="MMMM d, yyyy h:mm aa"
                             />
                         <Form.Control.Feedback type="invalid">

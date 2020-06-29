@@ -158,8 +158,8 @@ class LoginPage extends Component {
               <Form.Group controlId="email">
                 <Form.Label>อีเมลล์</Form.Label>
                 <Form.Control 
-                  type="email" 
-                  placeholder="อีเมลล์" 
+                  type="text" 
+                  placeholder="ชื่อผู้ใช้งาน หรือ อีเมลล์" 
                   required 
                   value={email} onChange={this.handleChange}/>
                 <Form.Control.Feedback type="invalid">

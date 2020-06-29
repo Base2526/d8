@@ -14,19 +14,19 @@ class Utils extends ControllerBase {
 
   // client_secret : คือ YUhWaGVRPT0= : base64_encode(base64_encode('huay'))
   public static function verify($request, $check = TRUE){
-    if($check){
-      if (  strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 && 
-            strcmp( $request->headers->get('client_secret'), 'YUhWaGVRPT0=' ) === 0 ) {
-        return TRUE;
-      }
-    }else{
+    // if($check){
+    //   if (  strcmp( $request->headers->get('Content-Type'), 'application/json' ) === 0 && 
+    //         strcmp( $request->headers->get('client_secret'), 'YUhWaGVRPT0=' ) === 0 ) {
+    //     return TRUE;
+    //   }
+    // }else{
       return TRUE;
-    }
-    
-    return FALSE;
+    // }
+
+    // return FALSE;
   }
 
-  public static function getTaxonomy_term($cid, $clear = FALSE){
+  public static function get_taxonomy_term($cid, $clear = FALSE){
     $type = 'taxonomy_term';
 
     $our_service = \Drupal::service('huay.cache');
@@ -38,18 +38,18 @@ class Utils extends ControllerBase {
       // จะมีกรณีที่ tid เกิดไม่ต้องกันในเครือง dev, uat, production เราจึงกำหนด id ให่แต่ละ term เราจึงต้องดึงจาก field_id_term เราต้อง check เพราะว่าเราค่อยแก้ๆ
       // $terms = array('current_d_e_ratio', 'type_payment');
 
-    //   $terms = \Drupal\config_pages\Entity\ConfigPages::config('vocabulary')->get('field_vocabulary')->value;
-    //   $terms = explode(",", $terms);
+      //   $terms = \Drupal\config_pages\Entity\ConfigPages::config('vocabulary')->get('field_vocabulary')->value;
+      //   $terms = explode(",", $terms);
 
-    //   if (in_array( $cid , $terms)) {
+      //   if (in_array( $cid , $terms)) {
       foreach($branchs_terms as $tag_term) {
-        $tid_code = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tag_term->tid)->get('field_tid_code')->getValue();
-        if(!empty( $tid_code )){
-          $new_tid =  $tid_code[0]['value'];
-          $branchs[$new_tid] = $tag_term->name;
-        }
+        // $tid_code = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tag_term->tid)->get('field_tid_code')->getValue();
+        // if(!empty( $tid_code )){
+        //   $new_tid =  $tid_code[0]['value'];
+        //   $branchs[$new_tid] = $tag_term->name;
+        // }
 
-        // $branchs[$tag_term->tid] = $tag_term->name;
+        $branchs[$tag_term->tid] = $tag_term->name;
       }
     //   }else{
     //     foreach ($branchs_terms as $tag_term) {
@@ -966,6 +966,31 @@ class Utils extends ControllerBase {
               $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime('now'))->getTimestamp()*1000);
               $collection->insertOne($data);
           }
+      }
+    }
+  }
+
+  // สถานะการฝาก & ถอนเงิน
+  public function mongodb_deposit_status(){
+    $type = 'taxonomy_term';
+    $cid  = 'deposit_status';
+    $branchs_terms = \Drupal::entityManager()->getStorage($type)->loadTree($cid);
+
+    $collection = Utils::GetMongoDB()->deposit_status;
+    foreach($branchs_terms as $tag_term) {
+      $data = array();
+      $data['tid']    = $tag_term->tid;
+      $data['name']   = $tag_term->name;
+
+      $filter = array('tid'=>$tag_term->tid);
+      if($collection->count($filter)){
+          $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
+          $collection->updateOne($filter, array('$set' =>$data) );
+      }else{
+          // create
+          $data['createdAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
+          $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
+          $collection->insertOne($data);
       }
     }
   }

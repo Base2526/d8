@@ -40,3 +40,8 @@ export const updateShootNumbers = (data) => ({
     type: types.SHOOT_NUMBERS,
     data
 });
+
+export const updateDepositStatus = (data) => ({
+    type: types.DEPOSIT_STATUS,
+    data
+});

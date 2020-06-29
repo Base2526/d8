@@ -13,3 +13,5 @@ export const UPDATE_LIST_BANK        = "update_list_bank";
 export const UPDATE_YEEKEE_ROUND     = "update_yeekee_round";
 export const UPDATE_LOTTERYS         = "update_lotterys";
 export const SHOOT_NUMBERS           = "update_shoot_numbers";
+
+export const DEPOSIT_STATUS          = "update_deposit_status";

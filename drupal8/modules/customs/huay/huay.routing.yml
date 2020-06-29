@@ -171,4 +171,12 @@ api.every15minute:
   requirements:
     _access: 'TRUE'
 
+# 
+api.request_all:
+  path: '/api/request_all.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::request_all' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
 # api

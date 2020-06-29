@@ -72,6 +72,7 @@ class WithdrawPage extends Component {
                                         annotation},          // หมายเหตุ
                                       {headers:headers()});
       console.log(response);
+      this.setState({is_active: false});
       if( response.status==200 && response.statusText == "OK" ){
         if(response.data.result){
           this.nextPath('/');
@@ -89,8 +90,6 @@ class WithdrawPage extends Component {
       }else{
         showToast('error', 'Error');
       }
-
-      this.setState({is_active: false});
     }
   }
 

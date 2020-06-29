@@ -373,7 +373,7 @@ class API extends ControllerBase {
       $response['result']           = TRUE;
       $response['execution_time']   = microtime(true) - $time1;
 
-      $response['data']             = Utils::getTaxonomy_term('list_bank');
+      $response['data']             = Utils::get_taxonomy_term('list_bank');
       return new JsonResponse( $response );
     }
 
@@ -1172,6 +1172,70 @@ class API extends ControllerBase {
     }
 
     $response['result']   = FALSE;
+    return new JsonResponse( $response );
+  }
+
+  public function request_all(Request $request){
+
+    $time1 = microtime(true);
+    if ( Utils::verify($request) ) {
+      $content = json_decode( $request->getContent(), TRUE );
+      $uid                = trim( $content['uid'] );
+      
+      $user = User::load($uid);
+      if( empty($uid) ||  
+          empty($user) ){
+        $response['result']   = FALSE;
+        return new JsonResponse( $response );
+      }
+
+      $query = \Drupal::entityQuery('node');
+      $query->condition('type', 'user_deposit');
+      $query->condition('status', 1);
+      $query->condition('uid', $uid);
+      $nids = $query->execute();
+
+      $deposits = array();
+      if(!empty($nids)){
+        $nodes = Node::loadMultiple($nids);
+        foreach ($nodes as $node) {
+          $id               = $node->id();
+          $amount           = $node->field_amount->value;
+          $date_transfer    = $node->field_date_transfer->value;
+
+          $deposit_status   = /*Utils::get_taxonomy_term('deposit_status')[*/ $node->field_deposit_status->target_id /*]*/;
+          $transfer_method  = /*Utils::get_taxonomy_term('transfer_method')[*/ $node->field_transfer_method->target_id /*]*/;
+          $huay_list_bank   = /*Utils::get_taxonomy_term('huay_list_bank')[*/ $node->field_huay_list_bank->target_id /*]*/;
+          $list_bank        = /*Utils::get_taxonomy_term('list_bank')[*/ $node->field_list_bank->target_id /*]*/;
+
+          $note             = empty($node->body->value) ? '' : strip_tags($node->body->value);
+          $attached_file    = empty($node->field_attached_file) ? '' : Utils::get_file_url($node->field_attached_file->target_id);
+
+          $create           = $node->getCreatedTime();
+          $update           = $node->getChangedTime();
+
+          $deposits[]       = array('id'            => $id,
+                                    'deposit_status'=> $deposit_status,
+                                    'amount'        => $amount,
+                                    'transfer_method'=> $transfer_method,
+                                    'huay_list_bank' => $huay_list_bank,
+                                    'list_bank'      => $list_bank,
+                                    'date_transfer'  => strval(strtotime($date_transfer)),
+                                    'note'           => $note,
+                                    'attached_file'  => $attached_file,
+                                  
+                                    'create'         => $create,
+                                    'update'         => $update);
+        }  
+      }
+      
+      $response['result']           = TRUE;
+      $response['execution_time']   = microtime(true) - $time1;
+      $response['datas']             = $deposits;
+      return new JsonResponse( $response );
+    }
+
+    $response['result']     = FALSE;
     return new JsonResponse( $response );
   }
 
