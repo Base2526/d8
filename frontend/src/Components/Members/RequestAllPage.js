@@ -14,59 +14,97 @@ import { headers, showToast } from '../Utils/Config';
 class RequestAllPage extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       is_active: false,
 
-      datas: []
+      tab_active_key: "tab-deposit" 
     }
 
-    this.renderItem = this.renderItem.bind(this);
+    this.renderDepositItem  = this.renderDepositItem.bind(this);
+    this.renderWithdrawItem = this.renderWithdrawItem.bind(this);
+    this.handleTabsSelect   = this.handleTabsSelect.bind(this);
   }
 
-  componentDidMount = async () => {
-    let response  = await axios.post('/api/request_all', 
-                                    { uid: this.props.user.uid },
-                                    {headers:headers()});
-
-    // console.log(response);
-    if( response.status==200 && response.statusText == "OK" ){
-      if(response.data.result){  
-        console.log(response.data.data);    
-        
-        this.setState({datas: response.data.datas.sort(function(a, b) {
-                                var dateA = new Date(a.create * 1000);
-                                var dateB = new Date(b.create * 1000);
-                                return dateB - dateA;
-                              })
-                      });
-      }else{
-      }
-    }else{
-    }
-  }
+  componentDidMount = async () => {}
 
   loadingOverlayActive(){
     this.props.loadingOverlayActive(this.state.is_active);
   }
 
-  renderItem(index, key) {
+  renderDepositItem(index, key) {
+    let {deposit_status, transfer_method, user} = this.props;
+
+    let sortedDeposit = user.deposit.sort((a, b) => {
+      return new Date(b.create* 1000) - new Date(a.create* 1000);
+    })
+
+    let find_deposit_status = deposit_status.data.find(o => o.tid == sortedDeposit[index].deposit_status);
+    let find_transfer_method = transfer_method.data.find(o => o.tid == sortedDeposit[index].transfer_method);
+
     return  <div key={key}>
-              <div>Amount : {this.state.datas[index].amount}</div>
-              <div>Attached_file : {this.state.datas[index].attached_file}</div>
-              <div>Deposit_status : {this.state.datas[index].deposit_status}</div>
-              <div>Transfer_method : {this.state.datas[index].transfer_method}</div>
-              <div>Date : {(new Date(this.state.datas[index].create * 1000)).toString()}</div>
+              <div>Amount : {sortedDeposit[index].amount}</div>
+              <div>Attached_file : {sortedDeposit[index].attached_file}</div>
+              <div>Deposit_status : {find_deposit_status.name}</div>
+              <div>Transfer_method : {find_transfer_method.name}</div>
+              <div>Date : {(new Date(sortedDeposit[index].create * 1000)).toString()}</div>
+              <div>Note : {sortedDeposit[index].note}</div>
               <hr />
             </div>;
   }
 
+  renderWithdrawItem(index, key) {
+    let {deposit_status, user} = this.props;
+
+    let sortedWithdraw = user.withdraw.sort((a, b) => {
+      return new Date(b.create* 1000) - new Date(a.create* 1000);
+    })
+
+    let find_deposit_status = deposit_status.data.find(o => o.tid == sortedWithdraw[index].deposit_status);
+    
+    return  <div key={key}>
+              <div>Amount : {sortedWithdraw[index].amount}</div>
+              <div>Deposit_status : {find_deposit_status.name}</div>
+              <div>Date : {(new Date(sortedWithdraw[index].create * 1000)).toString()}</div>
+              <div>Note : {sortedWithdraw[index].note}</div>
+              <hr />
+            </div>;
+  }
+
+  handleTabsSelect(tab_active_key) {
+    console.log("selected " + tab_active_key);
+    this.setState({tab_active_key})
+  }
+  
   render() {
-    return (<ReactList
-              itemRenderer={this.renderItem}
-              length={this.state.datas.length}
-              type='uniform'/>
-            );
+    let {tab_active_key}  = this.state;
+    let {deposit, withdraw}         = this.props.user;
+
+
+    return(
+      <Tabs 
+        // defaultActiveKey="tab-deposit" 
+        id="uncontrolled-tab-example"
+        activeKey={tab_active_key}
+        onSelect={this.handleTabsSelect}>
+        <Tab eventKey="tab-deposit" title="ฝากเงิน">
+          {
+            deposit.length == 0 ? <div>ไม่มีรายการฝากเงิน</div> : <ReactList
+                                                                  itemRenderer={this.renderDepositItem}
+                                                                  length={deposit.length}
+                                                                  type='uniform'/>
+          }
+          
+        </Tab>
+        <Tab eventKey="tab-withdraw" title="ถอนเงิน">
+            {
+              withdraw.length == 0 ? <div>ไม่มีรายการถอนเงิน</div> :<ReactList
+                                                                    itemRenderer={this.renderWithdrawItem}
+                                                                    length={withdraw.length}
+                                                                    type='uniform'/> 
+            }
+        </Tab>
+      </Tabs>
+    )
   }
 }
 
@@ -76,22 +114,14 @@ const mapStateToProps = (state, ownProps) => {
   }
 
   if(state.auth.isLoggedIn){
-    console.log(state);
-
-    let {huay_list_bank} = state;
+    let {huay_list_bank, list_bank, transfer_method, deposit_status} = state;
     return {logged_in:true, 
-            user: state.auth.user};
+            user: state.auth.user,
+            ...{huay_list_bank, list_bank, transfer_method, deposit_status}};
   }else{
     return { logged_in:false };
   }
 }
-
-/*
-deposit_status
-transfer_method
-huay_list_bank
-list_bank
-*/
 
 const mapDispatchToProps = (dispatch) => {
 	return {

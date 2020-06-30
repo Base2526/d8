@@ -19,15 +19,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { showToast } from '../Utils/Config';
 import { loadingOverlayActive } from '../../actions/huay'
 
-// var _ = require('lodash');
-
-var styles = {
-  simage: {
-      width: '200px',
-      height: '200px',
-  }
-}
-
 class DepositPage extends Component {
   constructor(props) {
     super(props);

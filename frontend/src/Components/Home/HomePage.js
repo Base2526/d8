@@ -93,15 +93,15 @@ class HomePage extends Component {
               </Button>
             </div>
   
-            <div style={{padding:'5px'}}>
+            {/* <div style={{padding:'5px'}}>
               <Button type="primary" size="large" onClick={ () => this.nextPath('/statement')}>
                 รายงานการเงิน
               </Button>
             </div>
-  
+   */}
             <div style={{padding:'5px'}}>
               <Button type="primary" size="large" onClick={ () => this.nextPath('/request-all')}>
-                สถานะ ฝากเงิน
+              รายงานการ ฝาก/ถอนเงิน
               </Button>
             </div>
   

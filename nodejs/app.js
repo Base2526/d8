@@ -272,6 +272,7 @@ app.post('/api/login', async(req, res) => {
       const transfer_method = await TransferMethod.find({});
       const contact_us      = (await ContactUs.find({}))[0];
       const list_bank       = await ListBank.find({});
+      const deposit_status       = await DepositStatus.find({});
 
       var _people = await People.findOne({ uid: response.data.uid });
 
@@ -286,7 +287,8 @@ app.post('/api/login', async(req, res) => {
           huay_list_bank,
           transfer_method,
           contact_us,
-          list_bank
+          list_bank,
+          deposit_status
         })
       }else{
         res.send({'result': false});
@@ -514,7 +516,7 @@ app.post('/api/withdraw', async(req, res) => {
       "uid"               : req.body.uid,
       "user_id_bank"      : req.body.user_id_bank,
       "amount_of_withdraw": req.body.amount_of_withdraw,
-      "annotation"        : req.body.annotation
+      "note"              : req.body.note
     }
   
     fetch(config.d8.api_withdraw, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
@@ -676,24 +678,24 @@ app.post('/api/add-deposit', upload.single('attached_file'), async (req, res) =>
 /////////  multer /////////////
 
 ///////// ดึงรายการ ฝาก/ถอน //////////
-app.post('/api/request_all', async(req, res) => {
-  let is_session = await sessionMongoStore.get(req.session.id);
-  if (is_session !== undefined) {  
-    var data = {
-      "uid"       : req.body.uid,
-    }
-    console.log(config.d8.headers);
-    fetch(config.d8.api_request_all, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-      .then((res) => {
-        return res.json()
-    })
-    .then((json) => {
-      res.send(json);
-    });
-  }else{
-    res.send({result:false, status: '-1'}); ;
-  }
-});
+// app.post('/api/request_all', async(req, res) => {
+//   let is_session = await sessionMongoStore.get(req.session.id);
+//   if (is_session !== undefined) {  
+//     var data = {
+//       "uid"       : req.body.uid,
+//     }
+//     console.log(config.d8.headers);
+//     fetch(config.d8.api_request_all, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+//       .then((res) => {
+//         return res.json()
+//     })
+//     .then((json) => {
+//       res.send(json);
+//     });
+//   }else{
+//     res.send({result:false, status: '-1'}); ;
+//   }
+// });
 ///////// ดึงรายการ ฝาก/ถอน //////////
 
 // var request = require('request');

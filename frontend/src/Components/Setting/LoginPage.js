@@ -14,7 +14,8 @@ import {  loadingOverlayActive,
           updateHuayListBank,
           updateTransferMethod,
           updateContactUs,
-          updateListBank } from '../../actions/huay'
+          updateListBank,
+          updateDepositStatus } from '../../actions/huay'
 
 class LoginPage extends Component {
   constructor(props) {
@@ -89,7 +90,8 @@ class LoginPage extends Component {
                 huay_list_bank,
                 transfer_method, 
                 contact_us,
-                list_bank} = response.data;
+                list_bank,
+                deposit_status} = response.data;
 
           let {
             userLogin, 
@@ -97,7 +99,8 @@ class LoginPage extends Component {
             updateHuayListBank,
             updateTransferMethod,
             updateContactUs,
-            updateListBank
+            updateListBank,
+            updateDepositStatus
           } = this.props
 
           userLogin(user);
@@ -106,6 +109,7 @@ class LoginPage extends Component {
           updateTransferMethod(transfer_method);
           updateContactUs(contact_us);
           updateListBank(list_bank);
+          updateDepositStatus(deposit_status);
 
           var new_headers = headers();
           new_headers.authorization = user.session;
@@ -114,7 +118,6 @@ class LoginPage extends Component {
           localStorage.removeItem('headers');
           localStorage.setItem('headers', Base64.encode(Base64.encode( JSON.stringify(new_headers) )));
 
-          
           // let de_password = Base64.decode(Base64.decode( en_headers ));
           // console.log(JSON.parse(de_password));
         }else{
@@ -261,6 +264,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     updateLotterys: (data)=>{
       dispatch(updateLotterys(data))
+    },
+    updateDepositStatus: (data)=>{
+      dispatch(updateDepositStatus(data))
     },
 	}
 }

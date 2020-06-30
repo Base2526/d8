@@ -114,7 +114,7 @@ export default [
     { path: "/profile-page", name: "โปรไฟล์", Component: ProfilePage },
     { path: "/affiliate-page", name: "แนะนำเพือน", Component: AffiliatePage },
     { path: "/statement", name: "รายงานการเงิน", Component: StatementPage },
-    { path: "/request-all", name: "สถานะ ฝากเงิน", Component: RequestAllPage },
+    { path: "/request-all", name: "สถานะ ฝาก/ถอนเงิน", Component: RequestAllPage },
 
     { path: "/lottery-list", name: "แทงหวย", Component: LotteryListPage },
     { path: "/lottery-list/:type/:id", name: "โพย", Component: ChitPage },

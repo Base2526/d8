@@ -71,6 +71,15 @@ huay_mongo_log.form:
   requirements:
     _access: 'TRUE'
 
+# RefreshForm
+refresh.form:
+  path: '/refresh'
+  defaults:
+    _title: 'Refresh Form'
+    _form: '\Drupal\huay\Form\RefreshForm'
+  requirements:
+    _access: 'TRUE'
+
 # api
 api.login:
   path: '/api/login.json'

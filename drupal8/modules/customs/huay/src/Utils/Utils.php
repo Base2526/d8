@@ -168,7 +168,8 @@ class Utils extends ControllerBase {
     return  !empty($file) ? $file->url() : '';
   }
 
-  public static function credit_balance($user){
+  public static function credit_balance($uid){
+    /*
     // ยอดฝากเงินทั้งหมด
     $amount_of_money = 0;
     foreach ($user->get('field_deposit')->getValue() as $bi=>$bv){
@@ -198,8 +199,130 @@ class Utils extends ControllerBase {
             }
         }
     }
+    */
+
+    // -------  ยอดฝากเงินทั้งหมด  --------
+    $amount_of_money = 0;
+
+    $query = \Drupal::entityQuery('node');
+    $query->condition('type', 'user_deposit');
+    $query->condition('status', 1);
+    $query->condition('uid', $uid);
+    $nids = $query->execute();
+    if(!empty($nids)){
+      $nodes = Node::loadMultiple($nids);
+      foreach ($nodes as $node) {
+        if(strcmp($node->field_deposit_status->target_id, 15) == 0){
+          $amount_of_money  += $node->field_amount->value;
+        } 
+      }
+    }
+    // -------  ยอดฝากเงินทั้งหมด  --------
+
+    // ------- ถอนเงิน -------
+    $withdraw = 0;
+    $query = \Drupal::entityQuery('node');
+    $query->condition('type', 'user_withdraw');
+    $query->condition('status', 1);
+    $query->condition('uid', $uid);
+    $nids = $query->execute();
+    if(!empty($nids)){
+      $nodes = Node::loadMultiple($nids);
+      foreach ($nodes as $node) {
+        if(strcmp($node->field_deposit_status->target_id, 15) == 0){
+          $withdraw  += $node->field_amount_of_withdraw->value;
+        } 
+      }
+    }
+    // ------- ถอนเงิน -------
 
     return $amount_of_money - $withdraw;   
+  }
+
+  public static function get_user_deposit($uid){
+    if(empty($uid)){
+      return [];
+    }
+
+    $query = \Drupal::entityQuery('node');
+    $query->condition('type', 'user_deposit');
+    $query->condition('status', 1);
+    $query->condition('uid', $uid);
+    $nids = $query->execute();
+
+    $deposits = array();
+    if(!empty($nids)){
+      $nodes = Node::loadMultiple($nids);
+      foreach ($nodes as $node) {
+        $id               = $node->id();
+        $amount           = $node->field_amount->value;
+        $date_transfer    = $node->field_date_transfer->value;
+
+        $deposit_status   = /*Utils::get_taxonomy_term('deposit_status')[*/ $node->field_deposit_status->target_id /*]*/;
+        $transfer_method  = /*Utils::get_taxonomy_term('transfer_method')[*/ $node->field_transfer_method->target_id /*]*/;
+        $huay_list_bank   = /*Utils::get_taxonomy_term('huay_list_bank')[*/ $node->field_huay_list_bank->target_id /*]*/;
+        $list_bank        = /*Utils::get_taxonomy_term('list_bank')[*/ $node->field_list_bank->target_id /*]*/;
+
+        $note             = empty($node->body->value) ? '' : strip_tags($node->body->value);
+        $attached_file    = empty($node->field_attached_file) ? '' : Utils::get_file_url($node->field_attached_file->target_id);
+
+        $create           = $node->getCreatedTime();
+        $update           = $node->getChangedTime();
+
+        $deposits[]       = array('id'            => $id,
+                                  'deposit_status'=> $deposit_status,
+                                  'amount'        => $amount,
+                                  'transfer_method'=> $transfer_method,
+                                  'huay_list_bank' => $huay_list_bank,
+                                  'list_bank'      => $list_bank,
+                                  'date_transfer'  => strval(strtotime($date_transfer)),
+                                  'note'           => $note,
+                                  'attached_file'  => $attached_file,
+                                
+                                  'create'         => $create,
+                                  'update'         => $update);
+      }  
+    }
+      
+    return $deposits;
+  }
+
+  public static function get_user_withdraw($uid){
+    if(empty($uid)){
+      return [];
+    }
+
+    $query = \Drupal::entityQuery('node');
+    $query->condition('type', 'user_withdraw');
+    $query->condition('status', 1);
+    $query->condition('uid', $uid);
+    $nids = $query->execute();
+
+    $deposits = array();
+    if(!empty($nids)){
+      $nodes = Node::loadMultiple($nids);
+      foreach ($nodes as $node) {
+        $id               = $node->id();
+        $amount           = $node->field_amount_of_withdraw->value;
+        $deposit_status   = /*Utils::get_taxonomy_term('deposit_status')[*/ $node->field_deposit_status->target_id /*]*/;
+        $user_id_bank     = /*Utils::get_taxonomy_term('transfer_method')[*/ $node->field_user_id_bank->value /*]*/;
+        $note             = empty($node->body->value) ? '' : strip_tags($node->body->value);
+       
+        $create           = $node->getCreatedTime();
+        $update           = $node->getChangedTime();
+
+        $deposits[]       = array('id'            => $id,
+                                  'deposit_status'=> $deposit_status,
+                                  'amount'        => $amount,
+                                  'user_id_bank'  => $user_id_bank,
+                                  'note'           => $note,
+                                
+                                  'create'         => $create,
+                                  'update'         => $update);
+      }  
+    }
+      
+    return $deposits;
   }
 
   public static function mongodb_people($uid){
@@ -226,7 +349,7 @@ class Utils extends ControllerBase {
                   'email'    =>$user->getEmail(),
                   'roles'    =>$user->getRoles(),
                   'image_url'=>$image_url,
-                  'credit_balance' =>Utils::credit_balance($user),
+                  'credit_balance' =>Utils::credit_balance($uid),
               );
 
       $banks = array();
@@ -290,98 +413,98 @@ class Utils extends ControllerBase {
       // $data['user_access'] = $user_access;
 
       // ฝากเงิน field_deposit
-      $deposit = array();
-      foreach ($user->get('field_deposit')->getValue() as $bi=>$bv){
-          $p = Paragraph::load( $bv['target_id'] );
+      // $deposit = array();
+      // foreach ($user->get('field_deposit')->getValue() as $bi=>$bv){
+      //     $p = Paragraph::load( $bv['target_id'] );
 
-          // ID ธนาคารของเว็บฯ 
-          $hauy_id_bank = '';
-          $field_hauy_id_bank = $p->get('field_hauy_id_bank')->getValue();
-          if(!empty($field_hauy_id_bank)){
-              $hauy_id_bank = $field_hauy_id_bank[0]['value'];
-          }
+      //     // ID ธนาคารของเว็บฯ 
+      //     $hauy_id_bank = '';
+      //     $field_hauy_id_bank = $p->get('field_hauy_id_bank')->getValue();
+      //     if(!empty($field_hauy_id_bank)){
+      //         $hauy_id_bank = $field_hauy_id_bank[0]['value'];
+      //     }
 
-          // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า 
-          $user_id_bank = '';
-          $field_user_id_bank = $p->get('field_user_id_bank')->getValue();
-          if(!empty($field_user_id_bank)){
-              $user_id_bank = $field_user_id_bank[0]['value'];
-          }
+      //     // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า 
+      //     $user_id_bank = '';
+      //     $field_user_id_bank = $p->get('field_user_id_bank')->getValue();
+      //     if(!empty($field_user_id_bank)){
+      //         $user_id_bank = $field_user_id_bank[0]['value'];
+      //     }
 
-          // จำนวนเงินที่โอน
-          $amount_of_money = '';
-          $field_amount_of_money = $p->get('field_amount_of_money')->getValue();
-          if(!empty($field_amount_of_money)){
-              $amount_of_money = $field_amount_of_money[0]['value'];
-          }
+      //     // จำนวนเงินที่โอน
+      //     $amount_of_money = '';
+      //     $field_amount_of_money = $p->get('field_amount_of_money')->getValue();
+      //     if(!empty($field_amount_of_money)){
+      //         $amount_of_money = $field_amount_of_money[0]['value'];
+      //     }
 
-          // ช่องทางการโอนเงิน 
-          $transfer_method = $p->get('field_transfer_method')->target_id;
+      //     // ช่องทางการโอนเงิน 
+      //     $transfer_method = $p->get('field_transfer_method')->target_id;
         
-          // วัน & เวลา ที่โอน 
-          $date_transfer = '';
-          $field_date_transfer = $p->get('field_date_transfer')->getValue();
-          if(!empty($field_date_transfer)){
-              $date_transfer = $field_date_transfer[0]['value'];
-          }
+      //     // วัน & เวลา ที่โอน 
+      //     $date_transfer = '';
+      //     $field_date_transfer = $p->get('field_date_transfer')->getValue();
+      //     if(!empty($field_date_transfer)){
+      //         $date_transfer = $field_date_transfer[0]['value'];
+      //     }
 
-          // หมายเหตุ 
-          $annotation = '';
-          $field_annotation = $p->get('field_annotation')->getValue();
-          if(!empty($field_annotation)){
-              $annotation = $field_annotation[0]['value'];
-          }
+      //     // หมายเหตุ 
+      //     $annotation = '';
+      //     $field_annotation = $p->get('field_annotation')->getValue();
+      //     if(!empty($field_annotation)){
+      //         $annotation = $field_annotation[0]['value'];
+      //     }
 
-          // สถานะการฝากเงิน 
-          $deposit_status = $p->get('field_deposit_status')->target_id;
+      //     // สถานะการฝากเงิน 
+      //     $deposit_status = $p->get('field_deposit_status')->target_id;
 
-          $deposit[$bv['target_id']] = array( 'hauy_id_bank'      =>$hauy_id_bank, 
-                                              'user_id_bank'      =>$user_id_bank,
-                                              'amount_of_money'   =>$amount_of_money,
-                                              'transfer_method'   =>$transfer_method,
-                                              'date_transfer'     =>$date_transfer,
-                                              'annotation'        =>$annotation,
-                                              'deposit_status'    =>$deposit_status,
-                                              );
-      }
-      $data['deposit'] = $deposit;
+      //     $deposit[$bv['target_id']] = array( 'hauy_id_bank'      =>$hauy_id_bank, 
+      //                                         'user_id_bank'      =>$user_id_bank,
+      //                                         'amount_of_money'   =>$amount_of_money,
+      //                                         'transfer_method'   =>$transfer_method,
+      //                                         'date_transfer'     =>$date_transfer,
+      //                                         'annotation'        =>$annotation,
+      //                                         'deposit_status'    =>$deposit_status,
+      //                                         );
+      // }
+      $data['deposit'] = Utils::get_user_deposit($uid);
 
       // ถอนเงิน 
-      $withdraw = array();
-      foreach ($user->get('field_withdraw')->getValue() as $bi=>$bv){
-          $p = Paragraph::load( $bv['target_id'] );
+      // $withdraw = array();
+      // foreach ($user->get('field_withdraw')->getValue() as $bi=>$bv){
+      //     $p = Paragraph::load( $bv['target_id'] );
 
-          // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า 
-          $user_id_bank = '';
-          $field_user_id_bank = $p->get('field_user_id_bank')->getValue();
-          if(!empty($field_user_id_bank)){
-              $user_id_bank = $field_user_id_bank[0]['value'];
-          }
+      //     // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า 
+      //     $user_id_bank = '';
+      //     $field_user_id_bank = $p->get('field_user_id_bank')->getValue();
+      //     if(!empty($field_user_id_bank)){
+      //         $user_id_bank = $field_user_id_bank[0]['value'];
+      //     }
 
-          // จำนวนเงินที่ถอน
-          $amount_of_withdraw = '';
-          $field_amount_of_withdraw = $p->get('field_amount_of_withdraw')->getValue();
-          if(!empty($field_amount_of_withdraw)){
-              $amount_of_withdraw = $field_amount_of_withdraw[0]['value'];
-          }
+      //     // จำนวนเงินที่ถอน
+      //     $amount_of_withdraw = '';
+      //     $field_amount_of_withdraw = $p->get('field_amount_of_withdraw')->getValue();
+      //     if(!empty($field_amount_of_withdraw)){
+      //         $amount_of_withdraw = $field_amount_of_withdraw[0]['value'];
+      //     }
 
-          // หมายเหตุ 
-          $annotation = '';
-          $field_annotation = $p->get('field_annotation')->getValue();
-          if(!empty($field_annotation)){
-              $annotation = $field_annotation[0]['value'];
-          }
+      //     // หมายเหตุ 
+      //     $annotation = '';
+      //     $field_annotation = $p->get('field_annotation')->getValue();
+      //     if(!empty($field_annotation)){
+      //         $annotation = $field_annotation[0]['value'];
+      //     }
 
-          // สถานะการฝากเงิน 
-          $withdraw_status = $p->get('field_withdraw_status')->target_id;
+      //     // สถานะการฝากเงิน 
+      //     $withdraw_status = $p->get('field_withdraw_status')->target_id;
 
-          $withdraw[$bv['target_id']] = array('user_id_bank'      =>$user_id_bank,
-                                              'amount_of_withdraw'=>$amount_of_withdraw,
-                                              'annotation'        =>$annotation,
-                                              'withdraw_status'   =>$withdraw_status,
-                                              );
-      }
-      $data['withdraw'] = $withdraw;
+      //     $withdraw[$bv['target_id']] = array('user_id_bank'      =>$user_id_bank,
+      //                                         'amount_of_withdraw'=>$amount_of_withdraw,
+      //                                         'annotation'        =>$annotation,
+      //                                         'withdraw_status'   =>$withdraw_status,
+      //                                         );
+      // }
+      $data['withdraw'] = Utils::get_user_withdraw($uid);;
 
       // รายการโพยหวย ( ส่วนของลูกค้า ) 
       $chits = array();
