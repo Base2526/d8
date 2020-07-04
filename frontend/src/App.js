@@ -24,7 +24,10 @@ import {  loadingOverlayActive,
           
           updateLotterys,
           updateShootNumbers,
-          updateDepositStatus
+          updateDepositStatus,
+
+
+          updateSocketIOStatus
         } from './actions/huay'
 
 import './App.css';
@@ -151,6 +154,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     updateDepositStatus: (data)=>{
       dispatch(updateDepositStatus(data))
+    },
+    updateSocketIOStatus: (data)=>{
+      dispatch(updateSocketIOStatus(data))
     },
 	}
 }

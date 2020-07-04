@@ -16,8 +16,17 @@ export function connect_socketIO(props){
         console.log('reconnected!');
       }else{
         socket.on('connect', () => {
-          console.log('Successfully connected!');
+          console.log('Socket io, connected!');
+
+          props.updateSocketIOStatus({status: true});
         });
+
+        socket.on('disconnect', function(){
+          console.log('Socket io, disconnect!');
+
+          props.updateSocketIOStatus({status: false});
+        });
+
         socket.on('chat_message', (messageNew) => {
           console.log(messageNew);
           // temp.push(messageNew)

@@ -45,3 +45,8 @@ export const updateDepositStatus = (data) => ({
     type: types.DEPOSIT_STATUS,
     data
 });
+
+export const updateSocketIOStatus = (data) => ({
+    type: types.UPDATE_SOCKET_IO_STATUS,
+    data
+});

@@ -13,14 +13,10 @@ const http  = require('http');
 const server= http.createServer(app);
 let io = require('socket.io')(server);
 
-
 const path = require("path");
 const multer = require("multer");
 const fs = require('fs');
 const FormData = require('form-data'); 
-
-// var cookie = require('cookie');
-// var mongoAdapter = require('socket.io-adapter-mongo');
 
 const Product         = require('./models/product')
 const People          = require('./models/people')
@@ -28,8 +24,6 @@ const ContactUs       = require('./models/contact_us')
 const HuayListBank    = require('./models/huay_list_bank')
 const TransferMethod  = require('./models/transfer_method')
 const ListBank        = require('./models/list_banck')
-// const Sessions        = require('./models/sessions')
-// const YeekeeRound     = require('./models/yeekee_round')
 const Lotterys        = require('./models/lotterys')
 const ShootNumbers    = require('./models/shoot_numbers')
 const UserSocketID    = require('./models/user_socket_id')
@@ -94,8 +88,6 @@ const storage = multer.diskStorage({
       to save the file on the server and will be available as
       req.file.pathname in the router handler.
     */
-    console.log(file)
-
     const newFilename = "IMAGE-" + Date.now() + `${path.extname(file.originalname)}`;
     cb(null, newFilename);
   },
@@ -103,10 +95,7 @@ const storage = multer.diskStorage({
 // create the multer instance that will be used to upload/save the file
 const upload = multer({ storage });
 
-
-
 /////////  multer /////////////
-
 app.use(sessionMiddleware)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -139,13 +128,13 @@ app.get('/api/hello', (req, res) => {
   res.send({ express: 'Hello From Express' });
 });
 
-
 /*
 // mongoStore.all(function(error, sessions){
     //   console.log(sessions);
     // })
     .get(sid, callback)
 */
+
 var sid = 0
 app.get('/s', async (req, res) => {
   console.log(sid);
@@ -459,53 +448,6 @@ app.post('/api/delete_bank', (req, res) => {
   
       res.send(json);
     });
-  }
-});
-
-/*
-  $uid                = trim( $content['uid'] );
-  $hauy_id_bank       = trim( $content['hauy_id_bank'] ); // ID ธนาคารของเว็บฯ
-  $user_id_bank       = trim( $content['user_id_bank'] ); // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
-  $amount_of_money    = trim( $content['amount_of_money'] ); // จำนวนเงินที่โอน
-  $transfer_method    = trim( $content['transfer_method'] ); // ช่องทางการโอนเงิน
-  $date_transfer      = trim( $content['date_transfer'] ); // วัน & เวลา ที่โอน
-  $annotation         = trim( $content['annotation'] ); // ID ธนาคารของเว็บฯ
-*/
-
-app.post('/api/add-deposit2', async(req, res) => {
-  if(config.d8.debug){
-    console.log(req.body);
-    console.log(config.d8.headers);
-  }
-
-  let is_session = await sessionMongoStore.get(req.session.id);
-  if (is_session !== undefined) { 
-
-    // const attached_file = req.files.attached_file;
-    console.log(req.files)
-
-    res.send({result:true});
-    /*
-    var data = {
-      "uid"             : req.body.uid,
-      "hauy_id_bank"    : req.body.hauy_id_bank,
-      "user_id_bank"    : req.body.user_id_bank,
-      "transfer_method" : req.body.transfer_method,
-      "amount"          : req.body.amount,
-      "date_transfer"   : req.body.date_transfer,
-      "note"            : req.body.note
-    }
-
-    fetch(config.d8.api_add_deposit, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-      .then((res) => {
-        return res.json()
-    })
-    .then((json) => {
-      res.send(json);
-    });
-    */
-  }else{
-    res.send({result:false, status: '-1'}); ;
   }
 });
 

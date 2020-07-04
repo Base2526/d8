@@ -15,6 +15,8 @@ import shoot_numbers    from './shoot_numbers'
 
 import deposit_status   from './deposit_status'
 
+import socket_io        from './socket_io'
+
 export default combineReducers({
   auth,
   todos,
@@ -31,4 +33,6 @@ export default combineReducers({
   shoot_numbers,
 
   deposit_status,
+
+  socket_io,
 })

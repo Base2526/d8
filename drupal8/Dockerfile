@@ -57,6 +57,7 @@ COPY modules sites/default/modules
 COPY themes sites/default/themes
 
 COPY core/modules/datetime core/modules/datetime
+# COPY core/modules/taxonomy core/modules/taxonomy
 # COPY vendor vendor
 
 RUN apt-get update -y && \
