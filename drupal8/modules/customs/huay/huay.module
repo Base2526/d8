@@ -196,11 +196,10 @@ function huay_entity_insert(\Drupal\Core\Entity\EntityInterface $entity) {
                     Utils::mongodb_list_bank($entity->id());
                 break;
                 }
-                // case 'yeekee_round':{
-                //     mongodb_yeekee_round($entity->id());
-                // break;
-                // }
-
+                case 'deposit_status':{
+                    Utils::mongodb_deposit_status();
+                break;
+                }
                 // หวยเด่น & หวยหุ้น
                 case 'lotterys':{
                     Utils::mongodb_lotterys($entity->id());
@@ -215,6 +214,16 @@ function huay_entity_insert(\Drupal\Core\Entity\EntityInterface $entity) {
             switch($entity->bundle()){
                 case 'shoot_number':{
                     Utils::mongodb_shoot_number($entity->id());
+                break;
+                }
+
+                // กรณีมีคนฝากเงินเข้ามา ระบบต้องมีการแจ้ง notification ไปยัง admin
+                case 'user_deposit':
+                case 'user_withdraw':{
+                    $node = Node::load($entity->id());
+                    if(!empty($node)){
+                        Utils::mongodb_people($node->getOwnerId());
+                    }
                 break;
                 }
             }
@@ -283,16 +292,32 @@ function huay_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
                     Utils::mongodb_list_bank($entity->id());
                 break;
                 }
-                // case 'yeekee_round':{
-                //     mongodb_yeekee_round($entity->id());
-                // break;
-                // }
+                case 'deposit_status':{
+                    Utils::mongodb_deposit_status();
+                break;
+                }
                 // หวยเด่น & หวยหุ้น
                 case 'lotterys':{
                     Utils::mongodb_lotterys($entity->id());
                 break;
                 }
             }
+        break;
+        }
+
+        case 'node':{
+            switch($entity->bundle()){
+                // กรณีมีคนฝากเงินเข้ามา ระบบต้องมีการแจ้ง notification ไปยัง admin
+                case 'user_deposit':
+                case 'user_withdraw':{
+                    $node = Node::load($entity->id());
+                    if(!empty($node)){
+                        Utils::mongodb_people($node->getOwnerId());
+                    }
+                break;
+                }
+            }
+        break;
         }
     }
 

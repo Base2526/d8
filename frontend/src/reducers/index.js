@@ -11,7 +11,11 @@ import contact_us       from './contact_us'
 import list_bank        from './list_bank'
 import yeekee_round     from './yeekee_round'
 import lotterys         from './lotterys'
-import shoot_numbers     from './shoot_numbers'
+import shoot_numbers    from './shoot_numbers'
+
+import deposit_status   from './deposit_status'
+
+import socket_io        from './socket_io'
 
 export default combineReducers({
   auth,
@@ -27,4 +31,8 @@ export default combineReducers({
   yeekee_round,
   lotterys,
   shoot_numbers,
+
+  deposit_status,
+
+  socket_io,
 })

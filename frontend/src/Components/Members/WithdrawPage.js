@@ -23,7 +23,7 @@ class WithdrawPage extends Component {
       validated:false,
       user_id_bank: '',
       amount_of_withdraw: '',
-      annotation: '',
+      note: '',
 
       is_active: false
     }
@@ -63,15 +63,16 @@ class WithdrawPage extends Component {
       this.setState({is_active: true});
       let { user_id_bank, 
             amount_of_withdraw, 
-            annotation} = this.state;  
+            note} = this.state;  
 
       let response  = await axios.post('/api/withdraw', 
                                       { uid: this.props.user.uid, 
                                         user_id_bank,         // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
                                         amount_of_withdraw,   // จำนวนเงินที่ถอน
-                                        annotation},          // หมายเหตุ
+                                        note},          // หมายเหตุ
                                       {headers:headers()});
       console.log(response);
+      this.setState({is_active: false});
       if( response.status==200 && response.statusText == "OK" ){
         if(response.data.result){
           this.nextPath('/');
@@ -89,8 +90,6 @@ class WithdrawPage extends Component {
       }else{
         showToast('error', 'Error');
       }
-
-      this.setState({is_active: false});
     }
   }
 
@@ -106,7 +105,7 @@ class WithdrawPage extends Component {
     let { validated, 
           user_id_bank,
           amount_of_withdraw,
-          annotation,
+          note,
 
           error, 
           error_message} = this.state;
@@ -173,12 +172,12 @@ class WithdrawPage extends Component {
                   </Form.Group>
                 </Row>    
                 <Row>
-                  <Form.Group controlId="annotation">
+                  <Form.Group controlId="note">
                     <Form.Label>หมายเหตุ</Form.Label>
                       <Form.Control 
                         as="textarea" 
                         rows="3" 
-                        value={annotation} 
+                        value={note} 
                         onChange={this.handleChange} />
                   </Form.Group>
                 </Row>

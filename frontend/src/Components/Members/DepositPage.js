@@ -19,15 +19,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { showToast } from '../Utils/Config';
 import { loadingOverlayActive } from '../../actions/huay'
 
-// var _ = require('lodash');
-
-var styles = {
-  simage: {
-      width: '200px',
-      height: '200px',
-  }
-}
-
 class DepositPage extends Component {
   constructor(props) {
     super(props);
@@ -40,9 +31,9 @@ class DepositPage extends Component {
 
       hauy_id_bank:'', 
       user_id_bank:'', 
-      amount_of_money: '', 
+      amount: '', 
       transfer_method: '', 
-      date_transfer: Date.parse((new Date()).toString()), 
+      date_transfer: '',//Date.parse((new Date()).toString()), 
       note:'',
 
 
@@ -73,7 +64,7 @@ class DepositPage extends Component {
       event.stopPropagation();
       this.setState({validated: true});
     }else{
-      // this.setState({is_active: true});
+      this.setState({is_active: true});
       let { hauy_id_bank, 
             user_id_bank, 
             transfer_method, 
@@ -104,23 +95,38 @@ class DepositPage extends Component {
       formData.append('date_transfer', date_transfer); 
       formData.append('note', note); 
 
-
       var headers = JSON.parse(Base64.decode(Base64.decode(localStorage.getItem('headers'))));
 
       var new_headers = { 'Content-Type': 'multipart/form-data' };
       new_headers.authorization = headers.authorization;
       new_headers.uid           = headers.uid;
 
-      console.log(headers);
-      console.log(new_headers);
-
       let response  = await axios.post('/api/add-deposit', 
                                       formData,
                                       {headers:new_headers});
+                     
+      this.setState({is_active: false}); 
+      if( response.status==200 && response.statusText == "OK" ){
+        if(response.data.result){
+          this.nextPath('/');
 
-      console.log(response);
+          showToast('success', 'ฝากเงินเรียบร้อย รอการอนุมัติ');
+        }else{
+          this.setState({
+            error: true,
+            error_message: response.data.message,
+            validated:true
+          });
 
-                                    // { 'content-type': 'multipart/form-data' }
+          showToast('error', response.data.message);
+        }
+      }else{
+        // ฝากเงิน
+        showToast('error', 'Error');
+      }
+      
+
+      // { 'content-type': 'multipart/form-data' }
       
       /*
       $uid                = trim( $content['uid'] );
@@ -146,7 +152,7 @@ class DepositPage extends Component {
         if(response.data.result){
           this.nextPath('/');
 
-          showToast('success', 'ฝากเงินเรียบร้อยรอการ อนุมัติ');
+          showToast('success', 'ฝากเงินเรียบร้อย รอการอนุมัติ');
         }else{
           this.setState({
             error: true,
@@ -206,7 +212,7 @@ class DepositPage extends Component {
     let { validated, 
           hauy_id_bank, 
           user_id_bank, 
-          amount_of_money, 
+          amount, 
           transfer_method, 
           date_transfer, 
           note} = this.state
@@ -330,13 +336,13 @@ class DepositPage extends Component {
                       </Form.Group>
                     </div>
                     <div>
-                      <Form.Group controlId="amount_of_money">
+                      <Form.Group controlId="amount">
                         <Form.Label>จำนวนเงินที่โอน</Form.Label>
                         <Form.Control 
                           type="number" 
                           placeholder="0.00" 
                           required 
-                          value={amount_of_money} onChange={this.handleChange} />
+                          value={amount} onChange={this.handleChange} />
                         <Form.Control.Feedback type="invalid">
                         จำนวนเงินที่โอน
                         </Form.Control.Feedback>
@@ -347,7 +353,7 @@ class DepositPage extends Component {
                       <Form.Group controlId="select_function">
                         <Form.Label>วัน-เวลาโอน</Form.Label>
                           <DatePicker
-                              selected={(new Date(date_transfer))}
+                              selected={ date_transfer == "" ? '' : (new Date(date_transfer))}
                               // onChange={date => setStartDate(date)}
                               onChange={this.handleDateTransferChange}
                               showTimeSelect
@@ -358,6 +364,7 @@ class DepositPage extends Component {
                               //   setHours(setMinutes(new Date(), 5), 12),
                               //   setHours(setMinutes(new Date(), 59), 23)
                               // ]}
+                              required
                               dateFormat="MMMM d, yyyy h:mm aa"
                             />
                         <Form.Control.Feedback type="invalid">

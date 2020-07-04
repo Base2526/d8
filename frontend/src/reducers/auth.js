@@ -10,7 +10,7 @@ const initialState = {
 const auth = (state = initialState, action) => {
   switch (action.type) {
     case types.AUTH_LOGIN:
-      console.log(action);
+      // console.log(action);
       return {
         ...state,
         user:action.user,
@@ -24,9 +24,7 @@ const auth = (state = initialState, action) => {
       };
     }
     case types.AUTH_LOGOUT:
-
       disconnect_socketIO();
-      
       return initialState;
     default:
       return state;

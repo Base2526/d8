@@ -13,8 +13,10 @@ const http  = require('http');
 const server= http.createServer(app);
 let io = require('socket.io')(server);
 
-// var cookie = require('cookie');
-// var mongoAdapter = require('socket.io-adapter-mongo');
+const path = require("path");
+const multer = require("multer");
+const fs = require('fs');
+const FormData = require('form-data'); 
 
 const Product         = require('./models/product')
 const People          = require('./models/people')
@@ -22,11 +24,10 @@ const ContactUs       = require('./models/contact_us')
 const HuayListBank    = require('./models/huay_list_bank')
 const TransferMethod  = require('./models/transfer_method')
 const ListBank        = require('./models/list_banck')
-// const Sessions        = require('./models/sessions')
-// const YeekeeRound     = require('./models/yeekee_round')
 const Lotterys        = require('./models/lotterys')
 const ShootNumbers    = require('./models/shoot_numbers')
 const UserSocketID    = require('./models/user_socket_id')
+const DepositStatus   = require('./models/deposit_status')
 
 const connectMongoose = require("./src/connection")
 const User            = require("./src/User.model")
@@ -56,6 +57,45 @@ var sessionMiddleware = session({
   cookie: {expires: new Date(253402300000000)} 
 })
 
+/////////  multer /////////////
+// const storage = multer.diskStorage({
+//   destination: "./public/uploads/",
+//   filename: function(req, file, cb){
+//      cb(null,"IMAGE-" + Date.now() + path.extname(file.originalname));
+//   }
+// });
+
+// const upload = multer({
+//   storage: storage,
+//   limits:{fileSize: 1000000},
+// }).single("myImage");
+
+// configure storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    /*
+      Files will be saved in the 'uploads' directory. Make
+      sure this directory already exists!
+    */
+    cb(null, './public/uploads/');
+  },
+  filename: (req, file, cb) => {
+    /*
+      uuidv4() will generate a random ID that we'll use for the
+      new filename. We use path.extname() to get
+      the extension from the original file name and add that to the new
+      generated ID. These combined will create the file name used
+      to save the file on the server and will be available as
+      req.file.pathname in the router handler.
+    */
+    const newFilename = "IMAGE-" + Date.now() + `${path.extname(file.originalname)}`;
+    cb(null, newFilename);
+  },
+});
+// create the multer instance that will be used to upload/save the file
+const upload = multer({ storage });
+
+/////////  multer /////////////
 app.use(sessionMiddleware)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -88,13 +128,13 @@ app.get('/api/hello', (req, res) => {
   res.send({ express: 'Hello From Express' });
 });
 
-
 /*
 // mongoStore.all(function(error, sessions){
     //   console.log(sessions);
     // })
     .get(sid, callback)
 */
+
 var sid = 0
 app.get('/s', async (req, res) => {
   console.log(sid);
@@ -221,6 +261,7 @@ app.post('/api/login', async(req, res) => {
       const transfer_method = await TransferMethod.find({});
       const contact_us      = (await ContactUs.find({}))[0];
       const list_bank       = await ListBank.find({});
+      const deposit_status       = await DepositStatus.find({});
 
       var _people = await People.findOne({ uid: response.data.uid });
 
@@ -235,7 +276,8 @@ app.post('/api/login', async(req, res) => {
           huay_list_bank,
           transfer_method,
           contact_us,
-          list_bank
+          list_bank,
+          deposit_status
         })
       }else{
         res.send({'result': false});
@@ -409,53 +451,6 @@ app.post('/api/delete_bank', (req, res) => {
   }
 });
 
-/*
-  $uid                = trim( $content['uid'] );
-  $hauy_id_bank       = trim( $content['hauy_id_bank'] ); // ID ธนาคารของเว็บฯ
-  $user_id_bank       = trim( $content['user_id_bank'] ); // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
-  $amount_of_money    = trim( $content['amount_of_money'] ); // จำนวนเงินที่โอน
-  $transfer_method    = trim( $content['transfer_method'] ); // ช่องทางการโอนเงิน
-  $date_transfer      = trim( $content['date_transfer'] ); // วัน & เวลา ที่โอน
-  $annotation         = trim( $content['annotation'] ); // ID ธนาคารของเว็บฯ
-*/
-
-app.post('/api/add-deposit', async(req, res) => {
-  if(config.d8.debug){
-    console.log(req.body);
-    console.log(config.d8.headers);
-  }
-
-  let is_session = await sessionMongoStore.get(req.session.id);
-  if (is_session !== undefined) { 
-
-    // const attached_file = req.files.attached_file;
-    console.log(req.files)
-
-    res.send({result:true});
-    /*
-    var data = {
-      "uid"             : req.body.uid,
-      "hauy_id_bank"    : req.body.hauy_id_bank,
-      "user_id_bank"    : req.body.user_id_bank,
-      "transfer_method" : req.body.transfer_method,
-      "amount"          : req.body.amount,
-      "date_transfer"   : req.body.date_transfer,
-      "note"            : req.body.note
-    }
-
-    fetch(config.d8.api_add_deposit, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-      .then((res) => {
-        return res.json()
-    })
-    .then((json) => {
-      res.send(json);
-    });
-    */
-  }else{
-    res.send({result:false, status: '-1'}); ;
-  }
-});
-
 app.post('/api/withdraw', async(req, res) => {
   let is_session = await sessionMongoStore.get(req.session.id);
   if (is_session !== undefined) {  
@@ -463,7 +458,7 @@ app.post('/api/withdraw', async(req, res) => {
       "uid"               : req.body.uid,
       "user_id_bank"      : req.body.user_id_bank,
       "amount_of_withdraw": req.body.amount_of_withdraw,
-      "annotation"        : req.body.annotation
+      "note"              : req.body.note
     }
   
     fetch(config.d8.api_withdraw, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
@@ -571,6 +566,79 @@ app.post("/api/contact-us", async (req, res) => {
   }
   res.send({result: true, data: ct[0]});
 });
+
+
+/////////  multer /////////////
+app.post('/api/add-deposit', upload.single('attached_file'), async (req, res) => {
+  /*
+    We now have a new req.file object here. At this point the file has been saved
+    and the req.file.filename value will be the name returned by the
+    filename() function defined in the diskStorage configuration. Other form fields
+    are available here in req.body.
+  */
+
+  let is_session = await sessionMongoStore.get(req.session.id);
+  if (is_session !== undefined) {  
+    var formData = new FormData();
+    if(req.file !== undefined){
+      formData.append('attached_file', fs.createReadStream(req.file.path));
+    }
+    formData.append('uid', req.body.uid);
+    formData.append('hauy_id_bank', req.body.hauy_id_bank);
+    formData.append('user_id_bank', req.body.user_id_bank);
+    formData.append('transfer_method', req.body.transfer_method);
+    formData.append('amount', req.body.amount);
+    formData.append('date_transfer', req.body.date_transfer);
+    formData.append('note', req.body.note);
+  
+    fetch(config.d8.api_add_deposit, {
+      method: 'POST',
+      headers: formData.getHeaders(),
+      body: formData
+    }).then((res) => {
+      return res.json()
+    })
+    .then((json) => {
+
+      // ลบไฟล์เพราะจะเก็บไว้ที่ drupal เพราะมีระบบจัดไฟล์ทั้งหมด
+      if(req.file !== undefined){
+        fs.unlink(req.file.path, (err) => {
+          if (err) {
+            console.error(err)
+            return
+          }
+          //file removed
+        })
+      }
+
+      res.send(json);
+    });
+  }else{
+    res.send({result:false, status: '-1'}); ;
+  }
+});
+/////////  multer /////////////
+
+///////// ดึงรายการ ฝาก/ถอน //////////
+// app.post('/api/request_all', async(req, res) => {
+//   let is_session = await sessionMongoStore.get(req.session.id);
+//   if (is_session !== undefined) {  
+//     var data = {
+//       "uid"       : req.body.uid,
+//     }
+//     console.log(config.d8.headers);
+//     fetch(config.d8.api_request_all, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+//       .then((res) => {
+//         return res.json()
+//     })
+//     .then((json) => {
+//       res.send(json);
+//     });
+//   }else{
+//     res.send({result:false, status: '-1'}); ;
+//   }
+// });
+///////// ดึงรายการ ฝาก/ถอน //////////
 
 // var request = require('request');
 // io.adapter(mongoAdapter( config.mongo.url ));
@@ -1289,9 +1357,49 @@ server.listen(PORT, function (err) {
       }
     });
 
-    sessionMongoStore.all(function(error, sessions){
-      console.log(sessions);
-    })
+    DepositStatus.watch().on('change', async data =>{
+      switch(data.operationType){
+        case 'insert':{
+          console.log('DepositStatus > insert');
+          break;
+        }
+        case 'delete':{
+          console.log('DepositStatus > delete');
+          break;
+        }
+        case 'replace':{
+          console.log('DepositStatus > replace');
+          break;
+        }
+        case 'update':{
+          console.log('DepositStatus > update');
+          if(socket_local.connected){
+            socket_local.emit("deposit_status", JSON.stringify(await DepositStatus.find({})));
+          }
+          break;
+        }
+        case 'drop':{
+          console.log('DepositStatus > drop');
+          break;
+        }
+        case 'rename':{
+          console.log('DepositStatus > rename');
+          break;
+        }
+        case 'dropDatabase':{
+          console.log('DepositStatus > dropDatabase');
+          break;
+        }
+        case 'invalidate':{
+          console.log('DepositStatus > dropDatabase');
+          break;
+        }
+      }
+    });
+
+    // sessionMongoStore.all(function(error, sessions){
+    //   console.log(sessions);
+    // })
   });
 
 })

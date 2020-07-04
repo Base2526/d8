@@ -16,8 +16,17 @@ export function connect_socketIO(props){
         console.log('reconnected!');
       }else{
         socket.on('connect', () => {
-          console.log('Successfully connected!');
+          console.log('Socket io, connected!');
+
+          props.updateSocketIOStatus({status: true});
         });
+
+        socket.on('disconnect', function(){
+          console.log('Socket io, disconnect!');
+
+          props.updateSocketIOStatus({status: false});
+        });
+
         socket.on('chat_message', (messageNew) => {
           console.log(messageNew);
           // temp.push(messageNew)
@@ -73,6 +82,12 @@ export function connect_socketIO(props){
         socket.on('shoot_numbers', (data) => {
           console.log(JSON.parse(data));
           props.updateShootNumbers(JSON.parse(data));
+        })
+
+        // deposit_status
+        socket.on('deposit_status', (data) => {
+          console.log(JSON.parse(data));
+          props.updateDepositStatus(JSON.parse(data));
         })
 
         socket.on('force_logout', (data) => {

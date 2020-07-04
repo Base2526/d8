@@ -55,7 +55,7 @@ class API extends ControllerBase {
   public function login(Request $request){
     $time1 = microtime(true);
 
-    if ( Utils::verify($request) ) {
+    if ( Utils::verify($request, FALSE) ) {
       $content = json_decode( $request->getContent(), TRUE );
 
       $name = trim( $content['name'] );
@@ -373,7 +373,7 @@ class API extends ControllerBase {
       $response['result']           = TRUE;
       $response['execution_time']   = microtime(true) - $time1;
 
-      $response['data']             = Utils::getTaxonomy_term('list_bank');
+      $response['data']             = Utils::get_taxonomy_term('list_bank');
       return new JsonResponse( $response );
     }
 
@@ -523,9 +523,27 @@ class API extends ControllerBase {
   // ฝากเงิน 
   public function add_deposit(Request $request){
     $time1 = microtime(true);
-    if ( Utils::verify($request) ) {
-      $content = json_decode( $request->getContent(), TRUE );
+    
+    // \Drupal::logger('add_deposit >')->error(empty($_FILES) ? 'YES' : "NO");
+    // \Drupal::logger('add_deposit')->error($_FILES['attached_file']['name']);
+    // \Drupal::logger('add_deposit >')->error(serialize($_REQUEST));
 
+    // 
+    // \Drupal::logger('client_secret')->error($request->headers->get('client_secret'));
+
+    // $target = 'sites/default/files/'. $_FILES['attached_file']['name'];
+    // move_uploaded_file( $_FILES['attached_file']['tmp_name'], $target);
+
+    // $file_temp = file_get_contents( $target );
+    // $file = file_save_data($file_temp, 'public://'. date('m-d-Y_hia') .'.png' , FILE_EXISTS_RENAME);
+
+    // $p->set('field_image', array('target_id'=>$file->id()));
+
+    // \Drupal::logger('add_deposit >>')->error(serialize(json_decode( $request->getContent(), TRUE )));
+    if ( Utils::verify($request, FALSE) ) {
+      // $content = json_decode( $request->getContent(), TRUE );
+
+      // \Drupal::logger('add_deposit')->error( $_POST['uid'] );
       /*
       $uid                = trim( $content['uid'] );
       $hauy_id_bank       = trim( $content['hauy_id_bank'] ); // ID ธนาคารของเว็บฯ
@@ -569,16 +587,17 @@ class API extends ControllerBase {
       $user->save();
       */
 
-      /*
-      $uid                = trim( $content['uid'] );
-      $hauy_id_bank       = trim( $content['hauy_id_bank'] );     // ID ธนาคารของเว็บฯ
-      $user_id_bank       = trim( $content['user_id_bank'] );     // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
-      $transfer_method    = trim( $content['transfer_method'] );  // ช่องทางการโอนเงิน
-      $amount             = trim( $content['amount'] );           // จำนวนเงินที่โอน
+      $uid                = trim( $_POST['uid'] );
+      $hauy_id_bank       = trim( $_POST['hauy_id_bank'] );     // ID ธนาคารของเว็บฯ
+      $user_id_bank       = trim( $_POST['user_id_bank'] );     // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
+      $transfer_method    = trim( $_POST['transfer_method'] );  // ช่องทางการโอนเงิน
+      $amount             = trim( $_POST['amount'] );           // จำนวนเงินที่โอน
 
-      $date_transfer      = trim( $content['date_transfer'] );    // วัน-เวลาโอน
-      $attached_file      = '';  // ไฟล์แนบ field_attached_file
-      $note               = trim( $content['note'] );             // หมายเหตุ
+      $date_transfer      = trim( $_POST['date_transfer'] );    // วัน-เวลาโอน
+
+      
+      // $attached_file      = '';  // ไฟล์แนบ field_attached_file
+      $note               = trim( $_POST['note'] );             // หมายเหตุ
 
       if( empty($uid) || 
           empty($hauy_id_bank) || 
@@ -588,6 +607,16 @@ class API extends ControllerBase {
         $response['result']   = FALSE;
         return new JsonResponse( $response );
       }
+
+      $attached_file = array();
+      if(!empty($_FILES)){
+        $target = 'sites/default/files/'. $_FILES['attached_file']['name'];
+        move_uploaded_file( $_FILES['attached_file']['tmp_name'], $target);
+
+        $attached_file = file_save_data( file_get_contents( $target ), 'public://'. date('m-d-Y_hia') .'.png' , FILE_EXISTS_RENAME);
+      }
+
+      // $node->set('field_datetime', date('Y-m-d\TH:i:s', time()));
 
       $user = User::load($uid);
       $node = Node::create([
@@ -600,11 +629,12 @@ class API extends ControllerBase {
         'field_list_bank'        => $user_id_bank,        // ธนาคารที่ทำการโอนเงินเข้ามา
         'field_transfer_method'  => $transfer_method,     // ช่องทางการโอนเงิน
         'field_amount'           => $amount,              // จำนวนเงินที่โอน
+        'field_attached_file'    => empty($attached_file) ? array() : array('target_id'=>$attached_file->id()),
+        'field_date_transfer'    => date('Y-m-d\TH:i:s', $date_transfer/1000),       // วัน-เวลาโอน
         'body'                   => $note,                // หมายเหตุ
       ]);
       $node->save();
-      */
-
+      
       $response['result']           = TRUE;
       $response['execution_time']   = microtime(true) - $time1;
       return new JsonResponse( $response );
@@ -622,7 +652,7 @@ class API extends ControllerBase {
       $uid                = trim( $content['uid'] );
       $user_id_bank       = trim( $content['user_id_bank'] );       // ID บัญชีธนาคารของลูกค้าที่จะให้โอนเงินเข้า
       $amount_of_withdraw = trim( $content['amount_of_withdraw'] ); // จำนวนเงินที่โอน
-      $annotation         = trim( $content['annotation'] );         // ID ธนาคารของเว็บฯ
+      $note         = trim( $content['note'] );         // ID ธนาคารของเว็บฯ
 
       if( empty($uid) ||  
           empty($user_id_bank) || 
@@ -631,6 +661,7 @@ class API extends ControllerBase {
         return new JsonResponse( $response );
       }
 
+      /*
       $user_withdraw = Paragraph::create([
         'type'                    => 'user_withdraw',
         'field_user_id_bank'      => $user_id_bank,
@@ -650,6 +681,20 @@ class API extends ControllerBase {
       
       $user->set('field_withdraw', $paragraphs);
       $user->save();
+      */
+
+      $user = User::load($uid);
+      $node = Node::create([
+        'type'                   => 'user_withdraw',
+        'uid'                    => $uid,
+        'status'                 => 1,
+        'title'                  => "ถอนเงิน : " . $user->getUsername(),
+
+        'field_amount_of_withdraw'  => $amount_of_withdraw,   // จำนวนเงินที่ถอน
+        'field_user_id_bank'        => $user_id_bank,         // บัญชีธนาคารของท่าน  
+        'body'                      => $note,                 // หมายเหตุ
+      ]);
+      $node->save();
 
       $response['result']           = TRUE;
       $response['execution_time']   = microtime(true) - $time1;
@@ -1142,6 +1187,30 @@ class API extends ControllerBase {
     }
 
     $response['result']   = FALSE;
+    return new JsonResponse( $response );
+  }
+
+  public function request_all(Request $request){
+
+    $time1 = microtime(true);
+    if ( Utils::verify($request) ) {
+      $content = json_decode( $request->getContent(), TRUE );
+      $uid                = trim( $content['uid'] );
+      
+      $user = User::load($uid);
+      if( empty($uid) ||  
+          empty($user) ){
+        $response['result']   = FALSE;
+        return new JsonResponse( $response );
+      }
+
+      $response['result']           = TRUE;
+      $response['execution_time']   = microtime(true) - $time1;
+      $response['datas']            = Utils::get_user_deposit($uid);
+      return new JsonResponse( $response );
+    }
+
+    $response['result']     = FALSE;
     return new JsonResponse( $response );
   }
 

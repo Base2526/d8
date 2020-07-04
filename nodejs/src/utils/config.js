@@ -41,6 +41,8 @@ config.d8.api_bet                   = config.d8.host + '/api/bet.json';
 config.d8.api_bet_cancel            = config.d8.host + '/api/bet_cancel.json';
 config.d8.api_shoot_number          = config.d8.host + '/api/shoot_number.json';
 
+config.d8.api_request_all           = config.d8.host + '/api/request_all.json';
+
 config.d8.headers = {
                         "Content-Type": "application/json",
                         // "client_id": "1001125",

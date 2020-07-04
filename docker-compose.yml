@@ -170,8 +170,8 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_SERVER: localmongo1  # กรณีเรา set replset เราต้องกำหนด  ME_CONFIG_MONGODB_SERVER ด้วย
 
-  # wmcached:
-  #   image: wodby/memcached:1.4-2.0.0
+  wmcached:
+    image: wodby/memcached:1.4-2.0.0
 
   # redis:
   #   image: redis

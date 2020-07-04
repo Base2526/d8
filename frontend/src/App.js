@@ -23,7 +23,11 @@ import {  loadingOverlayActive,
           // updateYeekeeRound,
           
           updateLotterys,
-          updateShootNumbers
+          updateShootNumbers,
+          updateDepositStatus,
+
+
+          updateSocketIOStatus
         } from './actions/huay'
 
 import './App.css';
@@ -147,6 +151,12 @@ const mapDispatchToProps = (dispatch) => {
     },
     updateShootNumbers: (data)=>{
       dispatch(updateShootNumbers(data))
+    },
+    updateDepositStatus: (data)=>{
+      dispatch(updateDepositStatus(data))
+    },
+    updateSocketIOStatus: (data)=>{
+      dispatch(updateSocketIOStatus(data))
     },
 	}
 }
