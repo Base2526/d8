@@ -9,11 +9,12 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Form from 'react-bootstrap/Form'
 import ReactList from 'react-list';
 import InfiniteScroll from "react-infinite-scroll-component";
-// import InfiniteScroll from 'react-infinite-scroller';
 import Modal from 'react-bootstrap/Modal'
 import axios from 'axios';
 import _ from 'lodash';
 import { Accordion, AccordionItem } from 'react-sanfona';
+
+import io from 'socket.io-client';
 
 import NumericInput from 'react-numeric-input';
 import OtpInput from '../Utils/OtpInput';
@@ -25,18 +26,16 @@ import {headers,
         getTime,
         getTimeWithDate} from '../Utils/Config';
 import { loadingOverlayActive } from '../../actions/huay'
-
 import '../../index.css';
 
-const style = {
-  height: 30,
-  border: "1px solid green",
-  margin: 6,
-  padding: 8
-};
+import {socketIO} from '../../socket.io'
 
 var interval = undefined;
 var btn_interval = undefined;
+
+
+let socket;
+
 class ChitPage extends Component {
   constructor(props) {
     super(props);
@@ -149,17 +148,19 @@ class ChitPage extends Component {
   }
 
   componentDidMount() {
-    let {match, round} = this.props; 
+    let {round} = this.props; 
 
-    console.log(round);
+    let {tid, type} = this.props.location.state
 
-    switch(match.params.type){
+    console.log(round)
+
+    switch(type){
       case 'yeekee':{
-        this.setState({time: getTime(round), date_time: new Date().getTime()});
-        interval = setInterval(() => {
-          let {round} = this.props; 
-          this.setState({time: getTime(round)});
-        }, 1000);
+        // this.setState({time: getTime(round), date_time: new Date().getTime()});
+        // interval = setInterval(() => {
+        //   let {round} = this.props; 
+        //   this.setState({time: getTime(round)});
+        // }, 1000);
         break;
       }
       default:{
@@ -171,41 +172,40 @@ class ChitPage extends Component {
       }
     }
 
-
-//    // Convert timestamp to milliseconds
-//  var date = new Date(1589569200*1000);
-
-//  // Year
-//  var year = date.getFullYear();
-//   // Month
-//   // var month = months_arr[date.getMonth()];
-
-//   // Day
-//   var day = date.getDate();
- 
-//  console.log(year, day);
-    /*
-    console.log(match)
-    let round = yeekee_round.find((val) => { return val.tid == match.params.id});
-    this.setState({time: getTime(round)});
-
-    interval = setInterval(() => {
-      console.log('Interval triggered');
-      
-
-      let {match, yeekee_round} = this.props; 
-
-      let round = yeekee_round.find((val) => { return val.tid == match.params.id});
-      // console.log(find.end_time)
-      // console.log(this.getTime(round));
-      this.setState({time: getTime(round)});
-    }, 1000);
-    */
+    this.socketIOAddEventListener();
   }
 
   componentWillUnmount(){
     if(interval){
       clearInterval(interval);
+    }
+
+    this.socketIORemoveEventListener();
+  }
+
+  subscribeFn(data){
+    console.log('Socket io, connected! ChitPage-8000 #1 009');
+    // console.log(data)
+
+    console.log(JSON.parse(data));
+  }
+
+  socketIOAddEventListener(){
+    let {user, round} = this.props; 
+    socket =  socketIO(user);
+    if (socket !== undefined) {
+      console.log('shoot_numbers_' + round.tid)
+      socket.on('shoot_numbers_' + round.tid, this.subscribeFn);
+    }
+  }
+
+  socketIORemoveEventListener(){
+    if (socket !== undefined) {
+
+      let {round} = this.props; 
+
+      console.log('----#2');
+      socket.removeListener('shoot_numbers_' + round.tid, this.subscribeFn);
     }
   }
 
@@ -316,10 +316,18 @@ class ChitPage extends Component {
     })
   } 
 
+  /*
+  
+  let {user, location} = this.props
+        
+        let response  = await axios.post('/api/shoot_number', 
+                                        { uid: user.uid,
+                                          data: shoot_number,
+                                          round_tid: location.state.tid,*/
   handleBetClick = async()=>{
     this.setState({confirm_show: false, is_active:true})
 
-    let {match, round} = this.props; 
+    let {location, round} = this.props; 
     let {data, date_time} = this.state;
 
     data =  data.filter(function(val) { return !isEmpty(val.items)})
@@ -332,7 +340,7 @@ class ChitPage extends Component {
 
     // let round = {};
     let buff;
-    switch(match.params.type){
+    switch(location.state.type){
       case 'yeekee':{
         // let child = childs.find((val) => { return val.tid == 67 });
         // round = child.rounds.find((val) => { return val.tid == params.id });
@@ -402,40 +410,10 @@ class ChitPage extends Component {
     }
   }
 
-  /*
-  
-  let header_row;
-    let {history, match, user, round} = this.props; 
-    switch(match.params.type){
-      case 'yeekee':{
-        header_row = <Row>
-                <Col style={{border: '1px solid #61dafb'}} md={12} xs={12}>
-                  <div>
-                    หวยยี่กี รอบที่ {this.getYeekeeRound()}
-                  </div>
-                  <div>
-                    เวลาเหลือ {time}
-                  </div>
-                </Col>
-              </Row>
-        break;
-      }
-      default:{
-        header_row = <Row>
-                <Col style={{border: '1px solid #61dafb'}} md={12} xs={12}>
-                  <div>
-                    {round.name}
-                  </div>
-                  <div>
-                    เวลาเหลือ {time}
-                  </div>
-                </Col>
-              </Row>
-      }
-    }
-  */
-
   handleShootNumberClick(){
+
+    // console.log(socket.hasListeners('shoot_numbers_8000'));
+
     let count  = 10;
     btn_interval = setInterval(async() => {
       this.setState({shoot_number_text: count--});
@@ -445,20 +423,22 @@ class ChitPage extends Component {
 
         btn_interval = undefined;
 
-        let {match, user} = this.props
         let {shoot_number, date_time} = this.state
+        let {user, location} = this.props
+        
         let response  = await axios.post('/api/shoot_number', 
                                         { uid: user.uid,
                                           data: shoot_number,
-                                          round_tid: match.params.id,
+                                          round_tid: location.state.tid,
                                           time: date_time
                                         }, 
                                         {headers:headers()});
 
+          
         console.log(response);
         // if( response.status==200 && response.statusText == "OK" ){
         //   if(response.data.result){
-              this.setState({shoot_number: ''})
+              this.setState({shoot_number: '', shoot_number_show:false})
         //     showToast('success', 'เพิ่มเลข เรียบร้อย');
         //   }else{
         //     showToast('error', response.data.message);
@@ -467,7 +447,6 @@ class ChitPage extends Component {
         //   showToast('error', 'Error');
         // }
 
-        
       }
     }, 1000);
   }
@@ -521,8 +500,6 @@ class ChitPage extends Component {
   handlerEqualChange(newVal, valStr, event){
     console.log(newVal, valStr, event)
     this.setEqualPrice(newVal)
-
-    // 
   }
 
   setEqualPrice(quantity){
@@ -782,7 +759,7 @@ class ChitPage extends Component {
     let { data } = this.state;
 
     data =  data.filter(function(val) { return !isEmpty(val.items)})
-    console.log(data)
+    // console.log(data)
     return(
       <Accordion allowMultiple>
         {
@@ -885,7 +862,7 @@ class ChitPage extends Component {
     let header_row;
     switch(match.params.type){
       case 'yeekee':{
-        header_row = <p> หวยยี่กี รอบที่ {this.getYeekeeRound()}</p>
+        header_row = <p> หวยยี่กี รอบที่ { round.name }</p>
         break;
       }
       default:{
@@ -1008,14 +985,7 @@ class ChitPage extends Component {
 
   showshootNumberShowModal(){
     let {numbers} = this.props
-    console.log(numbers)
 
-
-    // const sorted = _.sortBy(shoot_number.numbers,['nid'], ['asc']);
-    // console.log(shoot_number.numbers, sorted)
-
-    // let lotterys = state.lotterys.data.sort(function(obj1, obj2) {return obj1.weight - obj2.weight;});
-    
     let modal_body = <div/>
     if(!isEmpty(numbers)){
       modal_body =  <Modal.Body>
@@ -1048,7 +1018,7 @@ class ChitPage extends Component {
                           // Display date time in MM-dd-yyyy h:m:s format
                           var convdataTime = day +'-'+month+'-'+year+' '+hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
 
-                          return<div style={style} key={index}>
+                          return<div /*style={style}*/ key={index} className={'sq-order'}>
                                   ลำดับที่ {index} หมายเลข {i.number}
                                   ผู้ส่งเลข {i.name}
                                   เมื่อ {convdataTime}
@@ -1074,34 +1044,28 @@ class ChitPage extends Component {
             </Modal>
   }
 
-  getYeekeeRound(){
-    let {match, yeekee_round} = this.props; 
-
-    let find = yeekee_round.find((val) => { return val.tid == match.params.id});
-    if(find){
-      return find.name;
-    }else{
-      return '';
-    }
-  }
-
-  gotoPageReward(){
-    let {history, match} = this.props; 
-    let {time} = this.state;
-    console.log(history);
-    if(time == -1){
-      history.push('/lottery-list/reward/'+ match.params.type +'/' + match.params.id)
-    }
+  /*
+  กรณี user open page แล้ว timeout ต้อง redirect หน้า
+  */
+  gotoPageExit(){
+    // let {history, match} = this.props; 
+    // let {time} = this.state;
+    // console.log(history);
+    // if(time == -1){
+    //   history.push('/lottery-list/reward/'+ match.params.type +'/' + match.params.id)
+    // }
 
     // เราต้องคิดกรณีที่ user เปิดหน้าค้างข้างวันกรณีเรายังไม่ได้ นําเอามาคิด
   }
 
   render() {
+    let {location, round} = this.props; 
+    let {error, error_message, total, otp, m, time, date_time} = this.state;
 
-    let {history, match, user, round} = this.props; 
-    let {error, error_message, total, equal_price, otp, m, time} = this.state;
+    console.log(date_time)
+    console.log(getCurrentDate());
 
-    // this.gotoPageReward();
+    this.gotoPageExit();
     this.loadingOverlayActive();
 
     let btnC = <Button variant="outline-primary" onClick={() =>this.handleNumPad("C")} disabled>C</Button>;
@@ -1113,12 +1077,12 @@ class ChitPage extends Component {
     
     let header_row;
     let view_shoot_number_show = <div />;
-    switch(match.params.type){
+    switch(location.state.type){
       case 'yeekee':{
         header_row = <Row>
                 <Col style={{border: '1px solid #61dafb'}} md={12} xs={12}>
                   <div>
-                    หวยยี่กี รอบที่ {this.getYeekeeRound()}
+                    หวยยี่กี รอบที่ {round.name}
                   </div>
                   <div>
                     เวลาเหลือ {time}
@@ -1245,9 +1209,6 @@ class ChitPage extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log(state)
-  console.log(ownProps)
-  console.log(state.yeekee_round.data)
 	if(!state._persist.rehydrated){
 		return {};
   }
@@ -1278,25 +1239,14 @@ const mapStateToProps = (state, ownProps) => {
       // หุ้นจีน         : stock-china     : 84
     */
 
-    // params: {type: "yeekee", id: "63"}
-    let {params} = ownProps.match
-    // console.log(params);
-
-    console.log(state.lotterys.data)
     let lotterys = state.lotterys.data.sort(function(obj1, obj2) {return obj1.weight - obj2.weight;});
-
-    // let childs = [];
-    // lotterys.map((v, k) =>{ childs = [...childs, ...v.childs] })
+    let {tid, type} = ownProps.location.state
 
     let round = {};
-    switch(params.type){
+    switch(type){
       case 'yeekee':{
-        // let child = childs.find((val) => { return val.tid == 67 });
-        // round = child.rounds.find((val) => { return val.tid == params.id });
-        
         let yeekees = state.lotterys.data.find((val) => { return val.tid == 67 });
-        console.log(yeekees);
-        round = yeekees.rounds.find((val) => { return val.tid == params.id });
+        round = yeekees.rounds.find((val) => { return val.tid == tid });
         break;
       }
       case 'thai-government':
@@ -1319,24 +1269,14 @@ const mapStateToProps = (state, ownProps) => {
       case 'stock-taiwan':
       case 'stock-korea':
       case 'stock-china':{
-        // round = childs.find((val) => { return val.tid == params.id });
-
-        round = state.lotterys.data.find((val) => { return val.tid == params.id });
+        round = state.lotterys.data.find((val) => { return val.tid == tid });
         break;
       }
     }
 
-    
-    let numbers = state.shoot_numbers.data.find((val) => { return val.round_id == params.id });
-    // let yeekees = state.lotterys.data.find((val) => { return val.tid == 67 });
-    // console.log(shoot_number)
-    // console.log(params)
+    let numbers = state.shoot_numbers.data.find((val) => { return val.round_id == tid });
 
-    // 
-
-    // console.log(state.shoot_numbers[0].numbers, numbers);
-    // console.log(state.shoot_numbers);
-
+    // console.log(round);
     if(!isEmpty(numbers)){
       numbers = numbers.numbers.sort(function(obj1, obj2) {return obj2.nid - obj1.nid;});
     }
@@ -1346,7 +1286,8 @@ const mapStateToProps = (state, ownProps) => {
               lotterys,
               yeekee_round: state.yeekee_round.data,
               round,
-              numbers};
+              numbers,
+              is_connect: state.socket_io.is_connect};
   }else{
     return { logged_in: false };
   }

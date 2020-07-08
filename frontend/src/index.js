@@ -23,7 +23,7 @@ import { Provider } from 'react-redux'
 import rootReducer from './reducers'
 
 // Logger with default options
-import logger from 'redux-logger'
+import {createLogger} from 'redux-logger'
 
 import './index.css';
 import App from './App';
@@ -46,6 +46,12 @@ const persistConfig = {
 
 const pReducer = persistReducer(persistConfig, rootReducer);
 // persist
+
+// https://github.com/LogRocket/redux-logger/issues/6
+const logger = createLogger({
+    predicate: () => process.env.NODE_ENV !== 'development'
+    // predicate: () => process.env.NODE_ENV !== 'production'
+});
 
 const store = createStore(pReducer, applyMiddleware(logger));
 const persistor = persistStore(store);

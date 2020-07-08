@@ -897,6 +897,7 @@ class Utils extends ControllerBase {
       $data = array();
       $data['tid']    = $tag_term->tid;
       $data['name']   = $tag_term->name;
+      $data['weight'] = $tag_term->weight;
 
       $filter = array('tid'=>$tag_term->tid);
       if($collection->count($filter)){
@@ -933,11 +934,11 @@ class Utils extends ControllerBase {
         // }
 
         $data = array();
-        $end_time = 0;
-        $field_end_time = $child_term->get('field_end_time')->getValue();
-        if(!empty($field_end_time)){
-          $end_time = $field_end_time[0]['value'];
-        }
+        // $end_time = 0;
+        // $field_end_time = $child_term->get('field_end_time')->getValue();
+        // if(!empty($field_end_time)){
+        //   $end_time = $field_end_time[0]['value'];
+        // }
 
         // field_open
         $is_open = FALSE;
@@ -966,7 +967,7 @@ class Utils extends ControllerBase {
 
         $data['tid']       = $tag_term->tid;
         $data['name']      = $tag_term->name;;
-        $data['end_time']  = $end_time;
+        // $data['end_time']  = $end_time;
         $data['is_open']   = $is_open;
         $data['is_display']= $is_display;
         $data['image_url'] = $image_url;
@@ -975,12 +976,13 @@ class Utils extends ControllerBase {
 
         // หวยรัฐบาลไทย
         if($tag_term->tid == 66){
-            $date = '';
-            $field_date = $child_term->get('field_date')->getValue();
-            if(!empty($field_date)){
-                $date = $field_date[0]['value'];
-                $data['date']= $date;
-            }
+          // $date = '';
+          $data['date'] = '';
+          $field_date = $child_term->get('field_date')->date;
+          if(!empty($field_date)){
+            // $date = $field_date[0]['value'];
+            $data['date']= $field_date->getTimestamp() * 1000;
+          }
         }
 
         // จับยี่กี VIP
@@ -995,10 +997,19 @@ class Utils extends ControllerBase {
                 $round['name']   = $yeekee_round_tag_term->name;
                 $round['weight'] = $yeekee_round_tag_term->weight;
 
-                $load = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($yeekee_round_tag_term->tid);
-                $field_end_time = $load->get('field_end_time')->getValue();
-                if(!empty($field_end_time)){
-                    $round['end_time'] = $field_end_time[0]['value'];
+                $yeekee_round_tag = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($yeekee_round_tag_term->tid);
+                // $field_end_time = $yeekee_round_tag->get('field_end_time')->getValue();
+                // if(!empty($field_end_time)){
+                //   $round['end_time'] = $field_end_time[0]['value'];
+                // }else{
+                //   $round['end_time'] = 0;
+                // }
+                // $round['end_time'] = 0;
+
+                $round['date'] = '';
+                $field_yk_round = $yeekee_round_tag->get('field_yk_round')->date;
+                if(!empty($field_yk_round)){
+                  $round['date']= $field_yk_round->getTimestamp() * 1000;
                 }
 
                 $rounds[] = $round;
@@ -1024,7 +1035,7 @@ class Utils extends ControllerBase {
         return FALSE;
     }
 
-    $collection = Utils::GetMongoDB()->shoot_number;
+    $collection = Utils::GetMongoDB()->shoot_numbers;
     $node = Node::load($tid);
     if(!empty($node)){
       $round_id    = $node->get('field_yeekee_round')->target_id;
@@ -1034,7 +1045,7 @@ class Utils extends ControllerBase {
       $field_end_time = $round->get('field_end_time')->getValue();
       if(!empty($field_end_time)){
           $field_end_time = explode(".", $field_end_time[0]['value']);
-          $dt = new DateTime();
+          $dt = new \DateTime();
 
           $round_name = $round->get('name')->getValue()[0]['value'];
           if($round_name > 72){
@@ -1051,7 +1062,7 @@ class Utils extends ControllerBase {
       $query->condition('field_yeekee_round', $round_id);
       // $query->condition('changed', $end_time, '<=');
 
-      $start_time = new DateTime();
+      $start_time = new \DateTime();
       $start_time->setTime(6, 0);
       
       $query->condition('changed', [$start_time->getTimestamp(), $end_time], 'BETWEEN');
@@ -1081,12 +1092,12 @@ class Utils extends ControllerBase {
           
           $filter = array('round_id'=>$round_id);
           if($collection->count($filter)){
-              $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime('now'))->getTimestamp()*1000);
+              $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
               $collection->updateOne($filter, array('$set' =>$data) );
           }else{
               // create
-              $data['createdAt']=new MongoDB\BSON\UTCDateTime((new DateTime('now'))->getTimestamp()*1000);
-              $data['updatedAt']=new MongoDB\BSON\UTCDateTime((new DateTime('now'))->getTimestamp()*1000);
+              $data['createdAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
+              $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
               $collection->insertOne($data);
           }
       }

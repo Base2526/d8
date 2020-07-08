@@ -5,13 +5,6 @@ import ReactList from 'react-list';
 import { getTime, getTimeWithDate} from '../Utils/Config';
 import '../../index.css';
 
-var styles = {
-  simage: {
-      width: '50px',
-      height: '50px'
-  }
-}
-
 var interval = undefined;
 class LotteryListPage extends Component {
   constructor(props) {
@@ -26,6 +19,9 @@ class LotteryListPage extends Component {
   }
 
   componentDidMount() {
+
+    console.log(this.props);
+
     let {lotterys} = this.props
     lotterys =  lotterys.map((v, k) =>{
                   return  v.map((vv, kk) =>{
@@ -73,7 +69,7 @@ class LotteryListPage extends Component {
 
     let {history} = this.props;
     // /reward/:id
-    let type;
+    let type = 'yeekee';
     switch(item.tid){
       case 66:{
         type = 'thai-government';
@@ -161,11 +157,15 @@ class LotteryListPage extends Component {
     if(item.is_open){
       switch(item.tid){
         case 67:{
-          history.push('/lottery-list/yeekee-list');
+          history.push({pathname: '/lottery-list/yeekee-list', 
+                           state: { type:type, tid:item.tid }});
           break;
         }
         default:{
-          history.push('/lottery-list/'+ type +'/' + item.tid)
+          // history.push('/lottery-list/'+ type +'/' + item.tid)
+
+          history.push({pathname: '/lottery-list/yeekee-list/chit',
+                           state: { type:type, tid:item.tid } })
         }
       }
     }else{
@@ -204,7 +204,7 @@ class LotteryListPage extends Component {
         if(item.is_open){
           return  <a key={key} onClick={((e) => this.handleClick(e, item))}>
                     <div key={key} className={'square-item' + (index % 2 ? '' : ' even')}>
-                      <Image style={styles.simage} src={item.image_url} rounded />
+                      <Image className={'img-style'} src={item.image_url} rounded />
                       <p>{item.name}</p>
                       <p>เปิดรับ 88 รอบ</p>
                       <p>24 ชม</p>
@@ -213,7 +213,7 @@ class LotteryListPage extends Component {
         }else{
           return <a key={key} onClick={((e) => this.handleClick(e, item))}>
             <div key={key} className={'square-item' + (index % 2 ? '' : ' even')}>
-              <Image style={styles.simage} src={item.image_url} rounded />
+              <Image className={'img-style'} src={item.image_url} rounded />
               <p>{item.name}</p>
               <p>เปิดรับ 88 รอบ</p>
               <p>ปิดรับ</p>
@@ -225,7 +225,7 @@ class LotteryListPage extends Component {
     if(item.is_open && item.time != -1){
       return  <a key={key} onClick={((e) => this.handleClick(e, item))}>
                 <div key={key} className={'square-item' + (index % 2 ? '' : ' even')}>
-                  <Image style={styles.simage} src={item.image_url} rounded />
+                  <Image className={'img-style'} src={item.image_url} rounded />
                   <p>{item.name}</p>
                   <p>ปิดรับ : {item.end_time}</p>
                   <p>เหลือเวลา : {item.time}</p>
@@ -234,7 +234,7 @@ class LotteryListPage extends Component {
     }else{
       return <a key={key} onClick={((e) => this.handleClick(e, item))}>
                 <div key={key} className={'square-item' + (index % 2 ? '' : ' even')}>
-                  <Image style={styles.simage} src={item.image_url} rounded />
+                  <Image className={'img-style'} src={item.image_url} rounded />
                   <p>{item.name}</p>
                   <p>ปิดรับ : {item.end_time}</p>
                   <p>ปิดรับ</p>
@@ -249,7 +249,7 @@ class LotteryListPage extends Component {
     if(item.is_open && item.time != -1){
       return  <a key={key} onClick={((e) => this.handleClick(e, item))}>
                 <div key={key} className={'square-item' + (index % 2 ? '' : ' even')}>
-                  <Image style={styles.simage} src={item.image_url} rounded />
+                  <Image className={'img-style'} src={item.image_url} rounded />
                   <p>{item.name}</p>
                   <p>ปิดรับ : {item.end_time}</p>
                   <p>เหลือเวลา : {item.time}</p>
@@ -258,7 +258,7 @@ class LotteryListPage extends Component {
     }else{
       return  <a key={key} onClick={((e) => this.handleClick(e, item))}>
                 <div key={key} className={'square-item' + (index % 2 ? '' : ' even')}>
-                  <Image style={styles.simage} src={item.image_url} rounded />
+                  <Image className={'img-style'} src={item.image_url} rounded />
                   <p>{item.name}</p>
                   <p>ปิดรับ : {item.end_time}</p>
                   <p>ปิดรับ</p>
@@ -307,7 +307,7 @@ class LotteryListPage extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  // console.log(state)
+  console.log(state)
   if(!state._persist.rehydrated){
     return {};
   }

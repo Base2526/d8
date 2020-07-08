@@ -160,6 +160,8 @@ app.get('/',  async(req, res) => {
   sid = sess.id;
   console.log(sess.id);
 
+  socket_local.emit("FromAPI", {'test':'dog'});
+
   // console.log(sessionMongoStore);
 
   // let perm = await permission2(req);
@@ -1250,7 +1252,9 @@ server.listen(PORT, function (err) {
           console.log('Lotterys > update');
           
           if(socket_local.connected){
-            socket_local.emit("lotterys", JSON.stringify(await Lotterys.find({})));
+            // socket_local.emit("lotterys", JSON.stringify(await Lotterys.find({})));
+          
+            io.sockets.emit("lotterys", JSON.stringify(await Lotterys.find({})));
           }
           break;
         }
@@ -1275,10 +1279,16 @@ server.listen(PORT, function (err) {
 
     ShootNumbers.watch().on('change', async data =>{
       console.log(new Date(), data)
+
+      console.log(new Date(), data.documentKey._id.toString())
       //operationType
       switch(data.operationType){
         case 'insert':{
           console.log('ShootNumbers > insert');
+          if(socket_local.connected){
+            let find= await ShootNumbers.find({});
+            io.sockets.emit("shoot_numbers", JSON.stringify(find));
+          }  
           break;
         }
         case 'delete':{
@@ -1291,9 +1301,11 @@ server.listen(PORT, function (err) {
         }
         case 'update':{
           console.log('ShootNumbers > update');
-          
           if(socket_local.connected){
-            socket_local.emit("shoot_numbers", JSON.stringify(await ShootNumbers.find({})));
+            let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
+            if(find){
+              io.sockets.emit("shoot_numbers", JSON.stringify(find));
+            }
           }  
           break;
         }

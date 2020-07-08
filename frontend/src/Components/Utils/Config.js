@@ -182,6 +182,10 @@ export function getTime(round, is_yeekee = true){
     console.log(hours, mins, secs);
     */
 
+    
+    return -1;
+    
+
     if(is_yeekee){
         let arr_end_time =round.end_time.split(".");
         // console.log(round);
@@ -262,10 +266,14 @@ export function getTime(round, is_yeekee = true){
     
         return `${hours<10?`0${hours}`:`${hours}`}:${mins<10?`0${mins}`:`${mins}`}:${secs<10?`0${secs}`:`${secs}`}`
     }
+
 }
 
 // https://jsfiddle.net/user2314737/jr5jkv1p/
 export function getTimeWithDate(round){
+
+    return -1;
+
     let date =round.date.split("-");
     let arr_end_time =round.end_time.split(".");
 

@@ -8,7 +8,7 @@ const initialState = {
 const loading_overlay = (state = initialState, action) => {
   switch (action.type) {
     case types.LOADING_OVERLAY_ACTIVE:
-      console.log(action);
+      // console.log(action);
       return {
         ...state,
         isActive:action.isActive,

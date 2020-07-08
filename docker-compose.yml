@@ -40,6 +40,7 @@ services:
       - ./nodejs:/usr/src/app
   postgres:
     image: postgres:10
+    container_name: pg_d8
     environment:
       POSTGRES_DB: d8
       POSTGRES_USER: postgres
@@ -47,7 +48,7 @@ services:
     restart: always
   pgadmin:
     image: dpage/pgadmin4:3.3
-    container_name: pgadmin4
+    container_name: pgadmin_d8
     ports:
       - 7777:80
     volumes:

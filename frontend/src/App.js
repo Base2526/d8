@@ -106,8 +106,8 @@ class App extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log(state);
-  console.log(ownProps);
+  // console.log(state);
+  // console.log(ownProps);
 
 	if(!state._persist.rehydrated){
 		return {};
