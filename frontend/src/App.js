@@ -38,7 +38,17 @@ import {connect_socketIO} from './socket.io'
 
 class App extends Component {
   componentDidMount() {
-     console.log(process.env); 
+    console.log(process.env); 
+
+    // var today = new Date();
+    // // var myToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+    // // เวลาเริ่มต้นการขายหวล เริ่ม 06.00 AM - 03.00AM 
+    // today.setHours(6); 
+
+    // // กำหนดนาที ให้โดย Date จะมีการคำนวณ hours, minutes ให้อัตโนมัติ
+    // today.setMinutes(1305); 
+    // today.setSeconds(0);
+    // console.log(today);
   }  
 
   render(){
@@ -106,8 +116,8 @@ class App extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log(state);
-  console.log(ownProps);
+  // console.log(state);
+  // console.log(ownProps);
 
 	if(!state._persist.rehydrated){
 		return {};

@@ -56,10 +56,11 @@ class ButtonAppBar extends Component {
             </div>;
 
     loadingOverlayActive();
-    
-    if(this.props.loggedIn){
 
-      let {user} =this.props;
+
+    let {loggedIn, user, is_connect} = this.props
+    
+    if(loggedIn){
       v = <div>
             เครดิตคงเหลือ : {user.credit_balance} ฿
             <Link style={{color: 'white', paddingRight:'5px'}} href="#" to="/profile-page" >
@@ -74,19 +75,18 @@ class ButtonAppBar extends Component {
           </div>;
     }
 
-    return (
-    <div style={{flexGrow: 1}}>
-        <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6" style={{flexGrow: 1, color: 'white'}}>
-              <Link  href="#" style={{color: 'white'}} to="/">HUAY</Link>
-            </Typography>
-            {/* <Link  href="#" style={{color: 'white'}} to="/login"> */}
-            {v}
-          </Toolbar>
-        </AppBar>
-      </div>
-    );
+    return (<div style={{flexGrow: 1}}>
+              <AppBar position="static">
+                <Toolbar>
+                  <Typography variant="h6" style={{flexGrow: 1, color: 'white'}}>
+                    <Link  href="#" style={{color: is_connect ? 'white' : 'red'}} to="/">HUAY</Link>
+                  </Typography>
+                  {/* <Link  href="#" style={{color: 'white'}} to="/login"> */}
+                  {v}
+                </Toolbar>
+              </AppBar>
+            </div>
+          )
   }
 }
 
@@ -94,8 +94,9 @@ const mapStateToProps = (state, ownProps) => {
 	if(!state._persist.rehydrated){
 		return {};
   }
+
   if(state.auth.isLoggedIn){
-    return { loggedIn: true, user: state.auth.user };
+    return { loggedIn: true, user: state.auth.user, is_connect: state.socket_io.is_connect };
   }else{
     return { loggedIn: false };
   }

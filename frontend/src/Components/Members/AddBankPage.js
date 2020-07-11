@@ -16,8 +16,7 @@ import { headers, showToast  } from '../Utils/Config';
 import { loadingOverlayActive } from '../../actions/huay'
 
 class AddBankPage extends Component {
-    // const [show, setShow] = useState(true);
-    // const classes = useStyles();
+
     constructor(props) {
         super(props);
 
@@ -30,8 +29,6 @@ class AddBankPage extends Component {
             number_bank_confirm2:'',
 
             validated:false,
-
-            list_bank:{},
             error: false,
             error_message:'',
 
@@ -43,15 +40,7 @@ class AddBankPage extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
     
-    componentDidMount = async () =>{
-      let response  = await axios.post('/api/list_bank', {}, 
-                                      {headers:headers()});
-      if( response.status==200 && response.statusText == "OK" ){
-        if(response.data.result){
-          this.setState({list_bank: response.data.data});
-        }
-      }
-    }
+    componentDidMount = async () =>{}
 
     handleSubmit = async (event) => {
       const form = event.currentTarget;
@@ -99,14 +88,10 @@ class AddBankPage extends Component {
             showToast('error', 'Error');
           }
         }
-
-        
       }
-    };
+    }
 
     handleChange(event) {
-        console.log(event.target);
-        console.log(event.target.value);
         this.setState({[event.target.id]: event.target.value});
     }    
 
@@ -129,6 +114,8 @@ class AddBankPage extends Component {
     
     render() {
       let {validated, error, error_message} = this.state;
+
+      let {list_bank} = this.props;
      
       this.loadingOverlayActive();
       return (
@@ -142,13 +129,13 @@ class AddBankPage extends Component {
                       value={this.state.select_bank}  
                       onChange={this.handleChange}>
                       <option value="">--เลือก--</option>
-                      {/* <option value="10">ธ. กรุงเทพ</option>
-                      <option value="20">ธ. กสิกรไทย</option>
-                      <option value="30">ธ. กรุงไทย</option> */}
                       {
-                         _.map(this.state.list_bank, (val, key) => {
-                          return <option key={key} value={key}>{val}</option>
-                        })                  
+                        //  _.map(this.state.list_bank, (val, key) => {
+                        //   return <option key={key} value={key}>{val}</option>
+                        // })   
+                        list_bank.data.map(function(item, i){
+                          return <option key={i} value={item.tid}>{item.name}</option>
+                        })
                       }
                   </Form.Control>
                   <Form.Control.Feedback type="invalid">
@@ -212,11 +199,8 @@ const mapStateToProps = (state, ownProps) => {
 		return {};
   }
 
-  console.log(state.auth);
-
-  // user.banks
   if(state.auth.isLoggedIn){
-    return { logged_in: true, user: state.auth.user};
+    return { logged_in: true, user: state.auth.user, list_bank:state.list_bank};
   }else{
     return { logged_in: false };
   }

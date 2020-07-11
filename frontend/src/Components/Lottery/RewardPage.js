@@ -10,10 +10,8 @@ class RewardPage extends Component {
   }
 
   render() {
-    let {user, match} = this.props;
-
-    console.log(match)
-  return (<div>RewardPage type > {match.params.type}, id > {match.params.id}</div>);
+    let {tid, type} = this.props.location.state
+    return (<div>RewardPage type > {type}, id > {tid}</div>);
   }
 }
 
