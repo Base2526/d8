@@ -1226,7 +1226,6 @@ class API extends ControllerBase {
     \Drupal::logger('every15minute')->notice('is cron');
 
 
-
     $response['result']  = TRUE;  
     return new JsonResponse( $response );
   }

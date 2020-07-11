@@ -12,12 +12,12 @@ class YeekeeListPage extends Component {
     this.state = {
       rounds:[]
     };
-    this.handleClick      = this.handleClick.bind(this);
+    this.handleItemClick      = this.handleItemClick.bind(this);
     this.renderItem       = this.renderItem.bind(this);
   }
 
   componentDidMount() {
-    let {rounds} = this.props
+    // let {rounds} = this.props
 
     // rounds = rounds.map((v, k) =>{return {...v, time:getTime(v)}})
     // this.setState({rounds})
@@ -27,6 +27,58 @@ class YeekeeListPage extends Component {
     //   rounds = rounds.map((v, k) =>{ return {...v, time:getTime(v)} })
     //   this.setState({rounds})
     // }, 1000);
+
+
+    // var today = new Date();
+    // var myToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+    // เวลาเริ่มต้นการขายหวล เริ่ม 06.00 AM - 03.00AM 
+    // today.setHours(6); 
+
+    // กำหนดนาที ให้โดย Date จะมีการคำนวณ hours, minutes ให้อัตโนมัติ
+    // today.setMinutes(1305); 
+    // today.setSeconds(0);
+    // console.log(today);
+
+    
+
+    var rounds = [];
+    var length = 87; // user defined length
+
+    for(var i = 0; i <= length; i++) {
+      var today = new Date();
+      today.setHours(6); 
+      today.setMinutes(i * 15); 
+      today.setSeconds(0);
+      // console.log(today);
+
+      let year  = today.getFullYear();
+      let month = today.getMonth();
+      let date  = today.getDate();
+
+      let hours   = today.getHours();
+      let minutes = today.getMinutes();
+      let seconds = today.getSeconds();
+
+      var ampm = hours >= 12 ? 'pm' : 'am';
+
+      // rounds[i] = hours+' '+ minutes +' '+ seconds;
+      // console.log( i + ' : ' + hours+', '+ minutes +', '+ seconds + ", " + ampm);
+
+      // console.log(today.getTime());
+
+      rounds[i] = today.getTime();
+
+      let after_today = new Date(rounds[i]);
+
+      let after_today_hours   = ("0" + after_today.getHours()).slice(-2);
+      let after_today_minutes = ("0" + after_today.getMinutes()).slice(-2);
+      let after_today_seconds = ("0" + after_today.getSeconds()).slice(-2);
+      
+      // console.log(today.getTime() +'->'+ after_today.getTime() +' > '+ after_today_hours +':'+ after_today_minutes +':'+ after_today_seconds );
+    }
+    // console.log(rounds);
+
+    this.setState({rounds});
   }
 
   componentWillUnmount(){
@@ -35,7 +87,7 @@ class YeekeeListPage extends Component {
     }
   }
 
-  handleClick = (e, round) => {
+  handleItemClick = (e, round) => {
     let {history} = this.props
     // if(round.time == -1){
     //   history.push({pathname: '/lottery-list/reward',
@@ -47,6 +99,7 @@ class YeekeeListPage extends Component {
   }
 
   renderItem(index, key){
+    /*
     let {rounds} = this.props
     let round = rounds[index];
     // if(round.time == -1){
@@ -57,25 +110,69 @@ class YeekeeListPage extends Component {
     //         </div>
     //         </a>
     // }else{
-      return<a key={key} onClick={((e) => this.handleClick(e, round))}>
+
+      if(round.date){
+        let date = new Date(round.date);
+        
+        // Hours
+        var hours = date.getHours();
+
+        // Minutes
+        var minutes =  "0" + date.getMinutes();
+
+        // Seconds
+        var seconds =  "0" + date.getSeconds();
+
+        // console.log(hours + "-" + minutes.substr(-2) + "-" + seconds.substr(-2));
+      }
+      */
+
+      let {rounds} = this.state
+
+      let round = new Date(rounds[index]);
+
+      let round_hours   = ("0" + round.getHours()).slice(-2);
+      let round_minutes = ("0" + round.getMinutes()).slice(-2);
+      let round_seconds = ("0" + round.getSeconds()).slice(-2);
+
+      var timeNow = new Date();
+      // console.log(today.getTime());
+
+      // if( (today.getHours() > round.getHours())){
+      //   console.log(index + 1);
+      // }
+
+      // var diff = Math.abs(timeNow.getTime() - round.getTime());
+
+      // var dd1=timeNow.valueOf();
+      // var dd2=round.valueOf();
+
+      // console.log(timeNow.getTime());
+      // console.log(dd1 +" > "+ dd2);
+      if( timeNow.getTime() < round.getTime()){
+        console.log('b is greater : ' + index);
+      }
+      // console.log(diff + " >> " + (index + 1) );
+      
+      // console.log('->'+ round.getTime() +' > '+ round_hours +':'+ round_minutes +':'+ round_seconds );
+      
+      return<a key={key} onClick={((e) => this.handleItemClick(e, index))}>
               <div key={key} className={'square-item' + (index % 2 ? '' : ' even')}>
-                  <p>รอบที่ {round.name} เวลาปิด { /*round.end_time*/ }</p>
-                  <div>เวลาที่เหลือ : { /*round.time*/ }</div>
+              <p>รอบที่ {index + 1} {(timeNow.getTime() > round.getTime()) ? '(ปิดรับแทง)' : ''}</p>
+                  <div>เวลาปิดรับ : { round_hours +':'+ round_minutes +':'+ round_seconds }</div>
               </div>
             </a>
     // }
   }
 
   render(){
-    let {rounds} = this.props
-    return  ( <div>
-                <ReactList
-                  useTranslate3d={true}
+    let {rounds} = this.state
+    return  ( <ReactList
+                  // useTranslate3d={true}
                   itemRenderer={this.renderItem}
                   length={rounds.length}
-                  updateWhenThisValueChanges={rounds}
-                  type='uniform'/>
-              </div>);
+                  // updateWhenThisValueChanges={rounds}
+                  type='simple'/>);
   }
 }
 
@@ -85,15 +182,16 @@ const mapStateToProps = (state, ownProps) => {
   }
   
   if(state.auth.isLoggedIn){
-    let yeekees = state.lotterys.data.find((val) => { return val.tid == 67 });
-    let rounds =  yeekees.rounds.sort(function(a, b) {
-                    return a.weight - b.weight;
-                  });
+    // let yeekees = state.lotterys.data.find((val) => { return val.tid == 67 });
+    // let rounds =  yeekees.rounds.sort(function(a, b) {
+    //                 return a.weight - b.weight;
+    //               });
 
-    console.log(rounds)
+    // console.log(rounds)
     return {  loggedIn: true, 
               user:state.auth.user, 
-              rounds};
+              // rounds
+            };
   }else{
     return { loggedIn: false };
   }
