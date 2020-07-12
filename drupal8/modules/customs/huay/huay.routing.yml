@@ -1,0 +1,199 @@
+# resume.form:
+#     path: '/exform'
+#     defaults:
+#       _title: 'Chat form'
+#       _form: '\Drupal\huay\Form\ExForm'
+#     requirements:
+#       _role: 'authenticated+administrator'
+#       # _user_is_logged_in: TRUE
+
+huay.login:
+  path: '/login'
+  defaults:
+    _form: '\Drupal\huay\Form\LoginForm'
+  requirements:
+    _access: 'TRUE'
+
+huay.register:
+  path: '/register'
+  defaults:
+    _form: '\Drupal\huay\Form\RegisterForm'
+  requirements:
+    _access: 'TRUE'
+
+huay.forgot_password:
+  path: '/forgot_password'
+  defaults:
+    _form: '\Drupal\huay\Form\ForgotpasswordForm'
+  requirements:
+    _access: 'TRUE'
+
+huay.frontpage:
+  path: '/frontpage'
+  defaults:
+    _controller: '\Drupal\huay\Plugin\Page\FrontPage::page'
+  requirements:
+    _access: 'TRUE'
+
+huay.lotterypage:
+  path: '/lotterypage'
+  defaults:
+    _controller: '\Drupal\huay\Plugin\Page\LotteryPage::page'
+  requirements:
+    _access: 'TRUE'
+
+huay.requestpage:
+  path: '/requestpage'
+  defaults:
+    _form: '\Drupal\huay\Form\RequestForm'
+  requirements:
+    _access: 'TRUE'
+
+huay.profile:
+  path: '/profile'
+  defaults:
+    _form: '\Drupal\huay\Form\ProfileForm'
+  requirements:
+    _access: 'TRUE'
+
+huay.bank:
+  path: '/bank'
+  defaults:
+    _form: '\Drupal\huay\Form\AddbankForm'
+  requirements:
+    _access: 'TRUE'
+
+huay_mongo_log.form:
+  path: '/admin/reports/mglog'
+  defaults:
+    _title: 'Recent mongo log messages'
+    _form: '\Drupal\huay\Form\MongoLogForm'
+  requirements:
+    _access: 'TRUE'
+
+# RefreshForm
+refresh.form:
+  path: '/refresh'
+  defaults:
+    _title: 'Refresh Form'
+    _form: '\Drupal\huay\Form\RefreshForm'
+  requirements:
+    _access: 'TRUE'
+
+# api
+api.login:
+  path: '/api/login.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::login' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.logout:
+  path: '/api/logout.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::logout' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.register:
+  path: '/api/register.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::register' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.reset_password:
+  path: '/api/reset_password.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::reset_password' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.list_bank:
+  path: '/api/list_bank.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::list_bank' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.add_bank:
+  path: '/api/add_bank.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::add_bank' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.delete_bank:
+  path: '/api/delete_bank.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::delete_bank' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.update_socket_io:
+  path: '/api/update_socket_io.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::update_socket_io' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.add_deposit:
+  path: '/api/add_deposit.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::add_deposit' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.withdraw:
+  path: '/api/withdraw.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::withdraw' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.bet:
+  path: '/api/bet.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::bet' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.bet_cancel:
+  path: '/api/bet_cancel.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::bet_cancel' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+# ยิงเลขหวยยี่กี่
+api.shoot_number:
+  path: '/api/shoot_number.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::shoot_number' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+api.every_15_minute:
+  path: '/api/every_15_minute.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::every_15_minute' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+# heartbeat
+cron.heartbeat: 
+  path: '/cron/heartbeat.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::cron_heartbeat' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+# 
+api.request_all:
+  path: '/api/request_all.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::request_all' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+# api

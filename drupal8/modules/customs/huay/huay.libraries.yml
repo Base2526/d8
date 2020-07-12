@@ -1,0 +1,11 @@
+huay:
+    version: 1.x
+    js:
+        js/huay.js: {}   
+    dependencies:
+        - core/drupal
+        - core/jquery
+        - core/drupalSettings
+    # css:
+    #   theme:
+    #     css/lrv.css: {}

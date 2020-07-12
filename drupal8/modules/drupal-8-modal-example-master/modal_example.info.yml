@@ -1,0 +1,4 @@
+name: 'Modal Example'
+type: module
+description: 'Module which demonstrates an example of a Modal implementation.'
+core: 8.x

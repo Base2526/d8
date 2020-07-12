@@ -1,8 +1,0 @@
-resume.form:
-    path: '/exform'
-    defaults:
-      _title: 'Chat form'
-      _form: '\Drupal\mydata\Form\ExForm'
-    requirements:
-      _role: 'authenticated+administrator'
-      # _user_is_logged_in: TRUE

@@ -1,0 +1,414 @@
+<?php
+
+use Drupal\user\Entity\User;
+use Drupal\paragraphs\Entity\Paragraph;
+use \Drupal\config_pages\Entity\ConfigPages;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\node\Entity\Node;
+use Drupal\huay\Utils\Utils;
+
+/*
+$uri = 'mongodb://mongo:27017';
+$collection = (new MongoDB\Client($uri))->local->startup_log;
+$changeStream = $collection->watch();
+for ($changeStream->rewind(); true; $changeStream->next()) {
+      if ( ! $changeStream->valid()) {
+          continue;
+      }
+
+      $event = $changeStream->current();
+
+      if ($event['operationType'] === 'invalidate') {
+          break;
+      }
+
+      $ns = sprintf('%s.%s', $event['ns']['db'], $event['ns']['coll']);
+      $id = json_encode($event['documentKey']['_id']);
+
+      switch ($event['operationType']) {
+          case 'delete':
+              printf("Deleted document in %s with _id: %s\n\n", $ns, $id);
+              break;
+
+          case 'insert':
+              printf("Inserted new document in %s\n", $ns);
+              echo json_encode($event['fullDocument']), "\n\n";
+              break;
+
+          case 'replace':
+              printf("Replaced new document in %s with _id: %s\n", $ns, $id);
+              echo json_encode($event['fullDocument']), "\n\n";
+              break;
+
+          case 'update':
+              printf("Updated document in %s with _id: %s\n", $ns, $id);
+              echo json_encode($event['updateDescription']), "\n\n";
+              break;
+      }
+  }
+*/
+
+function huay_page_attachments(array &$attachments) {
+    $attachments['#attached']['library'][] = 'huay/huay';
+    // $attachments['#attached']['library'][] = 'mydata/socket_io';
+
+    // $element['#attached']['js'][] = array(
+    //     'data' => array('myModule' => array('basePath' => base_path())), 
+    //     'type' => 'setting',
+    //   );
+
+    /*
+    pass parameter to .js
+
+    (function ($, Drupal, drupalSettings) {
+        console.log(drupalSettings);
+
+        var user = drupalSettings.user;
+        console.log(user);
+
+        var foo = drupalSettings.fluffiness.cuddlySlider.foo;
+        console.log(foo);
+
+    })(jQuery, Drupal, drupalSettings);
+    */
+
+    $configs= Drupal\config_pages\Entity\ConfigPages::config('config_nodejs');
+    $nodejs_url = '';///$configs->get('field_nodejs_url')->value;
+    $params = [
+        'nodejs_url' => $nodejs_url,
+    ];
+    $attachments['#attached']['drupalSettings']['configs'] = $params;
+}
+
+/*
+ * Implements hook_theme()
+*/
+function huay_theme($existing, $type, $theme, $path) {  
+  return [
+    'front-page' => [
+      'variables' => [
+        'role' => '',
+        'params' => array(),
+      ],
+    ],   
+    'lottery-page' => [
+      'variables' => [
+        'role' => '',
+        'params' => array(),
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert() for node entities.
+ * 
+ * กรณีที่เรา เพิ่ม taxonomy_term ใหม่ เราจะต้อง เพิ่มข้อมูลฟิลล์ field_id_term == $entity->id() แก้ปัญหา id ไม่เหมือนกัน dev, uat, prod
+ */
+function huay_taxonomy_term_insert(Drupal\Core\Entity\EntityInterface $entity) {
+    // $vocabularys = \Drupal\config_pages\Entity\ConfigPages::config('config_global')->get('field_taxonomy_term')->value;
+    $vocabularys = explode(",", Utils::GetConfigGlobal()['taxonomy_term']);
+
+    if (in_array($entity->bundle(), $vocabularys)) {
+        $id_term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($entity->id())->get('field_tid_code')->getValue()[0]['value'];
+
+        if(empty($id_term)){
+            $term = Term::load($entity->id());
+            if (!empty($term)) {
+                $term->field_tid_code = $entity->id();
+                $term->save();
+            }
+        }
+        
+        // dpm(t('oop > @tid ',array('@tid'=>$tid))->__toString());
+    }
+}
+
+/*
+hook_entity_create(\Drupal\Core\Entity\EntityInterface $entity) 
+Acts when creating a new entity.
+*/
+// function huay_entity_create(\Drupal\Core\Entity\EntityInterface $entity) {
+//     \Drupal::logger('huay_entity_create')->notice(t('ID: @id, EntityTypeId : @EntityTypeId, bundle : @bundle ',array( '@id'=>$entity->id(), 
+//                                                                                                                     '@EntityTypeId'=>$entity->getEntityTypeId(), 
+//                                                                                                                     '@bundle'=>$entity->bundle()) )->__toString());
+// }
+
+
+/*
+hook_entity_insert(\Drupal\Core\Entity\EntityInterface $entity) 
+เราจะไม่ใช้ hook_entity_create เพราะว่า hook_entity_create จะถูกเรียกก่อน hook_entity_insert ซึ่งจะไม่ให้ id 
+*/
+function huay_entity_insert(\Drupal\Core\Entity\EntityInterface $entity) {
+    \Drupal::logger('huay_entity_insert')->notice(t('ID: @id, EntityTypeId : @EntityTypeId, bundle : @bundle ',array(   '@id'           =>$entity->id(), 
+                                                                                                                        '@EntityTypeId' =>$entity->getEntityTypeId(), 
+                                                                                                                        '@bundle'       =>$entity->bundle()) )->__toString());
+    switch($entity->getEntityTypeId()){
+        case 'user':{
+            Utils::mongodb_people($entity->id());
+        break;
+        }
+        /*
+        case 'paragraph':{
+            switch($entity->bundle()){
+                case 'user_banks':{
+                    $p = Paragraph::load( $entity->id() );
+                    // \Drupal::logger('huay_entity_insert > paragraph > user_banks')->notice( serialize($p->getParentEntity()) );
+
+                    // dpm($p->bundle());
+                    // dpm($p->id());
+                    // $field_number_bank = $p->get('field_number_bank')->getValue();
+                    // if(!empty($field_number_bank)){
+                    //     $field_number_bank = $field_number_bank[0]['value'];
+                    // }
+                    // $field_bank        = $p->get('field_bank')->target_id;
+
+                    $parentEntity = $p->getParentEntity();
+                    // dpm($parentEntity->getEntityTypeId());
+                    // dpm($parentEntity->id());
+
+                    switch($parentEntity->getEntityTypeId()){
+                        case 'user':{
+                        break;
+                        }
+                    }
+                   
+                break;
+                }
+            }
+        break;
+        }
+        */
+
+        case 'taxonomy_term':{
+            switch($entity->bundle()){
+                case 'transfer_method':{
+                    Utils::mongodb_transfer_method($entity->id());
+                break;
+                }
+                case 'huay_list_bank':{
+                    Utils::mongodb_huay_list_bank($entity->id());
+                break;
+                }
+                case 'list_bank':{
+                    Utils::mongodb_list_bank($entity->id());
+                break;
+                }
+                case 'deposit_status':{
+                    Utils::mongodb_deposit_status();
+                break;
+                }
+                // หวยเด่น & หวยหุ้น
+                case 'lotterys':{
+                    Utils::mongodb_lotterys($entity->id());
+                break;
+                }
+            }
+
+        break;
+        }
+
+        case 'node':{
+            switch($entity->bundle()){
+                case 'shoot_number':{
+                    Utils::mongodb_shoot_number($entity->id());
+                break;
+                }
+
+                // กรณีมีคนฝากเงินเข้ามา ระบบต้องมีการแจ้ง notification ไปยัง admin
+                case 'user_deposit':
+                case 'user_withdraw':{
+                    $node = Node::load($entity->id());
+                    if(!empty($node)){
+                        Utils::mongodb_people($node->getOwnerId());
+                    }
+                break;
+                }
+            }
+
+        break;
+        }
+
+        // ID: 16, EntityTypeId : node, bundle : shoot_number
+    }
+
+    // ID: 11, EntityTypeId : paragraph, bundle : user_banks
+}
+
+/*
+hook_entity_update(Drupal\Core\Entity\EntityInterface $entity) 
+*/
+function huay_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
+    \Drupal::logger('huay_entity_update')->notice(t('ID: @id, EntityTypeId : @EntityTypeId, bundle : @bundle ',array( '@id'=>$entity->id(), 
+                                                                                                                    '@EntityTypeId'=>$entity->getEntityTypeId(), 
+                                                                                                           '@bundle'=>$entity->bundle()) )->__toString());
+    switch($entity->getEntityTypeId()){
+        case 'user':{
+            Utils::mongodb_people($entity->id());
+        break;
+        }
+
+        case 'paragraph':{
+            switch($entity->bundle()){
+                case 'user_access':{
+                    $p = Paragraph::load( $entity->id() );
+                    $parentEntity = $p->getParentEntity();
+                    switch($parentEntity->getEntityTypeId()){
+                        case 'user':{
+                            Utils::mongodb_people($parentEntity->id());
+                        break;
+                        }
+                    }
+                   
+                break;
+                }
+            }
+        break;
+        }
+
+        case 'config_pages':{
+            switch($entity->bundle()){
+                case 'contact_us':{
+                    Utils::mongodb_contact_us($entity->id());
+                break;
+                }
+            }
+        break;
+        }
+
+        case 'taxonomy_term':{
+            switch($entity->bundle()){
+                case 'transfer_method':{
+                    Utils::mongodb_transfer_method($entity->id());
+                break;
+                }
+                case 'huay_list_bank':{
+                    Utils::mongodb_huay_list_bank($entity->id());
+                break;
+                }
+                case 'list_bank':{
+                    Utils::mongodb_list_bank($entity->id());
+                break;
+                }
+                case 'deposit_status':{
+                    Utils::mongodb_deposit_status();
+                break;
+                }
+                // หวยเด่น & หวยหุ้น
+                case 'lotterys':
+                case 'yeekee_round':{
+                    Utils::mongodb_lotterys($entity->id());
+                break;
+                }
+            }
+        break;
+        }
+
+        case 'node':{
+            switch($entity->bundle()){
+                // กรณีมีคนฝากเงินเข้ามา ระบบต้องมีการแจ้ง notification ไปยัง admin
+                case 'user_deposit':
+                case 'user_withdraw':{
+                    $node = Node::load($entity->id());
+                    if(!empty($node)){
+                        Utils::mongodb_people($node->getOwnerId());
+                    }
+                break;
+                }
+            }
+        break;
+        }
+    }
+
+}
+
+/*
+function hook_entity_delete(Drupal\Core\Entity\EntityInterface $entity)
+*/
+function huay_entity_delete(Drupal\Core\Entity\EntityInterface $entity) {
+    \Drupal::logger('huay_entity_delete')->notice(t('ID: @id, EntityTypeId : @EntityTypeId, bundle : @bundle ',array(   '@id'=>$entity->id(), 
+                                                                                                                        '@EntityTypeId'=>$entity->getEntityTypeId(), 
+                                                                                                                        '@bundle'=>$entity->bundle()) )->__toString());
+    switch($entity->getEntityTypeId()){
+        case 'user':{
+            $collection = Utils::GetMongoDB()->people;
+            $filter = array('uid'=>$entity->id());
+            if($collection->count($filter)){
+                // delete
+                $collection->deleteOne($filter, array('$set' =>$data) );
+            }
+        break;
+        }
+        // ID: 72, EntityTypeId : paragraph, bundle : user_access
+        case 'paragraph':{
+            switch($entity->bundle()){
+                case 'user_access':{
+                    // กรณีเรา ลบ user_access login เราต้องลบ session mongodb ด้วย
+                    $p = Paragraph::load( $entity->id() );
+                    if(!empty($p)){
+                        // $field_cookie = $p->get('field_cookie')->getValue();
+                        // if(!empty($field_cookie)){
+                        //     $session = $field_cookie[0]['value'];
+
+                        //     \Drupal::logger('huay_entity_delete')->notice(t('Session: @session',array( '@session'=>$session ))->__toString());
+
+                        //     $collection = Utils::GetMongoDB()->sessions;
+                        //     $filter = array('_id'=>$session);
+                        //     if($collection->count($filter)){
+                        //         // delete
+                        //         $collection->deleteOne($filter, array('$set' =>$data) );
+                        //     }
+                        // }
+                    }
+                break;
+                }
+            }
+        break;
+        }
+
+        case 'node':{
+            // node, bundle : article
+            switch($entity->bundle()){
+                case 'chits':{
+                    // กรณีเรา ลบ user_access login เราต้องลบ session mongodb ด้วย
+                    $node = Node::load($entity->id());
+                    if(!empty($node)){
+                        // เจ้ามือหวย
+                        $dealer_target_id    = $node->get('field_lottery_dealer')->target_id;
+                        $user_lottery_dealer = User::load($dealer_target_id);   
+                        foreach ($user_lottery_dealer->get('field_list_lotterys')->getValue() as $ii=>$vv){
+                            $p = Paragraph::load( $vv['target_id'] );
+
+                            $field_chit_id = $p->get('field_chit_id')->getValue();
+                            if(!empty($field_chit_id)){
+                                $chit_id = $field_chit_id[0]['value'];
+                                if(strcmp($entity->id(), $chit_id) == 0){
+                                    $p->delete();
+                                    break;
+                                }
+                            }
+                        }
+
+                        // ลูกค้า
+                        $custom_target_id    = $node->get('field_lottery_custom')->target_id;
+                        $user_lottery_customer = User::load($custom_target_id);   
+                        foreach ($user_lottery_customer->get('field_chits')->getValue() as $ii=>$vv){
+                            $p = Paragraph::load( $vv['target_id'] );
+                            $field_chit_id = $p->get('field_chit_id')->getValue();
+                            if(!empty($field_chit_id)){
+                                $chit_id = $field_chit_id[0]['value'];
+                                if(strcmp($entity->id(), $chit_id) == 0){
+                                    $p->delete();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                break;
+                }
+            }
+        }
+    }
+}

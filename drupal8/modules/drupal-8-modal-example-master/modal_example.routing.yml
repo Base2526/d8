@@ -1,0 +1,15 @@
+modal_example.page:
+  path: 'modal-example'
+  defaults:
+    _title: 'Modal Example'
+    _controller: '\Drupal\modal_example\Controller\ModalExampleController::page'
+  requirements:
+    _permission: 'access content'
+modal_example.modal:
+  path: 'modal-example/modal/{js}'
+  defaults:
+    _title: 'Modal'
+    _controller: '\Drupal\modal_example\Controller\ModalExampleController::modal'
+  requirements:
+    _permission: 'access content'
+    js: 'nojs|ajax'

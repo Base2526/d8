@@ -1,0 +1,92 @@
+use \Drupal\node\Entity\Node;
+use Drupal\paragraphs\Entity\Paragraph;
+use Drupal\user\Entity\User;
+
+$user = User::load(15);
+
+$chits = array(); 
+foreach ($user->get('field_chits')->getValue() as $ci=>$cv){
+    $cp = Paragraph::load( $cv['target_id'] );
+
+    $field_chit_id = $cp = $cp->get('field_chit_id')->getValue();
+    if(!empty($field_chit_id)){
+        $chit_id = $field_chit_id[0]['value'];
+    
+        $node = Node::load($chit_id);
+        if(!empty($node)){
+            $name = $node->label();
+
+            // สถานะโพย
+            $status_id    = $node->get('field_chit_status')->target_id;
+
+            // ประเภทโพยหวย (หวยเด่น & หวยหุ้น)
+            $type_id    = $node->get('field_chit_type')->target_id;
+
+            $round_id =0;
+            if($type_id == 67){
+                // ยี่กี่ 
+                // ถ้าเป็น ยี่กี่เราต้องดึงรอบมาด้วย
+                $round_id = $node->get('field_yeekee_round')->target_id;
+            }
+
+            // หมายเหตุ
+            $note =''; 
+            $field_note = $node->get('field_note')->getValue();
+            if(!empty($field_note)){
+                $note = $field_note[0]['value'];
+            } 
+
+            $list_bet = array();
+            // รายการหวยทั้งหมด field_list_bet
+            foreach ($node->get('field_list_bet')->getValue() as $bi=>$bv){
+                $p = Paragraph::load( $bv['target_id'] );
+                // dpm($bv['target_id']);
+
+                // ประเภทโหมด ประเภท สามตัวบน สามตัวโต๊ด
+                $mode_target_id = $p->get('field_bet_type')->target_id;
+                
+                $bet_item = array();
+                // รายการของแต่ละโหมด
+                foreach ($p->get('field_bet_item')->getValue() as $mi=>$mv){
+                    // dpm($mv['target_id']);
+
+                    $mp = Paragraph::load( $mv['target_id'] );
+
+                    // ราคา
+                    $price = 0; 
+                    $field_item_chit_price = $mp->get('field_item_chit_price')->getValue();
+                    if(!empty($field_item_chit_price)){
+                        $price = $field_item_chit_price[0]['value'];
+                    } 
+
+                    // เลข
+                    $number = 0;
+                    $field_item_chit_number = $mp->get('field_item_chit_number')->getValue();
+                    if(!empty($field_item_chit_number)){
+                        $number = $field_item_chit_number[0]['value'];
+                    } 
+                    
+                    // dpm($price, $number);
+
+                    $bet_item[] = array('pid'    => $mv['target_id'],  
+                                        'number' => $number, 
+                                        'price'  => $price );
+                }
+
+                $list_bet[] = array('pid'           => $bv['target_id'],  
+                                    'mode'          => $mode_target_id, 
+                                    'bet_item'      => $bet_item);
+            }
+
+            $chits[] = array('nid'      => $chit_id,
+                            'name'      => $name,
+                            '$status_id'=> $status_id,
+                            '$type_id'  => $type_id,
+                            'round_id'  => $round_id,
+                            'note'      => $note,
+                            'list_bet'  => $list_bet);
+        } 
+    } 
+}
+dpm(  $chits );
+
