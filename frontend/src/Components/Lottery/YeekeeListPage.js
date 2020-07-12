@@ -89,13 +89,13 @@ class YeekeeListPage extends Component {
 
   handleItemClick = (e, round) => {
     let {history} = this.props
-    // if(round.time == -1){
-    //   history.push({pathname: '/lottery-list/reward',
-    //                 state: { type:'yeekee', tid:round.tid } })
-    // }else{
-    //   history.push({pathname: '/lottery-list/yeekee-list/chit',
-    //                 state: { type:'yeekee', tid:round.tid } })
-    // }
+    if(round.is_close){
+      history.push({pathname: '/lottery-list/reward',
+                    state: { type:'yeekee', tid:round.tid } })
+    }else{
+      history.push({pathname: '/lottery-list/yeekee-list/chit',
+                    state: { type:'yeekee', tid:round.tid } })
+    }
   }
 
   renderItem(index, key){
@@ -127,6 +127,7 @@ class YeekeeListPage extends Component {
       }
       */
 
+      /*
       let {rounds} = this.state
 
       let round = new Date(rounds[index]);
@@ -155,10 +156,20 @@ class YeekeeListPage extends Component {
       // console.log(diff + " >> " + (index + 1) );
       
       // console.log('->'+ round.getTime() +' > '+ round_hours +':'+ round_minutes +':'+ round_seconds );
-      
-      return<a key={key} onClick={((e) => this.handleItemClick(e, index))}>
-              <div key={key} className={'square-item' + (index % 2 ? '' : ' even')}>
-              <p>รอบที่ {index + 1} {(timeNow.getTime() > round.getTime()) ? '(ปิดรับแทง)' : ''}</p>
+      */
+
+     let {rounds} = this.props
+     let round = rounds[index];
+
+     var date = new Date(round.date);
+
+     let round_hours   = ("0" + date.getHours()).slice(-2);
+     let round_minutes = ("0" + date.getMinutes()).slice(-2);
+     let round_seconds = ("0" + date.getSeconds()).slice(-2);
+
+      return<a key={key} onClick={((e) => this.handleItemClick(e, round))}>
+              <div key={key} className={'square-item' + (index % 2 ? '' : ' even') + (round.is_close ? ' square-item-close' : '')}>
+              <p>รอบที่ {round.name} {round.is_close ? '(ปิดรับแทง)' : ''}</p>
                   <div>เวลาปิดรับ : { round_hours +':'+ round_minutes +':'+ round_seconds }</div>
               </div>
             </a>
@@ -166,7 +177,7 @@ class YeekeeListPage extends Component {
   }
 
   render(){
-    let {rounds} = this.state
+    let {rounds} = this.props
     return  ( <ReactList
                   // useTranslate3d={true}
                   itemRenderer={this.renderItem}
@@ -181,16 +192,31 @@ const mapStateToProps = (state, ownProps) => {
     return {};
   }
   
+  console.log( state );
   if(state.auth.isLoggedIn){
-    // let yeekees = state.lotterys.data.find((val) => { return val.tid == 67 });
-    // let rounds =  yeekees.rounds.sort(function(a, b) {
-    //                 return a.weight - b.weight;
-    //               });
+    let yeekees = state.lotterys.data.find((val) => { return val.tid == 67 });
+    let rounds =  yeekees.rounds.sort(function(a, b) {
+                    return a.weight - b.weight;
+                  }).sort(function(x, y) {
+                    // true values first
+                    return (y.is_close === x.is_close)? 0 : y.is_close? -1 : 1;
+                    // false values first
+                    // return (x === y)? 0 : x? 1 : -1;
+                  });;
+
+    // rounds.sort(function(x, y) {
+    //     // true values first
+    //     return (y.is_close === x.is_close)? 0 : y.is_close? -1 : 1;
+    //     // false values first
+    //     // return (x === y)? 0 : x? 1 : -1;
+    // });
+
+    // console.log(rounds);
 
     // console.log(rounds)
     return {  loggedIn: true, 
               user:state.auth.user, 
-              // rounds
+              rounds
             };
   }else{
     return { loggedIn: false };

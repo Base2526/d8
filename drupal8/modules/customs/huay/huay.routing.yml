@@ -173,9 +173,17 @@ api.shoot_number:
   requirements:
     _access: 'TRUE'
 
-api.every15minute:
-  path: '/api/every15minute.json'
-  defaults: { _controller: '\Drupal\huay\Controller\API::every15minute' }
+api.every_15_minute:
+  path: '/api/every_15_minute.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::every_15_minute' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+# heartbeat
+cron.heartbeat: 
+  path: '/cron/heartbeat.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::cron_heartbeat' }
   methods:  [GET]
   requirements:
     _access: 'TRUE'

@@ -87,3 +87,7 @@ input::-webkit-inner-spin-button {
   margin: 6px;
   padding: 8px;
 }
+
+.square-item-close{
+  background:red;
+}

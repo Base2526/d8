@@ -995,9 +995,9 @@ class Utils extends ControllerBase {
                 $round = array();
                 $round['tid']    = $yeekee_round_tag_term->tid;
                 $round['name']   = $yeekee_round_tag_term->name;
-                $round['weight'] = $yeekee_round_tag_term->weight;
+                
 
-                $yeekee_round_tag = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($yeekee_round_tag_term->tid);
+                // $yeekee_round_tag = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($yeekee_round_tag_term->tid);
                 // $field_end_time = $yeekee_round_tag->get('field_end_time')->getValue();
                 // if(!empty($field_end_time)){
                 //   $round['end_time'] = $field_end_time[0]['value'];
@@ -1005,12 +1005,25 @@ class Utils extends ControllerBase {
                 //   $round['end_time'] = 0;
                 // }
                 // $round['end_time'] = 0;
+                // $round['date'] = '';
+                // $field_yk_round = $yeekee_round_tag->get('field_yk_round')->date;
+                // if(!empty($field_yk_round)){
+                //   $round['date']= $field_yk_round->getTimestamp() * 1000;
+                // }
 
-                $round['date'] = '';
-                $field_yk_round = $yeekee_round_tag->get('field_yk_round')->date;
-                if(!empty($field_yk_round)){
-                  $round['date']= $field_yk_round->getTimestamp() * 1000;
+                $weight = $yeekee_round_tag_term->weight;
+
+                $date = new \DateTime();
+                $date->setTime(6, 15*$weight, 0);
+
+                if( (new \DateTime())->getTimestamp() > $date->getTimestamp()){
+                  $round['is_close'] = TRUE;
+                }else{
+                  $round['is_close'] = FALSE;
                 }
+
+                $round['date']   = $date->getTimestamp() * 1000;
+                $round['weight'] = $weight;
 
                 $rounds[] = $round;
             }

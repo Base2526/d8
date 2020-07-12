@@ -366,3 +366,20 @@ export function convertTimestamp2Date(unixtimestamp){
   // "In days: ", days + " days, " + hrs + " hours, " + mins + " minutes"
   console.log("In days : " + days + ", hrs : " + (hrs % 24) + ", mins : " + (mins % 60) + ", secs : " + secs)
 */
+
+// https://www.tutorialspoint.com/How-to-get-time-difference-between-two-timestamps-in-seconds
+export function difference_between_two_timestamps(date){
+    let date1    = new Date();
+    let date2    = new Date(date);
+
+    var res = Math.abs(date1 - date2) / 1000;
+
+    // get hours        
+    var hours = Math.floor(res / 3600) % 24;    
+    // get minutes
+    var minutes = Math.floor(res / 60) % 60;
+    // get seconds
+    var seconds = Math.floor(res % 60);
+
+    return ("0" + hours).slice(-2) + ':' + ("0" + minutes).slice(-2) +':'+ ("0" + seconds).slice(-2);
+}
