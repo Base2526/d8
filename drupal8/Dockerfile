@@ -6,7 +6,9 @@ FROM drupal:8.7.8
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y git && \
-    apt-get install nano 
+    apt-get install nano && \
+    apt-get -y install cron && \
+    apt-get install wget
 
 RUN apt-get update -y && \
     pecl install mongodb && \
@@ -66,10 +68,10 @@ RUN apt-get update -y && \
 # cron job
 # https://github.com/Base2526/docker-cron
 # Add crontab file in the cron directory
-# ADD crontab /etc/cron.d/huay-cron
+ADD crontab /etc/cron.d/crontab
 
 # # Give execution rights on the cron job
-# RUN chmod 0644 /etc/cron.d/huay-cron
+RUN chmod 0644 /etc/cron.d/crontab
 
 # # Create the log file to be able to run tail
 # RUN touch /var/log/cron.log
@@ -78,6 +80,8 @@ RUN apt-get update -y && \
 # RUN cron
 # CMD ["cron", "-f"]
 # cron job
+
+
 
 EXPOSE 80
 

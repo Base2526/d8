@@ -1215,16 +1215,24 @@ class API extends ControllerBase {
   }
 
   // https://crontab.guru/every-15-minutes
-  public function every15minute(Request $request){
+  public function every_15_minute(Request $request){
     $mode = \Drupal::request()->query->get('mode');
     if(empty($mode) || strcmp(Utils::decode($mode), 'cron') !== 0 ){
-      \Drupal::logger('every15minute')->error('not cron');
+      \Drupal::logger('every_15_minute')->error('not cron');
       $response['result']  = FALSE;
       return new JsonResponse( $response );
     }
 
-    \Drupal::logger('every15minute')->notice('is cron');
+    Utils::mongodb_lotterys('&');
+    
+    \Drupal::logger('every_15_minute')->notice('is cron');
 
+    $response['result']  = TRUE;  
+    return new JsonResponse( $response );
+  }
+
+  public function cron_heartbeat(Request $request){
+    \Drupal::logger('cron_heartbeat')->notice('Runing.');
 
     $response['result']  = TRUE;  
     return new JsonResponse( $response );

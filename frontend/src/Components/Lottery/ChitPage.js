@@ -24,6 +24,7 @@ import {headers,
         getCurrentDate, 
         getCurrentTime, 
         getTime,
+        difference_between_two_timestamps,
         getTimeWithDate} from '../Utils/Config';
 import { loadingOverlayActive } from '../../actions/huay'
 import '../../index.css';
@@ -152,15 +153,15 @@ class ChitPage extends Component {
 
     let {tid, type} = this.props.location.state
 
-    console.log(round)
+    console.log(round, type)
 
     switch(type){
       case 'yeekee':{
-        // this.setState({time: getTime(round), date_time: new Date().getTime()});
-        // interval = setInterval(() => {
-        //   let {round} = this.props; 
-        //   this.setState({time: getTime(round)});
-        // }, 1000);
+        this.setState({time: difference_between_two_timestamps(round.date), date_time: new Date().getTime()});
+        interval = setInterval(() => {
+          let {round} = this.props; 
+          this.setState({time: difference_between_two_timestamps(round.date)});
+        }, 1000);
         break;
       }
       default:{
@@ -1249,26 +1250,28 @@ const mapStateToProps = (state, ownProps) => {
         round = yeekees.rounds.find((val) => { return val.tid == tid });
         break;
       }
-      case 'thai-government':
-      case 'hanoi':
-      case 'hanoi-vip':
-      case 'malay':
-      case 'laos':
-      case 'baac':
-      case 'savings-bank':
-      case 'stock-singapore':
-      case 'stock-thai':
-      case 'stock-india':
-      case 'stock-russia':
-      case 'stock-german':
-      case 'stock-dow':
-      case 'stock-egypt':
-      case 'stock-en':
-      case 'stock-nikkei':
-      case 'stock-hangseng':
-      case 'stock-taiwan':
-      case 'stock-korea':
-      case 'stock-china':{
+      // case 'thai-government':
+      // case 'hanoi':
+      // case 'hanoi-vip':
+      // case 'malay':
+      // case 'laos':
+      // case 'baac':
+      // case 'savings-bank':
+      // case 'stock-singapore':
+      // case 'stock-thai':
+      // case 'stock-india':
+      // case 'stock-russia':
+      // case 'stock-german':
+      // case 'stock-dow':
+      // case 'stock-egypt':
+      // case 'stock-en':
+      // case 'stock-nikkei':
+      // case 'stock-hangseng':
+      // case 'stock-taiwan':
+      // case 'stock-korea':
+      // case 'stock-china':
+      default: 
+      {
         round = state.lotterys.data.find((val) => { return val.tid == tid });
         break;
       }
@@ -1276,7 +1279,7 @@ const mapStateToProps = (state, ownProps) => {
 
     let numbers = state.shoot_numbers.data.find((val) => { return val.round_id == tid });
 
-    // console.log(round);
+    console.log(round);
     if(!isEmpty(numbers)){
       numbers = numbers.numbers.sort(function(obj1, obj2) {return obj2.nid - obj1.nid;});
     }
