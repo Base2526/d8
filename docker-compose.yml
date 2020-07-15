@@ -100,6 +100,11 @@ services:
       ME_CONFIG_MONGODB_SERVER: localmongo1  # กรณีเรา set replset เราต้องกำหนด  ME_CONFIG_MONGODB_SERVER ด้วย
   wmcached:
     image: wodby/memcached:1.4-2.0.0
+
+  docker-cron:
+    build: './docker-cron'
+    container_name: "docker-cron"
+    restart: always
   # redis:
   #   image: redis
   #   # networks:

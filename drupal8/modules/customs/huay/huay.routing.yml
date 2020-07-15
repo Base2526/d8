@@ -180,6 +180,14 @@ api.every_15_minute:
   requirements:
     _access: 'TRUE'
 
+# cron_530AM
+api.cron_530AM:
+  path: '/cron/cron_530AM.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::cron_530AM' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
 # heartbeat
 cron.heartbeat: 
   path: '/cron/heartbeat.json'

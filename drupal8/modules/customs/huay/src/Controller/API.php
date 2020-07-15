@@ -1237,4 +1237,11 @@ class API extends ControllerBase {
     $response['result']  = TRUE;  
     return new JsonResponse( $response );
   }
+
+  public function cron_530AM(Request $request){
+    \Drupal::logger('cron_530AM')->notice('Runing.');
+
+    $response['result']  = TRUE;  
+    return new JsonResponse( $response );
+  }
 }
