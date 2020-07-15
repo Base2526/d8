@@ -780,6 +780,14 @@ class Utils extends ControllerBase {
     Utils::mongodb_huay_list_bank(null);
     Utils::mongodb_list_bank(null);
     Utils::mongodb_lotterys(null);
+
+
+    // $collection = (new MongoDB\Client)->test->restaurants;
+
+    // $collection = Utils::GetMongoDB()->shoot_numbers;
+    // ลบ document all
+    // $result = $collection->deleteMany([]);
+    // dpm($result);
   }
 
   // Contact us

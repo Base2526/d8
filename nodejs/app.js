@@ -525,21 +525,14 @@ app.post('/api/bet_cancel', async(req, res) => {
 app.post('/api/shoot_number', async(req, res) => {
   let is_session = await sessionMongoStore.get(req.session.id);
   if (is_session !== undefined) {  
-    var data = {
-      "uid"       : req.body.uid,
-      "data"      : req.body.data,
-      "round_tid" : req.body.round_tid,
-      "time"      : req.body.time
+    let fs = await ShootNumbers.findOne({round_id: req.body.round_tid});
+    if(_.isEmpty(fs)){
+      await ShootNumbers.create({'round_id': req.body.round_tid, 'numbers':[{'uid':req.body.uid, 'number':req.body.data, 'created': Date.now()}]});
+    }else{
+      await ShootNumbers.findOneAndUpdate(
+       { 'round_id': req.body.round_tid }, 
+       { $push: { 'numbers': [{'uid':req.body.uid, 'number':req.body.data, 'created': Date.now()}]  } });
     }
-
-    fetch(config.d8.api_shoot_number, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-      .then((res) => {
-        return res.json()
-    })
-    .then((json) => {
-      console.log(json);
-      res.send(json);
-    });
   }else{
     res.send({result:false, status: '-1'}); ;
   }
@@ -1284,11 +1277,11 @@ server.listen(PORT, function (err) {
       //operationType
       switch(data.operationType){
         case 'insert':{
-          console.log('ShootNumbers > insert');
-          if(socket_local.connected){
-            let find= await ShootNumbers.find({});
-            io.sockets.emit("shoot_numbers", JSON.stringify(find));
-          }  
+          // console.log('ShootNumbers > insert');
+          // if(socket_local.connected){
+          //   let find= await ShootNumbers.find({});
+          //   io.sockets.emit("shoot_numbers", JSON.stringify(find));
+          // }  
           break;
         }
         case 'delete':{
@@ -1301,12 +1294,11 @@ server.listen(PORT, function (err) {
         }
         case 'update':{
           console.log('ShootNumbers > update');
-          if(socket_local.connected){
-            let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
-            if(find){
-              io.sockets.emit("shoot_numbers", JSON.stringify(find));
-            }
-          }  
+          let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
+          console.log(find)
+          if(find){
+            io.sockets.emit("shoot_numbers", JSON.stringify(find));
+          }
           break;
         }
         case 'drop':{

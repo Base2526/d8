@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const shootNumbersSchema = new Schema({
-    round_id: Number,
+    round_id: String,
     numbers: []
 }, { timestamps: true, versionKey: false, collection: 'shoot_numbers' })
 

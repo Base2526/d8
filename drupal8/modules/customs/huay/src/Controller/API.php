@@ -1241,6 +1241,11 @@ class API extends ControllerBase {
   public function cron_530AM(Request $request){
     \Drupal::logger('cron_530AM')->notice('Runing.');
 
+
+    // ลบ document all
+    $collection = Utils::GetMongoDB()->shoot_numbers;
+    $collection->deleteMany([]);
+
     $response['result']  = TRUE;  
     return new JsonResponse( $response );
   }

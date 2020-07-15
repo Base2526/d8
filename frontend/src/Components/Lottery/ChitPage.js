@@ -146,6 +146,8 @@ class ChitPage extends Component {
     this.chitEqualPrice= this.chitEqualPrice.bind(this);
 
     this.fetchMoreData = this.fetchMoreData.bind(this);
+
+    this.handleShootNumberClick = this.handleShootNumberClick.bind(this);
   }
 
   componentDidMount() {
@@ -193,21 +195,12 @@ class ChitPage extends Component {
 
   socketIOAddEventListener(){
     let {user, round} = this.props; 
-    socket =  socketIO(user);
-    if (socket !== undefined) {
-      console.log('shoot_numbers_' + round.tid)
-      socket.on('shoot_numbers_' + round.tid, this.subscribeFn);
-    }
+    (socketIO(user)).on('shoot_numbers_' + round.tid, this.subscribeFn);
   }
 
   socketIORemoveEventListener(){
-    if (socket !== undefined) {
-
-      let {round} = this.props; 
-
-      console.log('----#2');
-      socket.removeListener('shoot_numbers_' + round.tid, this.subscribeFn);
-    }
+    let {user, round} = this.props; 
+    (socketIO(user)).removeListener('shoot_numbers_' + round.tid, this.subscribeFn);
   }
 
   handleOtpChange = otp => {
@@ -415,7 +408,7 @@ class ChitPage extends Component {
 
     // console.log(socket.hasListeners('shoot_numbers_8000'));
 
-    let count  = 10;
+    let count  = 2;
     btn_interval = setInterval(async() => {
       this.setState({shoot_number_text: count--});
       if(count < 0){
@@ -424,14 +417,13 @@ class ChitPage extends Component {
 
         btn_interval = undefined;
 
-        let {shoot_number, date_time} = this.state
+        let {shoot_number} = this.state
         let {user, location} = this.props
         
         let response  = await axios.post('/api/shoot_number', 
                                         { uid: user.uid,
                                           data: shoot_number,
-                                          round_tid: location.state.tid,
-                                          time: date_time
+                                          round_tid: location.state.tid
                                         }, 
                                         {headers:headers()});
 
