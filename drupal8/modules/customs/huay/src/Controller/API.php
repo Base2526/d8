@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 use Drupal\user\Entity\User;
 use Drupal\node\Entity\Node;
+use Drupal\taxonomy\Entity\Term;
+
+use Drupal\config_pages\Entity\ConfigPages;
 
 use Drupal\huay\Utils\Utils;
 /**
@@ -745,7 +748,6 @@ class API extends ControllerBase {
   }
 
   public function bet_yeekee($uid, $data_decode){
-
     $lottery_dealer = 1;
 
     $list_bet_paragraphs =array();
@@ -1227,6 +1229,33 @@ class API extends ControllerBase {
     
     \Drupal::logger('every_15_minute')->notice('is cron');
 
+
+    // บันทึกผลการออกหวย ยี่กี่ yeekee_answer
+
+    $yeekee_answer = ConfigPages::config('yeekee_answer');
+    $answer_yks = array();
+    foreach ($yeekee_answer->get('field_answer_yk')->getValue() as $ii=>$vv){
+        $p = Paragraph::load( $vv['target_id'] );
+        $answer_yks[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+    }
+
+    $item_yeekee_answer = Paragraph::create([
+            'type'                   => 'item_yeekee_answer',
+            'field_answer_yk'         => '55564',
+            'field_round_ye'          => 31,
+            'field_date'         => '12/07/2662'
+          ]);
+          $item_yeekee_answer->save();
+
+    $answer_yks[] = array('target_id'=> $item_yeekee_answer->id(), 'target_revision_id' => $item_yeekee_answer->getRevisionId());
+
+    // dpm( $answer_yks );
+
+    $yeekee_answer->set('field_answer_yk', $answer_yks);
+    $yeekee_answer->save();
+
+    // บันทึกผลการออกหวย ยี่กี่ yeekee_answer
+
     $response['result']  = TRUE;  
     return new JsonResponse( $response );
   }
@@ -1241,10 +1270,22 @@ class API extends ControllerBase {
   public function cron_530AM(Request $request){
     \Drupal::logger('cron_530AM')->notice('Runing.');
 
-
     // ลบ document all
     $collection = Utils::GetMongoDB()->shoot_numbers;
     $collection->deleteMany([]);
+
+    // reset time ของรอบหวยยี่กี่
+    foreach(\Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('yeekee_round') as $ytag_term) {
+      $date = new \DateTime();
+      $date->setTime(6, 15*($ytag_term->name - 1), 0);
+   
+      $term = Term::load($ytag_term->tid);
+      if (!empty($term)) {
+        $term->field_time_answer = $date->getTimestamp();
+        $term->save();
+      }
+    }
+    // reset time ของรอบหวยยี่กี่
 
     $response['result']  = TRUE;  
     return new JsonResponse( $response );

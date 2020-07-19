@@ -374,6 +374,9 @@ export function difference_between_two_timestamps(date){
 
     var res = Math.abs(date1 - date2) / 1000;
 
+    //console.log(date1);
+    //console.log(date2);
+
     // get hours        
     var hours = Math.floor(res / 3600) % 24;    
     // get minutes

@@ -17,6 +17,8 @@ import deposit_status   from './deposit_status'
 
 import socket_io        from './socket_io'
 
+import peoples          from './peoples'
+
 export default combineReducers({
   auth,
   todos,
@@ -35,4 +37,6 @@ export default combineReducers({
   deposit_status,
 
   socket_io,
+
+  peoples,
 })

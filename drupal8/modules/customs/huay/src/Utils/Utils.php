@@ -1021,14 +1021,23 @@ class Utils extends ControllerBase {
 
                 $weight = $yeekee_round_tag_term->weight;
 
-                $date = new \DateTime();
-                $date->setTime(6, 15*$weight, 0);
+                // $date = new \DateTime();
+                // $date->setTime(6, 15*$weight, 0);
 
-                if( (new \DateTime())->getTimestamp() > $date->getTimestamp()){
+                $term = Term::load($yeekee_round_tag_term->tid);
+
+                $date = new \DateTime();
+                $date->setTimestamp($term->field_time_answer->value);
+
+                if( (new \DateTime())->getTimestamp() > $date->getTimestamp() ){
                   $round['is_close'] = TRUE;
                 }else{
                   $round['is_close'] = FALSE;
                 }
+
+                
+                // $r = 15*($ytag_term->name - 1);
+                // $date->setTime(6, 10, 0);
 
                 $round['date']   = $date->getTimestamp() * 1000;
                 $round['weight'] = $weight;
