@@ -1229,9 +1229,7 @@ class API extends ControllerBase {
     
     \Drupal::logger('every_15_minute')->notice('is cron');
 
-
     // บันทึกผลการออกหวย ยี่กี่ yeekee_answer
-
     $yeekee_answer = ConfigPages::config('yeekee_answer');
     $answer_yks = array();
     foreach ($yeekee_answer->get('field_answer_yk')->getValue() as $ii=>$vv){
@@ -1242,7 +1240,7 @@ class API extends ControllerBase {
     $item_yeekee_answer = Paragraph::create([
             'type'                   => 'item_yeekee_answer',
             'field_answer_yk'         => '55564',
-            'field_round_ye'          => 31,
+            'field_round_ye'          => Utils::get__taxonomy_term_tid__by_time(),
             'field_date'         => '12/07/2662'
           ]);
           $item_yeekee_answer->save();

@@ -1312,4 +1312,33 @@ class Utils extends ControllerBase {
 
     return implode(", ", $ids);
   }
+
+  public static function get__taxonomy_term_tid__by_time(){
+    // โหลด  รอบที่ 1
+    $term = Term::load(31);
+
+    $date1 = new \DateTime();
+    $date1->setTimestamp($term->get('field_time_answer')->value);
+
+    $date2 = new \DateTime();
+    // $date2->setTimestamp('1595277900');
+
+    $interval = $date1->diff($date2);
+    // dpm( $interval );
+
+    $minutes = $interval->days * 24 * 60;
+    $minutes += $interval->h * 60;
+    $minutes += $interval->i;
+    // echo $minutes.' minutes';
+
+    $branchs_terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('yeekee_round');
+    $tid = 0;
+    foreach($branchs_terms as $tag_term) {
+      if(strcmp($tag_term->name, (floor($minutes/15) + 1) ) == 0){
+          $tid = $tag_term->tid;
+          break;
+      }
+    }
+    return $tid;
+  }
 }
