@@ -23,6 +23,7 @@
     "react-center": "^1.1.1",
     "react-datepicker": "^2.14.1",
     "react-dom": "^16.13.0",
+    "react-facebook-login": "^4.1.1",
     "react-flexbox-grid": "^2.1.2",
     "react-infinite-scroll-component": "^5.0.4",
     "react-input-mask": "^3.0.0-alpha.2",
