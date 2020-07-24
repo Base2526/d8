@@ -6,6 +6,7 @@ import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 import axios from 'axios';
 import { Base64 } from 'js-base64';
+import FacebookLoginWithButton from 'react-facebook-login';
 
 import { headers, isEmpty } from '../Utils/Config';
 import { userLogin } from '../../actions/auth'
@@ -36,6 +37,8 @@ class LoginPage extends Component {
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
+
+    this.responseFacebook = this.responseFacebook.bind(this);
   }
 
   componentDidMount(){
@@ -146,6 +149,33 @@ class LoginPage extends Component {
     this.props.loadingOverlayActive(is_active, loading_text);
   }
 
+  responseFacebook=(response)=>{
+    console.log(response);
+    switch(response.status){
+      case 'unknown':{
+        console.log(response.status);
+        break;
+      }
+
+      default:{
+          /*
+        {
+          accessToken : "EAAZAEjir4YTIBAJC1fex5LolFLPtmEaPX83ZCYflyAqgYpB2XjLrF3J0tUks5Qfdf0Vzx9vOo7Axs318ouydqVW0hp2I83WCC2XrMgARM7Tr1fUCZBg0D6idZBzhHmgZBE3H8x4WNn09nZCt34kgSXwpQg3wWrZAo2z3YXyqBQOfSTLk05djIQZC",
+          data_access_expiration_time: 1603366594,
+          expiresIn : 5184000,
+          graphDomain: "facebook",
+          id: "2807364352701967",
+          name: "AThe Station",
+          signedRequest: "6paWfytptAf5THx4dCKEVpyQ7mVv5rxKoboXj15eeFE.eyJ1c2VyX2lkIjoiMjgwNzM2NDM1MjcwMTk2NyIsImNvZGUiOiJBUUM0d2xoVDhMQ2xUYzZUa19hMDk0eTBPamhuRjRacV8tUHhSelluVHJCcW1IQzVXSjB5d3FoZG9RNXBwcW5ybVJKaWczVmpVV21fUmlIb1RRZ1hqS1kyV09WVnNZRDhZbDl2Ykx1Rl9wVzR5enloR1ZpWmdwQVZ2ZUZIM3ExSnVYRDU1dzFDOFVkcHp2cUJ0MWN5VjBXYWFWNkJuRTJlTlo4Sm1mOG9DUXdjZnQ1ZHZLbkJrTFI1T2U0dktjTEUtSngyYjZpdS1BR01DSWJNQjB5a2JTRUtJOHB2QUpHazktU3hsQmlTTzVOWmp6cUxULTB3dFFQVXNXTkd0b3F2Tjgza1RHbFZadTdhdUN0OE1tYmY0WjVDd0lDSnNqRVJLQndGOHNnSE51OW42VEtaRWpGLTBjSnBvZnQyVTNRWEptbi1idHY1Sm5peW42YmFLWVNualRaRVYyV05RX29HRkk5blRYUlF1TmlkUUEiLCJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImlzc3VlZF9hdCI6MTU5NTU5MDU5NH0",
+          userID: "2807364352701967"
+          }
+        */
+        console.log(response.status);
+        break;
+      }
+    }
+  }
+
   render(){
     let {validated, email, password, error, error_message} = this.state;
     let {logged_in} = this.props;
@@ -191,6 +221,12 @@ class LoginPage extends Component {
                 เข้าสู่ระบบ
               </Button>
               <Button variant="light" onClick={()=>this.nextPath('/forget-password')}>ลืมรหัสผ่าน</Button>
+
+              <FacebookLoginWithButton
+                appId="1764227257229618"
+                // autoLoad
+                callback={this.responseFacebook}
+                icon="fa-facebook"/>
             </Form>
     );
   }

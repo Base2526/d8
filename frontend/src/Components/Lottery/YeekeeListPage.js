@@ -158,14 +158,16 @@ class YeekeeListPage extends Component {
       // console.log('->'+ round.getTime() +' > '+ round_hours +':'+ round_minutes +':'+ round_seconds );
       */
 
-     let {rounds} = this.props
-     let round = rounds[index];
+      let {rounds} = this.props
+      let round = rounds[index];
 
-     var date = new Date(round.date);
+      var date = new Date(round.date);
 
-     let round_hours   = ("0" + date.getHours()).slice(-2);
-     let round_minutes = ("0" + date.getMinutes()).slice(-2);
-     let round_seconds = ("0" + date.getSeconds()).slice(-2);
+      let round_hours   = ("0" + date.getHours()).slice(-2);
+      let round_minutes = ("0" + date.getMinutes()).slice(-2);
+      let round_seconds = ("0" + date.getSeconds()).slice(-2);
+
+      console.log(round)
 
       return<a key={key} onClick={((e) => this.handleItemClick(e, round))}>
               <div key={key} className={'square-item' + (index % 2 ? '' : ' even') + (round.is_close ? ' square-item-close' : '')}>
@@ -202,7 +204,8 @@ const mapStateToProps = (state, ownProps) => {
                     return (y.is_close === x.is_close)? 0 : y.is_close? -1 : 1;
                     // false values first
                     // return (x === y)? 0 : x? 1 : -1;
-                  });;
+                  });
+                
 
     // rounds.sort(function(x, y) {
     //     // true values first
@@ -213,7 +216,7 @@ const mapStateToProps = (state, ownProps) => {
 
     // console.log(rounds);
 
-    // console.log(rounds)
+    console.log(rounds)
     return {  loggedIn: true, 
               user:state.auth.user, 
               rounds

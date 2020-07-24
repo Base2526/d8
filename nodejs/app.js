@@ -33,6 +33,8 @@ const connectMongoose = require("./src/connection")
 const User            = require("./src/User.model")
 const config          = require("./src/utils/config")
 
+const utils           = require("./src/utils/utils")
+
 var socket_local;
 // var session_local;
 
@@ -484,7 +486,7 @@ app.post('/api/bet', async(req, res) => {
     var data = {
       "uid"       : req.body.uid,
       "data"      : req.body.data,
-      "time"      : req.body.time
+      "time"      : Date.now()
     }
 
     fetch(config.d8.api_bet, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
@@ -522,26 +524,56 @@ app.post('/api/bet_cancel', async(req, res) => {
   }
 });
 
+
 app.post('/api/shoot_number', async(req, res) => {
+  let start_time = new Date();
+  
   let is_session = await sessionMongoStore.get(req.session.id);
   if (is_session !== undefined) {  
-    var data = {
-      "uid"       : req.body.uid,
-      "data"      : req.body.data,
-      "round_tid" : req.body.round_tid,
-      "time"      : req.body.time
-    }
 
-    fetch(config.d8.api_shoot_number, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-      .then((res) => {
-        return res.json()
-    })
-    .then((json) => {
-      console.log(json);
-      res.send(json);
-    });
+    let user = await People.findOne({uid: req.body.uid});
+    if(!_.isEmpty(user)){
+      let fs = await ShootNumbers.findOne({round_id: req.body.round_tid});
+    
+      let data = {};
+      if(_.isEmpty(fs)){
+        data = await ShootNumbers.create({'round_id': req.body.round_tid, 'numbers':[{_id:utils.makeid(24), user:{name: user.name, uid:user.uid, image_url: user.image_url}, 'number':req.body.data, 'created': Date.now()}]});
+      }else{
+        await ShootNumbers.update(
+         { 'round_id': req.body.round_tid }, 
+         { $push: { 'numbers': [{_id:utils.makeid(24), user:{name: user.name, uid:user.uid, image_url: user.image_url}, 'number':req.body.data, 'created': Date.now()}]}}
+        );
+        data = await ShootNumbers.findOne({round_id: req.body.round_tid});
+      }
+      res.send({result:true, data, execution_time: (new Date() - start_time) });
+    }else{
+      res.send({result:false, status: '-1'});
+    }
   }else{
-    res.send({result:false, status: '-1'}); ;
+    res.send({result:false, status: '-1'});
+  }
+});
+
+app.get("/api/shoot_number_by_tid", async (req, res) => {
+  let start_time = new Date();
+
+  let fs = await ShootNumbers.findOne({round_id: req.query.tid});
+  if(_.isEmpty(fs)){
+    res.send({ result:false, data: {} });
+  }else{
+    res.send({ result:true, data: fs, execution_time: (new Date() - start_time) });
+  }
+});
+
+// 
+app.get("/api/get_people_by_uid", async (req, res) => {
+  let start_time = new Date();
+
+  let fs = await People.findOne({uid: req.query.uid});
+  if(_.isEmpty(fs)){
+    res.send({ result:false, data: {} });
+  }else{
+    res.send({ result:true, data: fs, execution_time: (new Date() - start_time) });
   }
 });
 
@@ -1285,10 +1317,15 @@ server.listen(PORT, function (err) {
       switch(data.operationType){
         case 'insert':{
           console.log('ShootNumbers > insert');
-          if(socket_local.connected){
-            let find= await ShootNumbers.find({});
-            io.sockets.emit("shoot_numbers", JSON.stringify(find));
-          }  
+          // if(socket_local.connected){
+          //   let find= await ShootNumbers.find({});
+          //   io.sockets.emit("shoot_numbers", JSON.stringify(find));
+          // } 
+          
+          let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
+          if(find){
+            io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(find));
+          }
           break;
         }
         case 'delete':{
@@ -1301,12 +1338,11 @@ server.listen(PORT, function (err) {
         }
         case 'update':{
           console.log('ShootNumbers > update');
-          if(socket_local.connected){
-            let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
-            if(find){
-              io.sockets.emit("shoot_numbers", JSON.stringify(find));
-            }
-          }  
+          let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
+          // console.log(find)
+          if(find){
+            io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(find));
+          }
           break;
         }
         case 'drop':{
@@ -1415,3 +1451,8 @@ server.listen(PORT, function (err) {
   });
 
 })
+
+// // async, await
+// const init_d8 = async()=>{
+//   await fetch(config.d8.init_d8, {method: 'POST'});
+// }

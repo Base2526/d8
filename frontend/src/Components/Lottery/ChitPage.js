@@ -34,9 +34,6 @@ import {socketIO} from '../../socket.io'
 var interval = undefined;
 var btn_interval = undefined;
 
-
-let socket;
-
 class ChitPage extends Component {
   constructor(props) {
     super(props);
@@ -60,6 +57,8 @@ class ChitPage extends Component {
 
       items: Array.from({ length: 15 }),
       shoot_number_text: 'เพิ่มเลข',
+
+      numbers:[],
 
       data: [
         {
@@ -146,16 +145,16 @@ class ChitPage extends Component {
     this.chitEqualPrice= this.chitEqualPrice.bind(this);
 
     this.fetchMoreData = this.fetchMoreData.bind(this);
+
+    this.handleShootNumberClick = this.handleShootNumberClick.bind(this);
+
+    this.subscribeEvent = this.subscribeEvent.bind(this)
   }
 
   componentDidMount() {
-    let {round} = this.props; 
-
-    let {tid, type} = this.props.location.state
-
-    console.log(round, type)
-
-    switch(type){
+    let _this = this;
+    let {round, location} = this.props; 
+    switch(location.state.type){
       case 'yeekee':{
         this.setState({time: difference_between_two_timestamps(round.date), date_time: new Date().getTime()});
         interval = setInterval(() => {
@@ -174,6 +173,22 @@ class ChitPage extends Component {
     }
 
     this.socketIOAddEventListener();
+
+    axios.get('/api/shoot_number_by_tid', {
+      params: { tid: location.state.tid }
+    })
+    .then(function (response) {
+      
+      let {result, data} = response.data;
+      console.log(result);
+      console.log(data);
+
+      if(result){
+        _this.setState({numbers: data.numbers});
+      }
+    })
+
+    // console.log(this.props.getPeopleByUID({uid: 18}))
   }
 
   componentWillUnmount(){
@@ -184,30 +199,32 @@ class ChitPage extends Component {
     this.socketIORemoveEventListener();
   }
 
-  subscribeFn(data){
-    console.log('Socket io, connected! ChitPage-8000 #1 009');
-    // console.log(data)
+  subscribeEvent(event){    
+    let numbers = (JSON.parse(event)).numbers
+    // เราต้อง sort ก่อนเอาไป compare เพระาว่า this.state.numbers มีการ sort จึงต้อง sort ถึงจะ compare ได้
+    numbers.sort((date1, date2) =>{
+      // This is a comparison function that will result in dates being sorted in
+      // DESCENDING order.
+      if (date1.created > date2.created) return -1;
+      if (date1.created < date2.created) return 1;
+      return 0;
+    });
 
-    console.log(JSON.parse(data));
+    // console.log('>>>subscribeEvent', numbers, this.state.numbers);
+
+    if(!_.isEqual(numbers, this.state.numbers)){
+      this.setState({numbers});
+    }
   }
 
   socketIOAddEventListener(){
     let {user, round} = this.props; 
-    socket =  socketIO(user);
-    if (socket !== undefined) {
-      console.log('shoot_numbers_' + round.tid)
-      socket.on('shoot_numbers_' + round.tid, this.subscribeFn);
-    }
+    (socketIO(user)).on('shoot_numbers_' + round.tid, this.subscribeEvent);
   }
 
   socketIORemoveEventListener(){
-    if (socket !== undefined) {
-
-      let {round} = this.props; 
-
-      console.log('----#2');
-      socket.removeListener('shoot_numbers_' + round.tid, this.subscribeFn);
-    }
+    let {user, round} = this.props; 
+    (socketIO(user)).removeListener('shoot_numbers_' + round.tid, this.subscribeEvent);
   }
 
   handleOtpChange = otp => {
@@ -329,7 +346,7 @@ class ChitPage extends Component {
     this.setState({confirm_show: false, is_active:true})
 
     let {location, round} = this.props; 
-    let {data, date_time} = this.state;
+    let {data} = this.state;
 
     data =  data.filter(function(val) { return !isEmpty(val.items)})
 
@@ -353,6 +370,7 @@ class ChitPage extends Component {
 
         break;
       }
+      /*
       case 'thai-government':
       case 'hanoi':
       case 'hanoi-vip':
@@ -381,13 +399,18 @@ class ChitPage extends Component {
         buff = new Buffer(JSON.stringify({chit_type:round.tid, data}));
         break;
       }
+      */
+
+      default:{
+        buff = new Buffer(JSON.stringify({chit_type:round.tid, data}));
+        break;
+      }
     }
 
-    let response  = await axios.post('/api/bet', 
-                                          { uid: this.props.user.uid,
-                                            data: buff.toString('base64'),
-                                            time: date_time}, 
-                                          {headers:headers()});
+    let response  = await axios.post('/api/bet',{ uid: this.props.user.uid,
+                                                  data: buff.toString('base64')
+                                                }, 
+                                                {headers:headers()});
     console.log(response);
 
     this.setState({is_active:false})
@@ -412,10 +435,7 @@ class ChitPage extends Component {
   }
 
   handleShootNumberClick(){
-
-    // console.log(socket.hasListeners('shoot_numbers_8000'));
-
-    let count  = 10;
+    let count  = 2;
     btn_interval = setInterval(async() => {
       this.setState({shoot_number_text: count--});
       if(count < 0){
@@ -424,29 +444,28 @@ class ChitPage extends Component {
 
         btn_interval = undefined;
 
-        let {shoot_number, date_time} = this.state
+        let {shoot_number} = this.state
         let {user, location} = this.props
         
         let response  = await axios.post('/api/shoot_number', 
                                         { uid: user.uid,
                                           data: shoot_number,
-                                          round_tid: location.state.tid,
-                                          time: date_time
+                                          round_tid: location.state.tid
                                         }, 
                                         {headers:headers()});
-
-          
-        console.log(response);
-        // if( response.status==200 && response.statusText == "OK" ){
-        //   if(response.data.result){
-              this.setState({shoot_number: '', shoot_number_show:false})
-        //     showToast('success', 'เพิ่มเลข เรียบร้อย');
-        //   }else{
-        //     showToast('error', response.data.message);
-        //   }
-        // }else{
-        //   showToast('error', 'Error');
-        // }
+        // console.log(response);
+        if( response.status==200 && response.statusText == "OK" ){
+          let {result, message, data} = response.data;
+          if(result){
+            // console.log(data);
+            this.setState({shoot_number: '', numbers: data.numbers /*shoot_number_show:false*/ })
+            showToast('success', 'เพิ่มเลข เรียบร้อย');
+          }else{
+            showToast('error', message);
+          }
+        }else{
+          showToast('error', 'Error');
+        }
 
       }
     }, 1000);
@@ -947,7 +966,6 @@ class ChitPage extends Component {
       let {shoot_number} = this.state;
 
       let btn_shoot_number = <Button onClick={() =>{ this.handleShootNumberClick() }}>{this.state.shoot_number_text}</Button>;
-      console.log(shoot_number)
       if(isEmpty(shoot_number) || shoot_number.length < 5 ){
         btn_shoot_number = <Button disabled onClick={() =>{ this.handleShootNumberClick() }}>{this.state.shoot_number_text}</Button>
       }
@@ -959,8 +977,7 @@ class ChitPage extends Component {
                   value={shoot_number}
                   onInput = {(e) =>{
                     e.target.value = Math.max(0, parseInt(e.target.value) ).toString().slice(0,5)
-                    console.log(e.target.value);
-
+                    // console.log(e.target.value);
                     this.setState({shoot_number:e.target.value})
                   }} 
                   placeholder="กรอบตัวเลข 5 หลัก" />
@@ -985,7 +1002,18 @@ class ChitPage extends Component {
   }
 
   showshootNumberShowModal(){
-    let {numbers} = this.props
+    if(!this.state.shoot_number_show){
+      return <div />
+    }
+
+    let {numbers} = this.state
+    numbers.sort((date1, date2) =>{
+      // This is a comparison function that will result in dates being sorted in
+      // DESCENDING order.
+      if (date1.created > date2.created) return -1;
+      if (date1.created < date2.created) return 1;
+      return 0;
+    });
 
     let modal_body = <div/>
     if(!isEmpty(numbers)){
@@ -1002,8 +1030,9 @@ class ChitPage extends Component {
                           </p>
                         }>
                         {numbers.map((i, index) => {
+                          // console.log(i)
 
-                          var date = new Date(i.update*1000);
+                          var date = new Date(i.created);
                           // Year
                           var year = date.getFullYear();
                           // Month
@@ -1017,12 +1046,12 @@ class ChitPage extends Component {
                           // Seconds
                           var seconds = "0" + date.getSeconds();
                           // Display date time in MM-dd-yyyy h:m:s format
-                          var convdataTime = day +'-'+month+'-'+year+' '+hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+                          var time = day +'-'+month+'-'+year+' '+hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
 
                           return<div /*style={style}*/ key={index} className={'sq-order'}>
-                                  ลำดับที่ {index} หมายเลข {i.number}
-                                  ผู้ส่งเลข {i.name}
-                                  เมื่อ {convdataTime}
+                                  ลำดับที่ {index+1} หมายเลข {i.number}
+                                  ผู้ส่งเลข {i.user.name}
+                                  เมื่อ {time}
                                 </div>
                           }
                         )}
@@ -1063,8 +1092,10 @@ class ChitPage extends Component {
     let {location, round} = this.props; 
     let {error, error_message, total, otp, m, time, date_time} = this.state;
 
-    console.log(date_time)
-    console.log(getCurrentDate());
+    // console.log(date_time)
+    // console.log(getCurrentDate());
+
+    
 
     this.gotoPageExit();
     this.loadingOverlayActive();
@@ -1213,6 +1244,8 @@ const mapStateToProps = (state, ownProps) => {
 	if(!state._persist.rehydrated){
 		return {};
   }
+
+  // console.log(state)
   
   if(state.auth.isLoggedIn){
     /*
@@ -1277,19 +1310,19 @@ const mapStateToProps = (state, ownProps) => {
       }
     }
 
-    let numbers = state.shoot_numbers.data.find((val) => { return val.round_id == tid });
+    // let numbers = state.shoot_numbers.data.find((val) => { return val.round_id == tid });
 
-    console.log(round);
-    if(!isEmpty(numbers)){
-      numbers = numbers.numbers.sort(function(obj1, obj2) {return obj2.nid - obj1.nid;});
-    }
+    // console.log(round);
+    // if(!isEmpty(numbers)){
+    //   numbers = numbers.numbers.sort(function(obj1, obj2) {return obj2.nid - obj1.nid;});
+    // }
 
     return {  logged_in: true, 
               user: state.auth.user,
               lotterys,
-              yeekee_round: state.yeekee_round.data,
+              // yeekee_round: state.yeekee_round.data,
               round,
-              numbers,
+              // numbers,
               is_connect: state.socket_io.is_connect};
   }else{
     return { logged_in: false };
@@ -1300,7 +1333,10 @@ const mapDispatchToProps = (dispatch) => {
 	return {
     loadingOverlayActive: (isActivie, loadingText) =>{
       dispatch(loadingOverlayActive(isActivie, loadingText))
-    }
+    },
+    // getPeopleByUID: (data) =>{
+    //   dispatch(getPeopleByUID(data))
+    // },
 	}
 }
 

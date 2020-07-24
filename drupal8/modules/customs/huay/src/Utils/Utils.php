@@ -780,6 +780,14 @@ class Utils extends ControllerBase {
     Utils::mongodb_huay_list_bank(null);
     Utils::mongodb_list_bank(null);
     Utils::mongodb_lotterys(null);
+
+
+    // $collection = (new MongoDB\Client)->test->restaurants;
+
+    // $collection = Utils::GetMongoDB()->shoot_numbers;
+    // ลบ document all
+    // $result = $collection->deleteMany([]);
+    // dpm($result);
   }
 
   // Contact us
@@ -1013,14 +1021,23 @@ class Utils extends ControllerBase {
 
                 $weight = $yeekee_round_tag_term->weight;
 
-                $date = new \DateTime();
-                $date->setTime(6, 15*$weight, 0);
+                // $date = new \DateTime();
+                // $date->setTime(6, 15*$weight, 0);
 
-                if( (new \DateTime())->getTimestamp() > $date->getTimestamp()){
+                $term = Term::load($yeekee_round_tag_term->tid);
+
+                $date = new \DateTime();
+                $date->setTimestamp($term->field_time_answer->value);
+
+                if( (new \DateTime())->getTimestamp() > $date->getTimestamp() ){
                   $round['is_close'] = TRUE;
                 }else{
                   $round['is_close'] = FALSE;
                 }
+
+                
+                // $r = 15*($ytag_term->name - 1);
+                // $date->setTime(6, 10, 0);
 
                 $round['date']   = $date->getTimestamp() * 1000;
                 $round['weight'] = $weight;
@@ -1294,5 +1311,34 @@ class Utils extends ControllerBase {
     }
 
     return implode(", ", $ids);
+  }
+
+  public static function get__taxonomy_term_tid__by_time(){
+    // โหลด  รอบที่ 1
+    $term = Term::load(31);
+
+    $date1 = new \DateTime();
+    $date1->setTimestamp($term->get('field_time_answer')->value);
+
+    $date2 = new \DateTime();
+    // $date2->setTimestamp('1595277900');
+
+    $interval = $date1->diff($date2);
+    // dpm( $interval );
+
+    $minutes = $interval->days * 24 * 60;
+    $minutes += $interval->h * 60;
+    $minutes += $interval->i;
+    // echo $minutes.' minutes';
+
+    $branchs_terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('yeekee_round');
+    $tid = 0;
+    foreach($branchs_terms as $tag_term) {
+      if(strcmp($tag_term->name, (floor($minutes/15) + 1) ) == 0){
+        $tid = $tag_term->tid;
+        break;
+      }
+    }
+    return $tid;
   }
 }

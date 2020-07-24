@@ -50,3 +50,8 @@ export const updateSocketIOStatus = (data) => ({
     type: types.UPDATE_SOCKET_IO_STATUS,
     data
 });
+
+// export const getPeopleByUID = (data) => ({
+//     type: types.GET_PEOPLE_BY_UID,
+//     data
+// });
