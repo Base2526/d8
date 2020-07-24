@@ -1335,8 +1335,8 @@ class Utils extends ControllerBase {
     $tid = 0;
     foreach($branchs_terms as $tag_term) {
       if(strcmp($tag_term->name, (floor($minutes/15) + 1) ) == 0){
-          $tid = $tag_term->tid;
-          break;
+        $tid = $tag_term->tid;
+        break;
       }
     }
     return $tid;

@@ -1451,3 +1451,8 @@ server.listen(PORT, function (err) {
   });
 
 })
+
+// // async, await
+// const init_d8 = async()=>{
+//   await fetch(config.d8.init_d8, {method: 'POST'});
+// }

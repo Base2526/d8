@@ -1238,10 +1238,10 @@ class API extends ControllerBase {
     }
 
     $item_yeekee_answer = Paragraph::create([
-            'type'                   => 'item_yeekee_answer',
-            'field_answer_yk'         => '55564',
-            'field_round_ye'          => Utils::get__taxonomy_term_tid__by_time(),
-            'field_date'         => '12/07/2662'
+            'type'               => 'item_yeekee_answer',
+            'field_answer_yk'    => '55564',
+            'field_round_ye'     => Utils::get__taxonomy_term_tid__by_time(),
+            'field_date'         => (new \DateTime('now'))->getTimestamp()
           ]);
           $item_yeekee_answer->save();
 
@@ -1253,6 +1253,13 @@ class API extends ControllerBase {
     $yeekee_answer->save();
 
     // บันทึกผลการออกหวย ยี่กี่ yeekee_answer
+
+
+    // Loop ให้หวยยีกี่ทั้งหมดเพือทำงาน update status ว่ามีการออกรางวัลเรียบร้อยแล้ว
+
+
+    // Loop ให้หวยยีกี่ทั้งหมดเพือทำงาน update status ว่ามีการออกรางวัลเรียบร้อยแล้ว
+
 
     $response['result']  = TRUE;  
     return new JsonResponse( $response );
