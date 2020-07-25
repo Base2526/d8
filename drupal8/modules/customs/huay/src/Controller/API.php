@@ -1227,39 +1227,41 @@ class API extends ControllerBase {
 
     Utils::mongodb_lotterys('&');
     
-    \Drupal::logger('every_15_minute')->notice('is cron');
+    \Drupal::logger('every_15_minute')->notice('is cron ' . Utils::get__taxonomy_term_tid__by_time() );
 
     // บันทึกผลการออกหวย ยี่กี่ yeekee_answer
+    
+    //  base64_encode(json_encode($numbers)) 
+
     $yeekee_answer = ConfigPages::config('yeekee_answer');
     $answer_yks = array();
     foreach ($yeekee_answer->get('field_answer_yk')->getValue() as $ii=>$vv){
-        $p = Paragraph::load( $vv['target_id'] );
-        $answer_yks[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+      $p = Paragraph::load( $vv['target_id'] );
+      $answer_yks[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
     }
 
+    $round_tid = Utils::get__taxonomy_term_tid__by_time();
+
     $item_yeekee_answer = Paragraph::create([
-            'type'               => 'item_yeekee_answer',
-            'field_answer_yk'    => '55564',
-            'field_round_ye'     => Utils::get__taxonomy_term_tid__by_time(),
-            'field_date'         => (new \DateTime('now'))->getTimestamp()
-          ]);
-          $item_yeekee_answer->save();
+                                              'type'               => 'item_yeekee_answer',
+                                              'field_shoot_number' => Utils::getShootNumberByRound($round_tid),
+                                              'field_round_ye'     => $round_tid,
+                                              'field_date'         => (new \DateTime('now'))->getTimestamp()
+                                            ]);
+    $item_yeekee_answer->save();
 
     $answer_yks[] = array('target_id'=> $item_yeekee_answer->id(), 'target_revision_id' => $item_yeekee_answer->getRevisionId());
 
-    // dpm( $answer_yks );
-
     $yeekee_answer->set('field_answer_yk', $answer_yks);
     $yeekee_answer->save();
-
+    
     // บันทึกผลการออกหวย ยี่กี่ yeekee_answer
 
 
     // Loop ให้หวยยีกี่ทั้งหมดเพือทำงาน update status ว่ามีการออกรางวัลเรียบร้อยแล้ว
-
+   
 
     // Loop ให้หวยยีกี่ทั้งหมดเพือทำงาน update status ว่ามีการออกรางวัลเรียบร้อยแล้ว
-
 
     $response['result']  = TRUE;  
     return new JsonResponse( $response );

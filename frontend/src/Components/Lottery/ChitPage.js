@@ -1050,7 +1050,7 @@ class ChitPage extends Component {
 
                           return<div /*style={style}*/ key={index} className={'sq-order'}>
                                   ลำดับที่ {index+1} หมายเลข {i.number}
-                                  ผู้ส่งเลข {i.user.name}
+                                  ผู้ส่งเลข  {i.user.name}
                                   เมื่อ {time}
                                 </div>
                           }

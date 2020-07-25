@@ -1341,4 +1341,61 @@ class Utils extends ControllerBase {
     }
     return $tid;
   }
+
+  public static function awardYeekee($round_tid){
+    if(empty($round_tid)){
+      return;
+    }
+
+    $collection = Utils::GetMongoDB()->shoot_numbers;
+    $cursor     = $collection->find(['round_id'=>$round_tid]);
+
+    $result = $cursor->toArray();
+    foreach($result as $i => $doc) {
+      $result[$i] = MongoDB\BSON\toJSON(MongoDB\BSON\fromPHP($doc));
+    }
+
+    $numbers = json_decode($result[0])->numbers;
+    usort($numbers, function($firstItem, $secondItem) {
+            $timeStamp1 =$firstItem->created;
+            $timeStamp2 =$secondItem->created;
+            return $timeStamp2 - $timeStamp1;
+        });
+
+    $sum = 0;
+    // $p1  = 0;
+    $p16 = 0;
+    foreach( $numbers as $key => $value) {
+        $sum += $value->number;
+        if($key == 15){
+          $p16 = $value->number;
+        }
+    }
+
+    dpm( 'Sum :' . $sum . ', P16 :' . $p16 .', P1 :' . $p1);
+  }
+
+  // Get shoot_numbers จาก mongodb เพือบันทึกลงที่ d8
+  public static function getShootNumberByRound($round_tid){
+    if(empty($round_tid)){
+      return;
+    }
+
+    $collection = Utils::GetMongoDB()->shoot_numbers;
+    $cursor     = $collection->find(['round_id'=>$round_tid]);
+
+    $result = $cursor->toArray();
+    foreach($result as $i => $doc) {
+      $result[$i] = MongoDB\BSON\toJSON(MongoDB\BSON\fromPHP($doc));
+    }
+
+    $numbers = json_decode($result[0])->numbers;
+    usort($numbers, function($firstItem, $secondItem) {
+            $timeStamp1 =$firstItem->created;
+            $timeStamp2 =$secondItem->created;
+            return $timeStamp2 - $timeStamp1;
+        });
+
+    return base64_encode(json_encode($numbers));
+  }
 }

@@ -1,6 +1,8 @@
 <?php
 $client = new MongoDB\Client("mongodb://localhost:27017");
 
+
+// https://gist.github.com/cam-gists/3036485
 /*
 https://docs.mongodb.com/php-library/v1.5/tutorial/crud/#insert-documents
 # Get data
