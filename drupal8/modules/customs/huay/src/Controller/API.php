@@ -1273,6 +1273,21 @@ class API extends ControllerBase {
 
     // Loop ให้หวยยีกี่ทั้งหมดเพือทำงาน update status ว่ามีการออกรางวัลเรียบร้อยแล้ว
    
+    $query = \Drupal::entityQuery('node');
+    $query->condition('type', 'chits');
+    $query->condition('status', 1);
+    $query->condition('field_yeekee_round', $round_tid);
+    $query->condition('created', Term::load(31)->get('field_time_answer')->value, '>=');
+    $query->condition('created', Term::load($round_tid)->get('field_time_answer')->value, '<=');
+    
+    $nids = $query->execute();
+    if(!empty($nids)){
+      $nodes = Node::loadMultiple($nids);
+      foreach ($nodes as $node) {
+        $node->field_is_award = TRUE;
+        $node->save();
+      }
+    }
 
     // Loop ให้หวยยีกี่ทั้งหมดเพือทำงาน update status ว่ามีการออกรางวัลเรียบร้อยแล้ว
 

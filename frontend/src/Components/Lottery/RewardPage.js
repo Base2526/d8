@@ -8,7 +8,7 @@ import {isEmpty} from '../Utils/Config';
 
 // addAward
 
-import { addAward } from '../../actions/huay'
+import { addAward, loadingOverlayActive } from '../../actions/huay'
 import awards from '../../reducers/awards';
 
 class RewardPage extends Component {
@@ -16,17 +16,20 @@ class RewardPage extends Component {
     super(props);
 
     this.state = {
-       p1: {},
-      p16: {},
-      sum: '',
+      is_active: false,
+      loading_text: 'รอสักครู่',
     }
-
   }
 
   componentDidMount = async() => {
     let {award} = this.props;
 
+    this.setState({is_active:false});
+
     if(isEmpty(award)){
+
+      this.setState({is_active:true})
+
       let {params, type_lotterys} = this.props.location.state
       params = JSON.parse(params);
     
@@ -37,27 +40,19 @@ class RewardPage extends Component {
                         round_tid: params.tid }, 
                       {headers:JSON.parse(Base64.decode(Base64.decode(localStorage.getItem('headers'))))});
       
-      // console.log(response);
       if( response.status==200 && response.statusText == "OK" ){
-        if(response.data.result){
-          let {data} = response.data.data;
-  
-          console.log(response.data.data)
-  
-          let p1  = JSON.parse(data.p1);
-          let p16 = JSON.parse(data.p16);
-          let sum = data.sum;
-  
-          // console.log(p1);
-          // console.log(p16);
-          // console.log(sum);
-  
-          // this.setState({p1, p16, sum});
-  
-          this.props.addAward(response.data.data)
+        if(response.data.result){  
+          this.props.addAward(response.data.data);
         }
       }
+
+      this.setState({is_active:false});
     }
+  }
+
+  loadingOverlayActive(){
+    let {is_active, loading_text} = this.state
+    this.props.loadingOverlayActive(is_active, loading_text);
   }
 
   render() {
@@ -69,13 +64,18 @@ class RewardPage extends Component {
     // console.log(p16);
     // console.log(sum);
 
+    this.loadingOverlayActive();
+
     let {award} = this.props;
 
     if(isEmpty(award)){
       return <div/>;
     }
 
-    let {p1, p16, sum} = award.data
+    var {p1, p16, sum} = award.data
+
+    p1  = JSON.parse(p1);
+    p16 = JSON.parse(p16);
     
     let reward = sum - p16.number;
     reward = reward.toString();
@@ -116,7 +116,7 @@ const mapStateToProps = (state, ownProps) => {
 
       award = awards.data.find(item => item.type_lotterys === type_lotterys && item.round_tid === params.tid && item.date === String(params.date) )
       
-      // console.log(award);
+      console.log(award);
     }
     
 
@@ -130,6 +130,9 @@ const mapDispatchToProps = (dispatch) => {
 	return {
     addAward:(data)=>{
       dispatch(addAward(data))
+    },
+    loadingOverlayActive: (isActivie, loadingText) =>{
+      dispatch(loadingOverlayActive(isActivie, loadingText))
     },
   }
 }
