@@ -9,6 +9,7 @@ import {isEmpty} from '../Utils/Config';
 // addAward
 
 import { addAward } from '../../actions/huay'
+import awards from '../../reducers/awards';
 
 class RewardPage extends Component {
   constructor(props) {
@@ -23,34 +24,38 @@ class RewardPage extends Component {
   }
 
   componentDidMount = async() => {
+    let {award} = this.props;
 
-    console.log(this.props.addAward({test:122}))
-
-    let {params, type_lotterys} = this.props.location.state
-    params = JSON.parse(params);
+    if(isEmpty(award)){
+      let {params, type_lotterys} = this.props.location.state
+      params = JSON.parse(params);
     
-    let response  = await axios.post('/api/get_yeekee_answer', 
-                    { uid: this.props.user.uid,
-                      type_lotterys: type_lotterys,
-                      date: String(params.date), 
-                      round_tid: params.tid }, 
-                    {headers:JSON.parse(Base64.decode(Base64.decode(localStorage.getItem('headers'))))});
-    
-    console.log(response);
-
-    if( response.status==200 && response.statusText == "OK" ){
-      if(response.data.result){
-        let {data} = response.data.data;
-
-        let p1  = JSON.parse(data.p1);
-        let p16 = JSON.parse(data.p16);
-        let sum = data.sum;
-
-        console.log(p1);
-        console.log(p16);
-        console.log(sum);
-
-        this.setState({p1, p16, sum});
+      let response  = await axios.post('/api/get_yeekee_answer', 
+                      { uid: this.props.user.uid,
+                        type_lotterys: type_lotterys,
+                        date: String(params.date), 
+                        round_tid: params.tid }, 
+                      {headers:JSON.parse(Base64.decode(Base64.decode(localStorage.getItem('headers'))))});
+      
+      // console.log(response);
+      if( response.status==200 && response.statusText == "OK" ){
+        if(response.data.result){
+          let {data} = response.data.data;
+  
+          console.log(response.data.data)
+  
+          let p1  = JSON.parse(data.p1);
+          let p16 = JSON.parse(data.p16);
+          let sum = data.sum;
+  
+          // console.log(p1);
+          // console.log(p16);
+          // console.log(sum);
+  
+          // this.setState({p1, p16, sum});
+  
+          this.props.addAward(response.data.data)
+        }
       }
     }
   }
@@ -58,27 +63,21 @@ class RewardPage extends Component {
   render() {
     let {params, type_lotterys} = this.props.location.state
 
-    let {p1, p16, sum} = this.state;
+    // let {p1, p16, sum} = this.state;
 
     // console.log(p1);
     // console.log(p16);
     // console.log(sum);
 
-    if(isEmpty(p1)){
+    let {award} = this.props;
+
+    if(isEmpty(award)){
       return <div/>;
     }
+
+    let {p1, p16, sum} = award.data
     
-
-    // let _params = JSON.parse(params);
-    // console.log( _params );
-
     let reward = sum - p16.number;
-
-    // var str = "Hello world!";
-
-    // var res = str.substring(1, 4);
-    // console.log( res );
-
     reward = reward.toString();
 
     let _3up   = reward.substring(reward.length- 3, reward.length);
@@ -100,9 +99,28 @@ const mapStateToProps = (state, ownProps) => {
 		return {};
   }
     
-  console.log(state);
   if(state.auth.isLoggedIn){
-      return { loggedIn: true, user:state.auth.user };
+    let awards = state.awards;
+    // console.log(awards);
+
+    var award ={};
+    if(!isEmpty(awards.data)){
+
+      // let {params, type_lotterys} = this.props.location.state
+      // console.log(ownProps.location.state)
+
+      let {params, type_lotterys} = ownProps.location.state
+      params = JSON.parse(params);
+
+      // {"tid":"98","name":"30","is_close":true,"date":1596089700000,"weight":"29"}
+
+      award = awards.data.find(item => item.type_lotterys === type_lotterys && item.round_tid === params.tid && item.date === String(params.date) )
+      
+      // console.log(award);
+    }
+    
+
+    return { loggedIn: true, user:state.auth.user, award};
   }else{
       return { loggedIn: false };
   }
