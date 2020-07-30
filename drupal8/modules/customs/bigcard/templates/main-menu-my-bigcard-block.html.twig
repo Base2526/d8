@@ -1,0 +1,289 @@
+{# <div class="top-head-content"> #}
+    <!-- Image and text -->
+{#
+<div id="navbar-top1" class="fs-mini">
+    <a class="" href="http://www.bigc.co.th">{{ 'BIG C SHOPPING ONLINE' | t }}</a>
+    <a class="top1-submenu" href="#">{{ 'FAQ' | t }}</a>
+    <a class="top1-submenu" href="http://corporate.bigc.co.th/">{{ 'BIG C STORE' | t }}</a>
+    <a class="top1-submenu" href={{ params["language"]["en"] }} title="en">EN</a>
+    <a class="" href={{ params["language"]["th"] }} title="th">TH</a>
+</div> #}
+
+<div id="navbar-top2" class="desktop_show">
+    <a class="navbar-brand" href="/{{ params["lang"] }}">
+        <img src="/sites/default/modules/customs/bigcard/images/bigcard-account-new.png" class="d-inline-block align-top" alt="">
+        <div class="fs-xxs px-2" style="float:right;color:#4b8044;font-family:Helvetica;margin-top:5px">
+            <b style="color:#4b8044">Big</b> Card
+            <div class="line-bottom"></div>
+        </div>
+    </a>
+
+    <div class="dropdown fs-md">
+        <button class="dropbtn" ><a href="/{{ params["lang"] }}/collect-points">{{ 'สะสมคะแนน' | t }}</a></button>
+    </div>
+
+    <div class="dropdown fs-md sub-menu">
+        <button class="dropbtn">{{ 'แลกคะแนน' | t }}</button>
+        <div class="dropdown-content fs-xs">
+            <a href="/{{ params["lang"] }}/discount-point">{{ 'แลกคะแนนรับส่วนลด' | t }}</a>
+            <a href="/{{ params["lang"] }}/pointfree">{{ 'แลกคะแนนรับสินค้าฟรี' | t }}</a>
+        </div>
+    </div>
+
+    <div class="dropdown fs-md sub-menu">
+        <button class="dropbtn">{{ 'สิทธิพิเศษร้านค้า' | t }}</button>
+        <div class="dropdown-content fs-xs">
+            <a href="/{{ params["lang"] }}/sp/57942">
+                <img class="nav-img-icon" src="/sites/default/modules/customs/bigcard/images/food.png">
+                {# <i class="fas fa-utensils"></i>  #}
+                 {{ 'อาหาร & เครื่องดื่ม' | t }}
+            </a>
+            <a href="/{{ params["lang"] }}/sp/57943">
+                <img class="nav-img-icon" src="/sites/default/modules/customs/bigcard/images/hotel.png">
+                {# <i class="fas fa-plane"></i>  #}
+                 {{ 'โรงแรม ที่พัก & ท่องเที่ยว' | t }}
+            </a>
+            <a href="/{{ params["lang"] }}/sp/57944">
+                <img class="nav-img-icon" src="/sites/default/modules/customs/bigcard/images/health.png">
+                {# <i class="fas fa-plane"></i>  #}
+                 {{ 'สุขภาพ & ความงาม' | t }}
+            </a>
+            <a href="/{{ params["lang"] }}/sp/57945">
+                <img class="nav-img-icon" src="/sites/default/modules/customs/bigcard/images/education.png">
+                {# <i class="fas fa-palette"></i>  #}
+                 {{ 'การศึกษา' | t }}
+            </a>
+            <a href="/{{ params["lang"] }}/sp/57946">
+                <img class="nav-img-icon" src="/sites/default/modules/customs/bigcard/images/lifestyle-new.png">
+                {# <i class="fas fa-bicycle"></i>  #}
+                {{ 'ไลฟ์สไตล์' | t }}
+            </a>
+        </div>
+    </div>
+
+    <div class="dropdown fs-md sub-menu">
+        <button class="dropbtn">{{ 'สะสมบิ๊กสติ๊กเกอร์' | t }}</button>
+        <div class="dropdown-content fs-xs">
+            <a href="/{{ params["lang"] }}/promotion-detail">{{ 'รายละเอียดโปรโมชั่น' | t }}</a>
+            <a href="/{{ params["lang"] }}/step-to-join">{{ 'ขั้นตอนในการเข้าร่วม' | t }}</a>
+            <a href="/{{ params["lang"] }}/special-sticker">{{ 'บิ๊กสติกเกอร์พิเศษ' | t }}</a>
+        </div>
+    </div>
+
+    {% if params['is_authenticated'] == '1' %}
+        <div id="login-account-div" class="dropdown fs-md">
+            <a class="user my-accout d-inline-block" href="/{{ params["lang"] }}/customer/account/login" style="vertical-align: text-top;">
+                {# <i class="far fa-user"></i> #}
+                <p>&nbsp;</p>
+            </a>
+            <button class="dropbtn">{{ 'บัญชีผู้ใช้' | t }}</button>
+            <div class="dropdown-content fs-xs">
+                <a href="/{{ params["lang"] }}/my_bigcard">{{ 'บัญชีผู้ใช้' | t }}</a>
+                <a href="/{{ params["lang"] }}/pointfree">{{ 'กิจกรรม' | t }}</a>
+                <a href="/{{ params["lang"] }}/user/logout">{{ 'ออกจากระบบ' | t }}</a>
+            </div>
+        </div>
+    {% else %}
+        <div id="not-login-account-div" class="dropdown fs-md" style="float:right;">
+            <div>
+                <a class="user my-accout d-inline-block" href="/{{ params["lang"] }}/customer/account/login" style="vertical-align: text-top;">
+                    {# <i class="far fa-user"></i> #}
+                    <p>&nbsp;</p>
+                </a>
+                <a class="register" href="/{{ params["lang"] }}/customer/account/login">{{ 'สมาชิก บิ๊กการ์ด' | t }}</a>
+            </div>
+        </div>
+    {% endif %}
+
+
+</div>
+
+<div id="navbar-top1-mb" class="list-group list-group-flush">
+    
+    <div class="list-group-item">
+        <a class="fs-sm" href="/{{ params["lang"] }}/collect-points" role="button" aria-expanded="false">
+            {{ 'สะสมคะแนน' | t }}
+        </a>
+    </div>
+
+    <div class="list-group-item">
+        <a style="display: block;" class="fs-sm collapsed" data-toggle="collapse" href="#collapse-redeem" role="button" aria-expanded="false" aria-controls="collapse-redeem">
+            {{ 'แลกคะแนน' | t }} <i class="fa" aria-hidden="true" style="float:right;margin-top:5px;"></i>
+        </a>
+        <ul class="collapse fs-xxs" id="collapse-redeem">
+           <li>
+               <a href="/{{ params["lang"] }}/discount-point">{{ 'แลกคะแนนรับส่วนลด' | t }}</a>
+            </li>
+           <li>
+               <a href="/{{ params["lang"] }}/pointfree">{{ 'แลกคะแนนรับสินค้าฟรี' | t }}</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="list-group-item">
+        <a style="display: block;" class="fs-sm collapsed" data-toggle="collapse" href="#collapse-privilege" role="button" aria-expanded="false" aria-controls="collapse-privilege">
+            {{ 'สิทธิพิเศษร้านค้า' | t }} <i class="fa" aria-hidden="true" style="float:right"></i>
+        </a>
+        <ul class="collapse fs-xxs" id="collapse-privilege">
+           <li>
+               <a href="/{{ params["lang"] }}/sp/57942">
+                    {# <i class="fas fa-utensils"></i> #}
+                    <img class="nav-img-icon" src="/sites/default/modules/customs/bigcard/images/food.png">
+                     {{ 'อาหาร & เครื่องดื่ม' | t }}
+                </a>
+            </li>
+           <li>
+                <a href="/{{ params["lang"] }}/sp/57943">
+                    {# <i class="fas fa-plane"></i> #}
+                    <img class="nav-img-icon" src="/sites/default/modules/customs/bigcard/images/hotel.png">
+                     {{ 'โรงแรม ที่พัก & ท่องเที่ยว' | t }}
+                </a>
+            </li>
+           <li>
+                <a href="/{{ params["lang"] }}/sp/57944">
+                    {# <i class="fas fa-plane"></i> #}
+                    <img class="nav-img-icon" src="/sites/default/modules/customs/bigcard/images/health.png">
+                     {{ 'สุขภาพ & ความงาม' | t }}
+                </a>
+            </li>
+           <li>
+                <a href="/{{ params["lang"] }}/sp/57945">
+                    {# <i class="fas fa-palette"></i> #}
+                    <img class="nav-img-icon" src="/sites/default/modules/customs/bigcard/images/education.png">
+                     {{ 'การศึกษา' | t }}
+                </a>
+            </li>
+           <li>
+               <a href="/{{ params["lang"] }}/sp/57946">
+                    {# <i class="fas fa-bicycle"></i> #}
+                    <img class="nav-img-icon" src="/sites/default/modules/customs/bigcard/images/lifestyle-new.png">
+                     {{ 'ไลฟ์สไตล์' | t }}
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="list-group-item">
+        <a style="display: block;" class="fs-sm collapsed" data-toggle="collapse" href="#collapse-sticker" role="button" aria-expanded="false" aria-controls="collapse-privilege">
+            {{ 'สะสมบิ๊กสติ๊กเกอร์' | t }} <i class="fa" aria-hidden="true" style="float:right"></i>
+        </a>
+        <ul class="collapse fs-xxs" id="collapse-sticker">
+           <li>
+               <a href="/{{ params["lang"] }}/promotion-detail">
+                     {{ 'รายละเอียดโปรโมชั่น' | t }}
+                </a>
+            </li>
+           <li>
+                <a href="/{{ params["lang"] }}/step-to-join">
+                     {{ 'ขั้นตอนในการเข้าร่วม' | t }}
+                </a>
+            </li>
+           <li>
+                <a href="/{{ params["lang"] }}/special-sticker">
+                     {{ 'บิ๊กสติกเกอร์พิเศษ' | t }}
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="list-group-item">
+        <a style="display: block;" class="fs-sm collapsed" data-toggle="collapse" href="#collapse-about" role="button" aria-expanded="false" aria-controls="collapse-about">
+            {{ 'เกี่ยวกับบิ๊กการ์ด' | t }} <i class="fa" aria-hidden="true" style="float:right"></i>
+        </a>
+       <ul class="collapse fs-xxs" id="collapse-about">
+           <li>
+               <a href="/{{ params["lang"] }}/what-is-bigcard">{{ 'บิ๊กการ์ดคืออะไร' | t }}</a>
+            </li>
+           <li>
+               <a href="/{{ params["lang"] }}/customer/account/login">{{ 'สมัครสมาชิกใหม่' | t }}</a>
+            </li>
+            <li>
+               <a href="/{{ params["lang"] }}/exclusive">{{ 'สิทธิพิเศษบิ๊กการ์ด' | t }}</a>
+            </li>
+            <li>
+               <a href="/{{ params["lang"] }}/terms-and-conditions">{{ 'ข้อกำหนดและเงื่อนไข' | t }}</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="list-group-item">
+        <a style="display: block;" class="fs-sm collapsed" data-toggle="collapse" href="#collapse-service" role="button" aria-expanded="false" aria-controls="collapse-service">
+            {{ 'บริการ' | t }} <i class="fa" aria-hidden="true" style="float:right"></i> 
+        </a>
+        <ul class="collapse fs-xxs" id="collapse-service">
+            <li>
+               <a href="/{{ params["lang"] }}/step-check-point">{{ 'ตรวจสอบคะแนนสะสม' | t }}</a>
+            </li>
+            <li>
+               <a href="/{{ params["lang"] }}/how-to-register-bigcard">{{ 'การเข้าสู่ระบบครั้งแรก' | t }}</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="list-group-item">
+        <a style="display: block;" class="fs-sm collapsed" data-toggle="collapse" href="#collapse-contact" role="button" aria-expanded="false" aria-controls="collapse-contact">
+            {{ 'ติดต่อเรา' | t }} <i class="fa" aria-hidden="true" style="float:right"></i> 
+        </a>
+        <ul class="collapse fs-xxs" id="collapse-contact">
+           <li>
+               <a href="/{{ params["lang"] }}/contact-us">{{ 'ติดต่อเรา' | t }}</a>
+            </li>
+           <li>
+               <a href="/{{ params["lang"] }}/question-and-answer">{{ 'คำถามที่พบบ่อย' | t }}</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="list-group-item">
+        <a class="fs-sm" href="https://www.bigc.co.th/" role="button" aria-expanded="false">
+            {{ 'BIG C SHOPPING ONLINE' | t }}
+        </a>
+    </div>
+
+    <div class="list-group-item">
+       <a class="facebook-icon" href="https://www.facebook.com/BigCBigService/" target="_blank">
+            <i class="fab fa-facebook"></i>
+        </a>
+        <a class="instagram-icon" href="https://www.instagram.com/hiddenbigc/" target="_blank">
+            <i class="fab fa-instagram"></i>
+        </a>
+        <a class="" style="float:right;padding-left:4px" href={{ params["language"]["en"] }} title="en">EN</a>
+        <a class="" style="float:right"href={{ params["language"]["th"] }} title="th">TH</a>
+    </div>
+                    
+</div>
+
+
+{# 
+<div class="dropdown fs-md">
+    <div class="fs-xs">
+        <a href="http://www.bigc.co.th">bigc shopping online</a>
+        <a href="#">FAQ</a>
+        <a href="http://corporate.bigc.co.th/">
+        <a href={{ params["language"]["en"] }} title="en">en</a>
+        <a href={{ params["language"]["th"] }} title="th">th</a>
+    </div>
+    <div>
+        <a href="/customer/account/login">icon คน</a>
+        <a href="/customer/account/login">สมาชิก บิ๊กการ์ด</a>
+    </div>
+</div> #}
+
+
+{# </div> #}
+
+{# <div class="top-head-content">
+    <ul class="list-unstyled">
+        <li><a href={{ params["language"]["en"] }} title="en">en</a></li>
+        <li><a href={{ params["language"]["th"] }} title="th">th</a></li>
+
+        <li> language select : {{ params["active"] }} </li>
+
+        <li><a href="http://corporate.bigc.co.th/">bigc store</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="http://www.bigc.co.th">bigc shopping online</a></li>
+
+        <li><a href="#">My Profile  </a></li>
+        <li><a href="/customer/account/login">สมาชิก บิ๊กการ์ด</a></li>
+    </ul>
+</div> #}

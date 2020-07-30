@@ -1,0 +1,740 @@
+<?php
+use Drupal\node\NodeInterface;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\Core\Form\FormStateInterface;
+
+use Drupal\bigcard\Utils\Utils;
+
+/**
+ * Implements hook_help().
+ *
+ * Displays help and module information.
+ *
+ * @param path
+ *   Which path of the site we're using to display help
+ * @param arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function bigcard_help($path, $arg) {
+    switch ($path) {
+      case "help.page.bigcard":
+        return '' . t("Bigcard by Big C.") . '';
+        break;
+    }
+}
+
+/**
+ * Implements hook_user_login() 
+ */
+// function bigcard_user_login(\Drupal\user\UserInterface $account) {
+//     $route_name = \Drupal::routeMatch()->getRouteName();
+//     if ($route_name !== 'user.reset.login') {
+//         $roles = $account->getRoles();
+//         // Do not interfere if a destination was already set.
+//         $current_request = \Drupal::service('request_stack')->getCurrentRequest();        
+//         $url =  \Drupal\Core\Url::fromRoute('printingview.form')->toString();
+//         // if (in_array("media_admin", $roles)) {
+//         //     $user_role = 'code_approver';
+//         // }
+//         // if (in_array("media_printting", $roles)) {
+//         //     $user_role = 'admin_printing';
+//         // }
+//         if (in_array("approval", $roles)) {
+//             $url =  \Drupal\Core\Url::fromRoute('quotation_approve_view.form')->toString();
+//         }
+//         if (in_array("supplier", $roles)) {
+//             $url =  \Drupal\Core\Url::fromRoute('production_list_view.form')->toString();
+//         }
+//         $current_request->query->set(
+//             'destination',
+//             $url
+//         );
+//     }
+// }
+
+/**
+ * Implements hook_mail().
+ * https://drupal.stackexchange.com/questions/41329/bcc-for-drupal-mail-function
+ */
+// function bigcard_mail($key, &$message, $params) {
+//     $options = array(
+//       'langcode' => $message['langcode'],
+//     );
+//     // $message['headers']['Bcc'] = 'Jal2kstory@gmail.com';
+//     $subject_title = 'Big C ส่งใบเสนอราคา';
+//     $global_config = \Drupal\config_pages\Entity\ConfigPages::config('global_config');
+//     if(isset( $global_config )){
+//         $title_mail =  $global_config->get('field_title_mail')->value;
+//         if(!empty($title_mail)){
+//             $subject_title = $title_mail;
+//             // dpm( $subject_title );
+//         }
+//     }
+//     \Drupal::logger('printing_administrative_software')->error(t('link url  >>> @link', array('@link'=>$params['link']))->__toString());
+//     $type = $params['type'];
+//     switch ($type) {
+//         case 'ap_code_approver_to_admin_printing':{
+//             $subject_title = 'Media service management system';
+//             $message['subject']                 = t($subject_title, array(), $options); 
+//             $message['body'][]                  = '<html>
+//                                                     <head>
+//                                                         <style>
+//                                                             body{
+//                                                                 line-height: 1.5em;
+//                                                             }
+//                                                         </style>
+//                                                     </head>
+//                                                     <body>
+//                                                         <div>
+//                                                             <div>เรียนผู้เกี่ยวข้อง</div>
+//                                                             <br>
+//                                                             <div>
+//                                                                 <p>&emsp;คำร้องหมายเลข ' . $params['request_number'] . ' ผ่านการอนุมัติ approval code แล้ว สามารถดูรายละเอียดโดยการคลิกลิงค์<a href="'. $params['link'] .'">ที่นี่</a></p>
+//                                                             </div>
+//                                                             <br>
+//                                                             <br>
+//                                                             <div>
+//                                                                 &emsp;ขอแสดงความนับถือ
+//                                                                 <br>
+//                                                                 System Admin of ' . $subject_title . '
+//                                                             </div>
+//                                                         </div>
+//                                                     </body>
+//                                                 </html>';
+//             $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';            
+//             if(isset($params['headers'])){
+//                 $message['headers'] += $params['headers'];
+//             }
+//             break;
+//         }
+//         case 'ap_code_approver_approve_to_admin_printing':{
+//             // new flow
+//             // $subject_title = 'Media service management system';
+//             $subject_title = 'Approval code: ' . $params['product'] . ' Bro.' . $params['bro'];
+//             $message['subject']                 = t($subject_title, array(), $options); 
+//             $str  = '';
+//             $str  .= '<html>
+//                     <head>
+//                         <style>
+//                             body{
+//                                 line-height: 1.5em;
+//                             }
+//                             table{
+//                                 border:none;
+//                             }
+//                         </style>
+//                     </head>
+//                     <body>
+//                         <div>เรียน จัดซื้อ</div>
+//                         <br>
+//                         <div>
+//                             &emsp;Media Services อนุมัติการติดตั้งสื่อจำนวน '. $params['count'] .' รายการ รายละเอียดดังนี้
+//                             <br>
+//                             <table width="100%">
+//                                 <tr>
+//                                     <td width="20%">สินค้า</td>
+//                                     <td>'. $params['product'] .'</td>
+//                                 </tr>
+//                                 <tr>
+//                                     <td width="20%">โปรโมชั่น</td>
+//                                     <td>'. $params['promotion'] .'</td>
+//                                 </tr>
+//                                 <tr>
+//                                     <td width="20%">ระยะเวลาโปรโมชั่น</td>
+//                                     <td>'. $params['period'] .'</td>
+//                                 </tr>
+//                                 <tr>
+//                                     <td width="20%">โบรชัวร์</td>
+//                                     <td>'. $params['bro'] .'</td>
+//                                 </tr>
+//                             </table>
+//                             <br>
+//                             <u><b>รายการสื่อที่อนุมัติ</b></u>
+//                             <table width="100%">';
+//             $order_no = 0;
+//             foreach($params as $p_id => $p_item){
+//                 if(is_array($p_item)){
+//                     $order_no = $order_no+1;
+//                     $str .= '<tr></tr>
+//                             <tr>
+//                                 <td><b>รายการที่ '. $order_no .'</b></td>
+//                             </tr>
+//                             <tr>
+//                                 <td width="20%">ตำแหน่งสื่อ</td>
+//                                 <td>'. $params[$p_id]['position_media'] .'</td>
+//                             </tr>
+//                             <tr>
+//                                 <td width="20%">รหัสอนุมัติ</td>
+//                                 <td>'. $params[$p_id]['id_approve'] .'</td>
+//                             </tr>';
+//                     foreach($params[$p_id] as $a_id => $a_item){
+//                         if(is_array($a_item)){
+//                             $str .= '<tr>
+//                                         <td width="20%">Format สาขาที่ติดสื่อ</td>
+//                                         <td>'. $params[$p_id][$a_id]['store_format'] .'</td>
+//                                     </tr>
+//                                     <tr>
+//                                         <td width="20%">ภาพสื่อ</td>
+//                                         <td>'. $params[$p_id][$a_id]['image_name'] .'</td>
+//                                     </tr>';
+//                                     foreach($params[$p_id][$a_id] as $i_id => $i_item){
+//                                         if(is_array($i_item)){
+//                                             foreach($params[$p_id][$a_id][$i_id] as $img_id => $img){
+//                                                 $str .= '<tr>
+//                                                             <td width="20%"></td>
+//                                                             <td><img src="'. $params[$p_id][$a_id]['image'][$img_id] .'" width="400px;"></td>
+//                                                         </tr>';
+//                                             }
+//                                         }
+//                                     }
+//                                     if($params[$p_id][$a_id]['image_description'] != ''){
+//                                         $str .= '<tr>
+//                                                 <td width="20%">สิ่งที่ต้องแก้ไข</td>
+//                                                 <td>'. $params[$p_id][$a_id]['image_description'] .'</td>
+//                                             </tr>';
+//                                     }
+//                         }
+//                     }
+//                 }
+//             }
+//             $str .= '</table></div>
+//                                 <div>
+//                                     <br><br>
+//                                     ขอบคุณค่ะ
+//                                     <br>
+//                                     Media Services Team
+//                                 </div>
+//                             </body></html>';
+//             $message['body'][] = $str;
+//             $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+//             break;
+//         }
+//         case 'ap_code_approver_reject_to_code_approver':{
+//             // new flow
+//             // $subject_title = 'Media service management system';
+//             $subject_title = 'Comment: ' . $params['product'] . ' Bro.' . $params['bro'];
+//             $message['subject']                 = t($subject_title, array(), $options); 
+//             $str  = '';
+//             $str  .= '<html>
+//                     <head>
+//                         <style>
+//                             body{
+//                                 line-height: 1.5em;
+//                             }
+//                             table{
+//                                 border:none;
+//                             }
+//                         </style>
+//                     </head>
+//                     <body>
+//                         <div>เรียน จัดซื้อ</div>
+//                         <br>
+//                         <div>
+//                             &emsp;Media Services ไม่อนุมัติการติดตั้งสื่อจำนวน '. $params['count'] .' รายการ รายละเอียดดังนี้
+//                             <br>
+//                             <table width="100%">
+//                                 <tr>
+//                                     <td width="20%">สินค้า</td>
+//                                     <td>'. $params['product'] .'</td>
+//                                 </tr>
+//                                 <tr>
+//                                     <td width="20%">โปรโมชั่น</td>
+//                                     <td>'. $params['promotion'] .'</td>
+//                                 </tr>
+//                                 <tr>
+//                                     <td width="20%">ระยะเวลาโปรโมชั่น</td>
+//                                     <td>'. $params['period'] .'</td>
+//                                 </tr>
+//                                 <tr>
+//                                     <td width="20%">โบรชัวร์</td>
+//                                     <td>'. $params['bro'] .'</td>
+//                                 </tr>
+//                             </table>
+//                             <br>
+//                             <u><b>รายการสื่อที่ไม่อนุมัติ</b></u>
+//                             <table width="100%">';
+//             $order_no = 0;
+//             foreach($params as $p_id => $p_item){
+//                 if(is_array($p_item)){
+//                     $order_no = $order_no+1;
+//                     $str .= '<tr></tr>
+//                             <tr>
+//                                 <td><b>รายการที่ '. $order_no .'</b></td>
+//                             </tr>
+//                             <tr>
+//                                 <td width="20%">ตำแหน่งสื่อ</td>
+//                                 <td>'. $params[$p_id]['position_media'] .'</td>
+//                             </tr>';
+//                     foreach($params[$p_id] as $a_id => $a_item){
+//                         if(is_array($a_item)){
+//                             $str .= '<tr>
+//                                         <td width="20%">Format สาขาที่ติดสื่อ</td>
+//                                         <td>'. $params[$p_id][$a_id]['store_format'] .'</td>
+//                                     </tr>
+//                                     <tr>
+//                                         <td width="20%">ภาพสื่อ</td>
+//                                         <td>'. $params[$p_id][$a_id]['image_name'] .'</td>
+//                                     </tr>';                                 
+//                                     foreach($params[$p_id][$a_id] as $i_id => $i_item){
+//                                         if(is_array($i_item)){
+//                                             foreach($params[$p_id][$a_id][$i_id] as $img_id => $img){
+//                                                 $str .= '<tr>
+//                                                             <td width="20%"></td>
+//                                                             <td><img src="'. $params[$p_id][$a_id]['image'][$img_id] .'" width="400px;"></td>
+//                                                         </tr>';
+//                                             }
+//                                         }
+//                                     }
+//                                     if($params[$p_id][$a_id]['image_description'] != ''){
+//                                         $str .= '<tr>
+//                                                 <td width="20%">สิ่งที่ต้องแก้ไข</td>
+//                                                 <td>'. $params[$p_id][$a_id]['image_description'] .'</td>
+//                                             </tr>';
+//                                     }
+//                         }
+//                     }
+//                 }
+//             }
+//             $str .= '</table></div>
+//                                 <div>
+//                                     <br><br>
+//                                     ขอบคุณค่ะ
+//                                     <br>
+//                                     Media Services Team
+//                                 </div>
+//                             </body></html>';
+//             $message['body'][] = $str;
+//             $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+//             break;
+//         }
+//         case 'qt_admin_printing_to_quotation_approver':{
+//             $subject_title = 'Media service management system';
+//             $message['subject']                 = t($subject_title, array(), $options); 
+//             $message['body'][]                  = '<html>
+//                                                     <head>
+//                                                         <style>
+//                                                             body{
+//                                                                 line-height: 1.5em;
+//                                                             }
+//                                                         </style>
+//                                                     </head>
+//                                                     <body>
+//                                                         <div>
+//                                                             <div>เรียนผู้เกี่ยวข้อง</div>
+//                                                             <br>
+//                                                             <div>
+//                                                                 <p>&emsp;ใบเสนอราคาหมายเลข '. $params['quotation_number'] .' ขณะนี้อยู่ในสถานะ "'. $params['quotation_status'] .'" สามารถดูรายละเอียดโดยการคลิกลิงค์<a href="'. $params['link'] .'">ที่นี่</a></p>
+//                                                             </div>
+//                                                             <br>
+//                                                             <br>
+//                                                             <div>
+//                                                                 &emsp;ขอแสดงความนับถือ
+//                                                                 <br>
+//                                                                 System Admin of ' . $subject_title . '
+//                                                             </div>
+//                                                         </div>
+//                                                     </body>
+//                                                 </html>';
+//             $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+//             break;
+//         }
+//         case 'qt_quotation_approver_to_brand':{
+//             $message['subject']                 = t($subject_title, array(), $options); 
+//             $message['body'][]                  = '<html>
+//                                                     <head>
+//                                                         <style>
+//                                                             body{
+//                                                                 line-height: 1.5em;
+//                                                             }
+//                                                         </style>
+//                                                     </head>
+//                                                     <body>
+//                                                         <div>
+//                                                             <div>เรียน คุณ '. $params['name'] .'</div>
+//                                                             <br>
+//                                                             <div>
+//                                                                 <p>&emsp;นำส่งใบเสนอราคาหมายเลข '. $params['quotation_number'] .' ตามที่อยู่ลิงค์ : '. $params['link'] .'</p>
+//                                                                 <br>
+//                                                                 <p>
+//                                                                     วิธีการใช้งาน<br>
+//                                                                     1. ดาวน์โหลดเอกสาร Template ใบเสนอราคา และข้อมูลจัดส่ง เพื่อทำการพิจารณาและกรอกข้อมูลของท่าน<br>
+//                                                                     2. แนบไฟล์ทั้งหมดกลับมาตามหัวข้อ ใบเสนอราคา และข้อมูลจัดส่ง(โปรดใช้ Template ข้อมูลจัดส่งที่กำหนด)<br>
+//                                                                     3. แนบลิงค์สื่อที่ต้องการผลิตในหัวข้อ AI Link<br>
+//                                                                     4. "ส่ง" เมื่อท่านปฏิบัติตามข้อ 1-3 และยอมรับใบเสนอราคา<br>
+//                                                                     5. "ปฏิเสธ" เมื่อท่านต้องการแก้ไขข้อมูลใบเสนอราคาอีกครั้ง พร้อมข้อความ<br>
+//                                                                     หมายเหตุ(ไม่จำเป็นต้องดำเนินการในข้อ 2-3)
+//                                                                 </p>
+//                                                             </div>
+//                                                             <br>
+//                                                             <br>
+//                                                             <div>
+//                                                                 &emsp;ขอแสดงความนับถือ
+//                                                                 <br>
+//                                                                 System Admin of ' . $subject_title . '
+//                                                                 <br>
+//                                                                 Big C Supercenter
+//                                                             </div>
+//                                                         </div>
+//                                                     </body>
+//                                                 </html>';
+//             $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+//             break;
+//         }
+//         case 'qt_brand_to_admin_printing':{
+//             $subject_title = 'Media service management system';
+//             $message['subject']                 = t($subject_title, array(), $options); 
+//             $message['body'][]                  = '<html>
+//                                                     <head>
+//                                                         <style>
+//                                                             body{
+//                                                                 line-height: 1.5em;
+//                                                             }
+//                                                         </style>
+//                                                     </head>
+//                                                     <body>
+//                                                         <div>
+//                                                             <div>เรียนผู้เกี่ยวข้อง</div>
+//                                                             <br>
+//                                                             <div>
+//                                                                 <p>&emsp;รายการผลิตสื่อเลขที่ '. $params['quotation_number'] .' ขณะนี้อยู่ในสถานะ "'. $params['quotation_status'] .'" สามารถดูรายละเอียดโดยการคลิกลิงค์<a href="'. $params['link'] .'">ที่นี่</a></p>
+//                                                             </div>
+//                                                             <br>
+//                                                             <br>
+//                                                             <div>
+//                                                                 &emsp;ขอแสดงความนับถือ
+//                                                                 <br>
+//                                                                 System Admin of ' . $subject_title . '
+//                                                             </div>
+//                                                         </div>
+//                                                     </body>
+//                                                 </html>';
+//             $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+//             break;
+//         }
+//         case 'qt_quotation_approver_reject_to_admin_printing':{ // reject
+//             $subject_title = 'Media service management system';
+//             $message['subject']                 = t($subject_title, array(), $options); 
+//             $message['body'][]                  = '<html>
+//                                                     <head>
+//                                                         <style>
+//                                                             body{
+//                                                                 line-height: 1.5em;
+//                                                             }
+//                                                         </style>
+//                                                     </head>
+//                                                     <body>
+//                                                         <div>
+//                                                             <div>เรียนผู้เกี่ยวข้อง</div>
+//                                                             <br>
+//                                                             <div>
+//                                                                 <p>&emsp;ใบเสนอราคาหมายเลข '. $params['quotation_number'] .' ขณะนี้อยู่ในสถานะ "'. $params['quotation_status'] .'" สามารถดูรายละเอียดโดยการคลิกลิงค์<a href="'. $params['link'] .'">ที่นี่</a></p>
+//                                                             </div>
+//                                                             <br>
+//                                                             <br>
+//                                                             <div>
+//                                                                 &emsp;ขอแสดงความนับถือ
+//                                                                 <br>
+//                                                                 System Admin of ' . $subject_title . '
+//                                                             </div>
+//                                                         </div>
+//                                                     </body>
+//                                                 </html>';
+//             $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+//             break;
+//         }
+//         case 'qt_brand_reject_to_admin_printing':{ // reject
+//             $subject_title = 'Media service management system';
+//             $message['subject']                 = t($subject_title, array(), $options); 
+//             $message['body'][]                  = '<html>
+//                                                     <head>
+//                                                         <style>
+//                                                             body{
+//                                                                 line-height: 1.5em;
+//                                                             }
+//                                                         </style>
+//                                                     </head>
+//                                                     <body>
+//                                                         <div>
+//                                                             <div>เรียนผู้เกี่ยวข้อง</div>
+//                                                             <br>
+//                                                             <div>
+//                                                                 <p>&emsp;ใบเสนอราคาหมายเลข '. $params['quotation_number'] .' ขณะนี้อยู่ในสถานะ "'. $params['quotation_status'] .'" สามารถดูรายละเอียดโดยการคลิกลิงค์<a href="'. $params['link'] .'">ที่นี่</a></p>
+//                                                             </div>
+//                                                             <br>
+//                                                             <br>
+//                                                             <div>
+//                                                                 &emsp;ขอแสดงความนับถือ
+//                                                                 <br>
+//                                                                 System Admin of ' . $subject_title . '
+//                                                             </div>
+//                                                         </div>
+//                                                     </body>
+//                                                 </html>';
+//             $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+//             break;
+//         }
+//         case 'admin_printing_to_supplier':{ 
+//             $subject_title = 'Media service management system';
+//             $message['subject']                 = t($subject_title, array(), $options); 
+//             $message['body'][]                  = '<html>
+//                                                     <head>
+//                                                         <style>
+//                                                             body{
+//                                                                 line-height: 1.5em;
+//                                                             }
+//                                                         </style>
+//                                                     </head>
+//                                                     <body>
+//                                                         <div>
+//                                                             <div>เรียนผู้เกี่ยวข้อง</div>
+//                                                             <br>
+//                                                             <div>
+//                                                                 <p>&emsp;ใบเสนอราคาหมายเลข '. $params['quotation_number'] .' ขณะนี้อยู่ในสถานะ "'. $params['quotation_status'] .'" สามารถดูรายละเอียดโดยการคลิกลิงค์<a href="'. $params['link'] .'">ที่นี่</a></p>
+//                                                             </div>
+//                                                             <br>
+//                                                             <br>
+//                                                             <div>
+//                                                                 &emsp;ขอแสดงความนับถือ
+//                                                                 <br>
+//                                                                 System Admin of ' . $subject_title . '
+//                                                             </div>
+//                                                         </div>
+//                                                     </body>
+//                                                 </html>';
+//             $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+//             break;
+//         }
+//         case 'supplier_to_admin_printing':{ 
+//             $subject_title = 'Media service management system';
+//             $message['subject']                 = t($subject_title, array(), $options); 
+//             $message['body'][]                  = '<html>
+//                                                     <head>
+//                                                         <style>
+//                                                             body{
+//                                                                 line-height: 1.5em;
+//                                                             }
+//                                                         </style>
+//                                                     </head>
+//                                                     <body>
+//                                                         <div>
+//                                                             <div>เรียนผู้เกี่ยวข้อง</div>
+//                                                             <br>
+//                                                             <div>
+//                                                                 <p>&emsp;ใบเสนอราคาหมายเลข '. $params['quotation_number'] .' ขณะนี้อยู่ในสถานะ "'. $params['quotation_status'] .'" สามารถดูรายละเอียดโดยการคลิกลิงค์<a href="'. $params['link'] .'">ที่นี่</a></p>
+//                                                             </div>
+//                                                             <br>
+//                                                             <br>
+//                                                             <div>
+//                                                                 &emsp;ขอแสดงความนับถือ
+//                                                                 <br>
+//                                                                 System Admin of ' . $subject_title . '
+//                                                             </div>
+//                                                         </div>
+//                                                     </body>
+//                                                 </html>';
+//             $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+//             break;
+//         }
+//     }
+// }
+
+/**
+ * Implement hook_form_alter()
+ * add js to form
+ * 
+*/
+
+// array &$form, FormStateInterface $form_state
+// function printing_administrative_software_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+//     $form['#attached']['library'][] = 'printing_administrative_software/printing_administrative_software_js';
+//     // if($form_id == 'user_form' || $form_id == 'user_register_form') {
+//     // }
+//     // check form_id
+//     // switch($form_id){
+//     //     case 'printing_view_form':
+//     //     case 'printing_form':
+//     //     case 'quotation_view_form':
+//     //     case 'get_quotation_form':{
+//             // bro start date, bro end date list >> access via js
+//     //     break;
+//     //     }
+//     // }    
+//     // if($form_id == 'user_form' || $form_id == 'user_register_form') {
+//     //     // Do some checks (e.g. role, permission), and then:
+//     //     // dpm($form_id);
+//     //     // dpm($form);
+//     //     unset($form['language']);
+//     //     unset($form['contact']);
+//     //     $form["account"]["notify"]["#access"] = false;
+//     // }
+//     // if(strcmp($form_id, 'duplicate_approval_code_form') === 0){
+//     //     dpm(t('>> @rand', array('@rand'=>rand()))->__toString());
+//     //     // // Find out what was submitted.
+//     //     // // $values = $form_state->getValues();
+//     //     // dpm( $form['table'] );
+//     //     // dpm('================');
+//     //     // dpm( $form_state );
+//     // }
+// }
+  
+// function printing_administrative_software_page_attachments(array &$attachments) {
+//     $attachments['#attached']['library'][] = 'printing_administrative_software/printing_administrative_software_js';
+//     // $attachments['#attached']['library'][] = 'mydata/socket_io';
+//     // $element['#attached']['js'][] = array(
+//     //     'data' => array('myModule' => array('basePath' => base_path())), 
+//     //     'type' => 'setting',
+//     //   );
+//     // dpm($attachments);
+//     $bro_list = Utils::getTaxonomy_term('bro_from');
+//     $bro_date_list = array();
+//     foreach($bro_list as $bro_id => $bro_values){
+//         $bro_date_list[$bro_id] = array();
+//         $bro_date_list[$bro_id]['name'] = $bro_values;
+//         $term_bro = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($bro_id);
+//         $start_date =  date("Y-m-d", strtotime($term_bro->get('field_start_date')->getValue()[0]['value']));
+//         $end_date =  date("Y-m-d", strtotime($term_bro->get('field_end_date')->getValue()[0]['value']));
+//         $bro_date_list[$bro_id]['start_date'] = $start_date;
+//         $bro_date_list[$bro_id]['end_date'] = $end_date;
+//     }
+//     $attachments['#attached']['drupalSettings']['mymoduleComputedData'] = $bro_date_list;
+//     $attachments['#attached']['drupalSettings']['route_name'] = \Drupal::routeMatch()->getRouteName();
+//     /*
+//     pass parameter to .js
+//     (function ($, Drupal, drupalSettings) {
+//         console.log(drupalSettings);
+//         var user = drupalSettings.user;
+//         console.log(user);
+//         var foo = drupalSettings.fluffiness.cuddlySlider.foo;
+//         console.log(foo);
+//     })(jQuery, Drupal, drupalSettings);
+//     */
+//     // $configs= Drupal\config_pages\Entity\ConfigPages::config('config_nodejs');
+//     // $nodejs_url = $configs->get('field_nodejs_url')->value;
+//     // $computed_settings = [
+//     //     'nodejs_url' => $nodejs_url,
+//     // ];
+//     // $attachments['#attached']['drupalSettings']['configs'] = $computed_settings;
+// }
+
+/**
+ * Implements hook_ENTITY_TYPE_insert() for node entities.
+ * 
+ * กรณีที่เรา เพิ่ม taxonomy_term ใหม่ เราจะต้อง เพิ่มข้อมูลฟิลล์ field_id_term == $entity->id() แก้ปัญหา id ไม่เหมือนกัน dev, uat, prod
+ */
+// function printing_administrative_software_taxonomy_term_insert(Drupal\Core\Entity\EntityInterface $entity) {
+//     //  $vocabularys = array("bro_from", "bro_to", "name_company", "position_media", "times", "media_service_status", "where_install");
+//     $vocabularys = \Drupal\config_pages\Entity\ConfigPages::config('vocabulary')->get('field_vocabulary')->value;
+//     $vocabularys = explode(",", $vocabularys);
+//     if (in_array($entity->bundle(), $vocabularys)) {
+//         $id_term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($entity->id())->get('field_id_term')->getValue()[0]['value'];
+//         if(empty($id_term)){
+//             $term = \Drupal\taxonomy\Entity\Term::load($entity->id());
+//             if (!empty($term)) {
+//                 $term->field_id_term = $entity->id();
+//                 $term->save();
+//             }
+//         }   
+//         // dpm(t('oop > @tid ',array('@tid'=>$tid))->__toString());
+//     }
+// }
+
+/*
+ * Implements hook_theme()
+*/
+function bigcard_theme($existing, $type, $theme, $path) {  
+  return [
+    'front-page' => [
+      'variables' => [
+        'params' => array(),
+        'slid_main' => array(),
+        'main_r' => array(),
+        'category_sp_menu' => array(),
+        'special_promotion' => array(),
+        'dinner' => array(),
+        'hotel' => array(),
+        'health' => array(),
+        'education' => array(),
+        'lifestyle' => array(),
+      ],
+    ],
+    'menu-my-bigcard-block'=> [
+      'variables' => [
+        // 'logged_in' => 0,
+        'params'    => array(),
+      ],
+    ],
+    'footer-my-bigcard-block'=> [
+      'variables' => [
+        // 'logged_in' => 0,
+        'params'    => array(
+          'aaa' => 'bbb'
+        ),
+      ],
+    ],
+
+    'top-head-content-block'=> [
+      'variables' => [
+        // 'logged_in' => 0,
+        'params'    => array(),
+      ],
+    ],
+
+    'main-menu-my-bigcard-block'=> [
+      'variables' => [
+        'params'    => array(),
+      ],
+    ],
+    // 
+  ];
+}
+
+function bigcard_page_attachments(array &$attachments) {
+  $attachments['#attached']['library'][] = 'bigcard/bigcard_js';
+}
+/**
+ * Implement hook_form_alter()
+ * add js to form
+ * 
+ * https://www.drupal.org/forum/support/module-development-and-code-questions/2019-03-26/hook_form_alter-custom-submit-handler
+ * 
+*/
+// array &$form, FormStateInterface $form_state
+function bigcard_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#attached']['library'][] = 'bigcard/bigcard_js';
+}
+
+// entity type: taxonomy_term, bundle: bro_to, field name: field_start_date
+// function printing_administrative_software_update_8001() {
+//     ## Fixes:
+//     ## A non-existent config entity name returned by FieldStorageConfigInterface::getBundles(): entity type: paragraph, bundle: text, field name: field_image
+//     $entity_type = 'taxonomy_term';
+//     $bundle = 'bro_to';
+//     $field_name = 'field_start_date';
+//     /** @var \Drupal\Core\KeyValueStore\KeyValueFactoryInterface $key_value_factory */
+//     $key_value_factory = \Drupal::service('keyvalue');
+//     $field_map_kv_store = $key_value_factory->get('entity.definitions.bundle_field_map');
+//     $map = $field_map_kv_store->get($entity_type);
+//     // Remove the field_dates field from the bundle field map for the page bundle.
+//     unset($map[$field_name]['bundles'][$bundle]);
+//     $field_map_kv_store->set($entity_type, $map);
+// }
+
+function bigcard_preprocess_block(&$vars) {
+  // dpm($vars['attributes']['id']);
+  if($vars['attributes']['id'] == 'block-bigcardmenumybigcard' || $vars['attributes']['id'] == 'block-bigcardmainmenumybigcardblock') {
+    //-- This stops the block being cache in drupal 8
+    $vars['#cache']['max-age'] = 0;
+  } 
+}
+
+/**
+*  Implements hook_form_FORM_ID_alter().
+*
+*  Disable the required 'Alternative text' field in the CKEditor's image dialog.
+*  
+*  Ref : https://www.drupal.org/forum/support/post-installation/2020-04-09/disable-required-alt-on-image-field
+*  โดย defualt dialog จะ required alt
+*/
+function bigcard_form_editor_image_dialog_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['attributes']['alt']['#required'] = FALSE;
+}

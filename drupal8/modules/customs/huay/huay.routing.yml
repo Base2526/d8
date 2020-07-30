@@ -166,12 +166,12 @@ api.bet_cancel:
     _access: 'TRUE'
 
 # ยิงเลขหวยยี่กี่
-api.shoot_number:
-  path: '/api/shoot_number.json'
-  defaults: { _controller: '\Drupal\huay\Controller\API::shoot_number' }
-  methods:  [POST]
-  requirements:
-    _access: 'TRUE'
+# api.shoot_number:
+#   path: '/api/shoot_number.json'
+#   defaults: { _controller: '\Drupal\huay\Controller\API::shoot_number' }
+#   methods:  [POST]
+#   requirements:
+#     _access: 'TRUE'
 
 api.every_15_minute:
   path: '/api/every_15_minute.json'
@@ -200,6 +200,14 @@ cron.heartbeat:
 api.request_all:
   path: '/api/request_all.json'
   defaults: { _controller: '\Drupal\huay\Controller\API::request_all' }
+  methods:  [POST]
+  requirements:
+    _access: 'TRUE'
+
+# get_yeekee_answer
+api.get_yeekee_answer: 
+  path: '/api/get_yeekee_answer.json'
+  defaults: { _controller: '\Drupal\huay\Controller\API::get_yeekee_answer' }
   methods:  [POST]
   requirements:
     _access: 'TRUE'

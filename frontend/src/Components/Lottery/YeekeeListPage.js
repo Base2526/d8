@@ -89,9 +89,10 @@ class YeekeeListPage extends Component {
 
   handleItemClick = (e, round) => {
     let {history} = this.props
+
     if(round.is_close){
       history.push({pathname: '/lottery-list/reward',
-                    state: { type:'yeekee', tid:round.tid } })
+                    state: { type_lotterys:'67', params: JSON.stringify(round) } })
     }else{
       history.push({pathname: '/lottery-list/yeekee-list/chit',
                     state: { type:'yeekee', tid:round.tid } })

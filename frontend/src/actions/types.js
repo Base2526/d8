@@ -21,3 +21,5 @@ export const UPDATE_SOCKET_IO_STATUS = "update_socket_io_status";
 export const ADD_PEOPLE              = "add_people";
 export const UPDATE_PEOPLE           = "update_people";
 // export const GET_PEOPLE_BY_UID       = "get_people_by_uid";
+
+export const ADD_AWARD               = "add_award";

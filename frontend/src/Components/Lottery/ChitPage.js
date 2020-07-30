@@ -1007,58 +1007,59 @@ class ChitPage extends Component {
     }
 
     let {numbers} = this.state
-    numbers.sort((date1, date2) =>{
-      // This is a comparison function that will result in dates being sorted in
-      // DESCENDING order.
-      if (date1.created > date2.created) return -1;
-      if (date1.created < date2.created) return 1;
-      return 0;
-    });
+    console.log( numbers );
+    // numbers.sort((date1, date2) =>{
+    //   // This is a comparison function that will result in dates being sorted in
+    //   // DESCENDING order.
+    //   if (date1.created > date2.created) return -1;
+    //   if (date1.created < date2.created) return 1;
+    //   return 0;
+    // });
 
     let modal_body = <div/>
-    if(!isEmpty(numbers)){
-      modal_body =  <Modal.Body>
-                      <InfiniteScroll
-                        dataLength={ isEmpty(numbers)? 0 :numbers.length}
-                        // next={this.fetchMoreData}
-                        // hasMore={true}
-                        loader={<h4>Loading...</h4>}
-                        height={400}
-                        endMessage={
-                          <p style={{ textAlign: "center" }}>
-                            <b>Yay! You have seen it all</b>
-                          </p>
-                        }>
-                        {numbers.map((i, index) => {
-                          // console.log(i)
+    // if(!isEmpty(numbers)){
+    //   modal_body =  <Modal.Body>
+    //                   <InfiniteScroll
+    //                     dataLength={ isEmpty(numbers)? 0 :numbers.length}
+    //                     // next={this.fetchMoreData}
+    //                     // hasMore={true}
+    //                     loader={<h4>Loading...</h4>}
+    //                     height={400}
+    //                     endMessage={
+    //                       <p style={{ textAlign: "center" }}>
+    //                         <b>Yay! You have seen it all</b>
+    //                       </p>
+    //                     }>
+    //                     {numbers.map((i, index) => {
+    //                       // console.log(i)
 
-                          var date = new Date(i.created);
-                          // Year
-                          var year = date.getFullYear();
-                          // Month
-                          var month = date.getMonth();
-                          // Day
-                          var day = date.getDate();
-                          // Hours
-                          var hours = date.getHours();
-                          // Minutes
-                          var minutes = "0" + date.getMinutes();
-                          // Seconds
-                          var seconds = "0" + date.getSeconds();
-                          // Display date time in MM-dd-yyyy h:m:s format
-                          var time = day +'-'+month+'-'+year+' '+hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+    //                       var date = new Date(i.created);
+    //                       // Year
+    //                       var year = date.getFullYear();
+    //                       // Month
+    //                       var month = date.getMonth();
+    //                       // Day
+    //                       var day = date.getDate();
+    //                       // Hours
+    //                       var hours = date.getHours();
+    //                       // Minutes
+    //                       var minutes = "0" + date.getMinutes();
+    //                       // Seconds
+    //                       var seconds = "0" + date.getSeconds();
+    //                       // Display date time in MM-dd-yyyy h:m:s format
+    //                       var time = day +'-'+month+'-'+year+' '+hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
 
-                          return<div /*style={style}*/ key={index} className={'sq-order'}>
-                                  ลำดับที่ {index+1} หมายเลข {i.number}
-                                  ผู้ส่งเลข  {i.user.name}
-                                  เมื่อ {time}
-                                </div>
-                          }
-                        )}
+    //                       return<div /*style={style}*/ key={index} className={'sq-order'}>
+    //                               ลำดับที่ {index+1} หมายเลข {i.number}
+    //                               ผู้ส่งเลข  {i.user.name}
+    //                               เมื่อ {time}
+    //                             </div>
+    //                       }
+    //                     )}
                         
-                      </InfiniteScroll>
-                    </Modal.Body>
-    }
+    //                   </InfiniteScroll>
+    //                 </Modal.Body>
+    // }
     
     return  <Modal
               show={this.state.shoot_number_show}

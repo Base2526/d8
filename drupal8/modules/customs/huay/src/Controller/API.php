@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Drupal\user\Entity\User;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\file\Entity\File;
 
 use Drupal\config_pages\Entity\ConfigPages;
 
@@ -1153,6 +1154,7 @@ class API extends ControllerBase {
   }
 
   // ยิงเลขหวยยี่กี่
+  /*
   public function shoot_number(Request $request){
 
     $time1 = microtime(true);
@@ -1162,14 +1164,12 @@ class API extends ControllerBase {
       $uid                = trim( $content['uid'] );
       $data               = trim( $content['data'] ); 
       $round_tid          = trim( $content['round_tid'] );
-      $time               = trim( $content['time'] );
-
+  
       $user = User::load($uid);
       if( empty($uid) ||  
           empty($data) ||
           empty($user) ||
-          empty($round_tid) ||
-          empty($time) ){
+          empty($round_tid) ){
         $response['result']   = FALSE;
         return new JsonResponse( $response );
       }
@@ -1191,6 +1191,7 @@ class API extends ControllerBase {
     $response['result']   = FALSE;
     return new JsonResponse( $response );
   }
+  */
 
   public function request_all(Request $request){
 
@@ -1219,11 +1220,11 @@ class API extends ControllerBase {
   // https://crontab.guru/every-15-minutes
   public function every_15_minute(Request $request){
     $mode = \Drupal::request()->query->get('mode');
-    if(empty($mode) || strcmp(Utils::decode($mode), 'cron') !== 0 ){
-      \Drupal::logger('every_15_minute')->error('not cron');
-      $response['result']  = FALSE;
-      return new JsonResponse( $response );
-    }
+    // if(empty($mode) || strcmp(Utils::decode($mode), 'cron') !== 0 ){
+    //   \Drupal::logger('every_15_minute')->error('not cron');
+    //   $response['result']  = FALSE;
+    //   return new JsonResponse( $response );
+    // }
 
     Utils::mongodb_lotterys('&');
     
@@ -1232,21 +1233,27 @@ class API extends ControllerBase {
     // บันทึกผลการออกหวย ยี่กี่ yeekee_answer
     
     //  base64_encode(json_encode($numbers)) 
-
+    // --------- d8
     $yeekee_answer = ConfigPages::config('yeekee_answer');
     $answer_yks = array();
     foreach ($yeekee_answer->get('field_answer_yk')->getValue() as $ii=>$vv){
       $p = Paragraph::load( $vv['target_id'] );
-      $answer_yks[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+      if(!empty($p)){
+        $answer_yks[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
+      }
     }
 
     $round_tid = Utils::get__taxonomy_term_tid__by_time();
 
+    // 
+    $fid_shoot_number_txt = Utils::getShootNumberByRound($round_tid)->id();
+
     $item_yeekee_answer = Paragraph::create([
                                               'type'               => 'item_yeekee_answer',
-                                              'field_shoot_number' => Utils::getShootNumberByRound($round_tid),
+                                              'field_shoot_number_txt' => [
+                                                'target_id' => $fid_shoot_number_txt,
+                                              ],
                                               'field_round_ye'     => $round_tid,
-                                              'field_date'         => (new \DateTime('now'))->getTimestamp()
                                             ]);
     $item_yeekee_answer->save();
 
@@ -1254,6 +1261,12 @@ class API extends ControllerBase {
 
     $yeekee_answer->set('field_answer_yk', $answer_yks);
     $yeekee_answer->save();
+    // --------- d8
+
+    // --------- delete shoot_numbers on mongo
+    // $collection = Utils::GetMongoDB()->shoot_numbers;
+    // $collection->deleteMany(array('round_id'=>$round_tid));
+    // --------- delete shoot_numbers on mongo
     
     // บันทึกผลการออกหวย ยี่กี่ yeekee_answer
 
@@ -1269,6 +1282,8 @@ class API extends ControllerBase {
 
   public function cron_heartbeat(Request $request){
     \Drupal::logger('cron_heartbeat')->notice('Runing.');
+
+    Utils::autoShootNumber();
 
     $response['result']  = TRUE;  
     return new JsonResponse( $response );
@@ -1296,5 +1311,113 @@ class API extends ControllerBase {
 
     $response['result']  = TRUE;  
     return new JsonResponse( $response );
+  }
+
+  /*
+  * ดึงผลการออกรางวัลหวย ยี่กี่ โดยต้องส่ง วันที่และรอบการออกหวย
+  * $date : วันที่
+  * $round_tid : รอบ
+  */
+  public function get_yeekee_answer(Request $request /*$date, $round_tid*/ ){
+    $time1 = microtime(true);
+    if ( Utils::verify($request) ) {
+      $content = json_decode( $request->getContent(), TRUE );
+      $date                = trim( $content['date'] );
+      $round_tid           = trim( $content['round_tid'] );
+
+      if( empty($date) ||  
+          empty($round_tid) ){
+      
+        $response['result']   = FALSE;
+        return new JsonResponse( $response );
+      }
+
+      $time1 = microtime(true);
+
+      $dateTime = new \DateTime();
+      $dateTime->setTimestamp($date/1000);
+
+      $pids = \Drupal::entityQuery('paragraph')       
+                ->condition('type', 'item_yeekee_answer')
+                ->condition('field_round_ye', $round_tid)
+                ->condition('field_yeekee_answer_date', /*'2020-07-27'*/ $dateTime->format('Y-m-d') )
+                ->execute();
+
+      foreach($pids as $pid) {
+        $paragraph  = Paragraph::load( $pid );
+        $fid        = $paragraph->get('field_shoot_number_txt')->getValue()[0]['target_id'];
+    
+        $contents   = Utils::get_fid_cache( $fid );
+          
+        $p1  = 0;
+        $p16 = 0;
+        $sum = 0;
+        foreach(json_decode($contents) as $i => $value) {
+          $value = json_decode( $value );
+          $sum +=$value->number;
+          switch($i){
+            case 0:{
+              $p1 = $value;
+              break;
+            }
+          
+            case 15:{
+              $p16 = $value;
+              break;
+            }
+          }
+        }
+        
+        // dpm( $sum );
+        // dpm( $p1 );
+        // dpm( $p16 );
+
+        $response['data']['p1']       = base64_encode(json_encode($p1));  
+        $response['data']['p16']      = base64_encode(json_encode($p16));  
+        $response['data']['sum']      = base64_encode($sum);  
+        $response['data']['contents'] = base64_encode($contents);  
+      }
+
+      $response['result']           = TRUE;  
+      $response['execution_time']   = microtime(true) - $time1;
+      return new JsonResponse( $response );
+
+    }else{
+      $response['result']   = FALSE;
+      return new JsonResponse( $response );
+    }
+  
+    
+
+    /*
+    $date = new \DateTime();
+    $date->setTimestamp('1595812502');
+    // dpm( $date->h );
+    // dpm( $date->format('Y-m-d H:i:s') );
+
+    $ymd = explode("-", $date->format("Y-m-d") );
+
+    $y = $ymd[0];
+    $m = $ymd[1];
+    $d = $ymd[2];
+    dpm('Y : ' . $y . ', m : ' . $m . ', d : ' . $d);
+    */
+
+
+    /*
+    use Drupal\paragraphs\Entity\Paragraph;
+    use Drupal\file\Entity\File;
+
+    $paragraph = Paragraph::load( '1096' );
+    $fid = $paragraph->get('field_shoot_number_txt')->getValue()[0]['target_id'] ;
+
+    $file =File::load($fid);
+    $path = $file->getFileUri();
+    // dpm( $path );
+
+    $field_yeekee_answer_date = $paragraph->get('field_yeekee_answer_date')->getValue();
+    dpm( $field_yeekee_answer_date[0]['value'] );
+    */
+
   }
 }

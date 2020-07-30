@@ -55,3 +55,8 @@ export const updateSocketIOStatus = (data) => ({
 //     type: types.GET_PEOPLE_BY_UID,
 //     data
 // });
+
+export const addAward = (data) => ({
+    type: types.ADD_AWARD,
+    data
+});

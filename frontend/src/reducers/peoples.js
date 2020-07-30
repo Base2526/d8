@@ -7,7 +7,7 @@ const initialState = {
     data: []
 };
 
-const peoples = async (state = initialState, action) => {
+const peoples = (state = initialState, action) => {
     switch (action.type) {
         case types.ADD_PEOPLE:
             console.log(action);

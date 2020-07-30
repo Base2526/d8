@@ -19,6 +19,8 @@ import socket_io        from './socket_io'
 
 import peoples          from './peoples'
 
+import awards           from './awards'
+
 export default combineReducers({
   auth,
   todos,
@@ -39,4 +41,6 @@ export default combineReducers({
   socket_io,
 
   peoples,
+
+  awards,
 })

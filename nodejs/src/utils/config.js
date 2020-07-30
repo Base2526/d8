@@ -45,6 +45,7 @@ config.d8.api_request_all           = config.d8.host + '/api/request_all.json';
 
 
 config.d8.init_d8                   = config.d8.host + '/cron/cron_530AM.json';
+config.d8.get_yeekee_answer         = config.d8.host + '/api/get_yeekee_answer.json'
 
 config.d8.headers = {
                         "Content-Type": "application/json",

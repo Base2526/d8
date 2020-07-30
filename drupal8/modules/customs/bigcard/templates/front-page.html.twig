@@ -1,0 +1,2503 @@
+{# slide and logo #}
+<div class="row" style="display:block;margin-left:-15px;margin-right:-15px;">
+    <div class="col1-layout">
+      <div class="main">
+        <div class="col-main">
+          <div class="home-banner">
+            <div class="main-wrapper">
+
+              <div class="row" style="margin-left:0px;margin-right:0px;">
+                  <div class="col-lg-9 col-md-9 col-sm-12 banner-left">  
+                      <div class="wrap-bannerads">
+                        
+                            {# carouse #}
+                            <div class="banner-carousel">
+                              <div id="myCarousel" class="carousel slide" data-ride="carousel">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators" style="bottom:0px">
+                                  {# <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel" data-slide-to="2"></li> #}
+
+                                  {% set count = 0 %}
+                                  {% for slid_main_v in slid_main %}
+                                     {% if loop.first %}
+                                        <li data-target="#myCarousel" data-slide-to="{{count}}" class="active"></li>
+                                     {% else %}
+                                        <li data-target="#myCarousel" data-slide-to="{{count}}"></li>
+                                     {% endif %}
+                                      {% set count = count + 1 %}
+                                  {% endfor %}
+
+                                </ol>
+                            
+                                <!-- Wrapper for slides -->
+                                <div class="carousel-inner">
+                                  {# <div class="carousel-item active">
+                                    <a href="#" title="">
+                                      <img src="https://bigcard.bigc.co.th/media/bannerads/images/bigcard-banner-web-page3-890x430px-final-01.jpg" alt="Los Angeles" style="width:100%;">
+                                    </a>
+                                  </div>
+                            
+                                  <div class="carousel-item">
+                                    <a href="#" title="">
+                                      <img src="https://bigcard.bigc.co.th/media/bannerads/images/bigcard-banner-web-page3-890x430px-final-01.jpg" alt="Chicago" style="width:100%;">
+                                    </a>  
+                                  </div>
+                                
+                                  <div class="carousel-item">
+                                    <a href="#" title="">
+                                      <img src="https://bigcard.bigc.co.th/media/bannerads/images/bigcard-banner-web-page3-890x430px-final-01.jpg" alt="New york" style="width:100%;">
+                                    </a>
+                                  </div> #}
+
+                                  {% for slid_main_v in slid_main %}
+                                     {% if loop.first %}
+                                        <div class="carousel-item active">
+                                     {% else %}
+                                        <div class="carousel-item">
+                                     {% endif %}
+                                     
+                                      <a href="{{slid_main_v.link}}" title="">
+                                        <img src="{{slid_main_v.img_path}}" alt="{{slid_main_v.title}}" style="width:100%;">
+                                      </a>  
+                                    </div>
+                                  {% endfor %}
+
+                                </div>
+                            
+                                <!-- Left and right controls -->
+                                <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+                                  <span class="glyphicon glyphicon-chevron-left"></span>
+                                  <span class="sr-only">Previous</span>
+                                </a>
+                                <a class="right carousel-control" href="#myCarousel" data-slide="next">
+                                  <span class="glyphicon glyphicon-chevron-right"></span>
+                                  <span class="sr-only">Next</span>
+                                </a>
+                              </div>
+                            </div>
+                            {# carouse #}
+                      </div>
+                      <!-- wrap-bannerad -->
+                      <div style="clear: both;"></div> 
+                  </div> 
+                  <!-- col9 -->
+
+                 <div class="col-lg-3 col-md-3 col-sm-12 banner-right">
+                    <div class="desktop-show">  
+                      <div class="wrap-bannerads">
+                        <!-- Display type Show all -->
+                            <div class="div-banner">
+                              <ul class="banner-carousel owl-carousel owl-theme">
+                                <li>
+                                  {# <a href="https://bigcard.bigc.co.th/customer/account/login/" onclick="bannerClicks(&#39;https://bigcard.bigc.co.th/bannerads/reports/click/&#39;,&#39;61&#39;,&#39;14&#39;)">
+                                    <img title="" src="https://bigcard.bigc.co.th/media/bannerads/images/bigcard-290x430px-final-01.jpg" alt="">
+                                  </a> #}
+
+                                  {% for main_r_v in main_r %}
+                                     {% if main_r_v.type == 'desktop' %}
+                                     <a href="{{main_r_v.link}}" >
+                                        <img title="{{main_r_v.title}}" src="{{main_r_v.img_path}}" alt="{{main_r_v.title}}">
+                                     </a>
+                                     {% endif %}
+                                  {% endfor %}
+
+                                </li>
+                              </ul>
+                            </div>
+                        <!-- Display type random -->
+                        <div style="clear: both;"></div>
+                      </div>
+                    </div>
+
+                    <div class="mobile-show">  
+                      <div class="wrap-bannerads">
+                        <!-- Display type Show all -->
+                              <div class="div-banner">
+                                <ul class="banner-carousel owl-carousel owl-theme">
+                                  <li>
+                                      {# <a href="https://bigcard.bigc.co.th/customer/account/login/" onclick="bannerClicks(&#39;https://bigcard.bigc.co.th/bannerads/reports/click/&#39;,&#39;51&#39;,&#39;17&#39;)">
+                                        <img title="สิทธิ์เหนือระดับกับบิ๊กการ์ด " src="https://bigcard.bigc.co.th/media/bannerads/images/banner-website-mobile-final-01-00.jpg" alt="">
+                                      </a> #}
+
+                                      {% for main_r_v in main_r %}
+                                        {% if main_r_v.type == 'mobile' %}
+                                        <a href="{{main_r_v.link}}" >
+                                            <img title="{{main_r_v.title}}" src="{{main_r_v.img_path}}" alt="{{main_r_v.title}}">
+                                        </a>
+                                        {% endif %}
+                                      {% endfor %}
+
+                                  </li>
+                                </ul>
+                              </div>
+                        <!-- Display type random -->
+                        <div style="clear: both;"></div>
+                      </div>
+                    </div>
+                 </div>
+                 {# col3 #}
+              </div>
+              {# row #}
+
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+{# slide and logo #}
+
+
+
+{# desktop category #}
+<div class="category-section desktop-show">
+  <div class="main-wrapper">
+      <div class="row" style="background: #eff3ea;">
+        {# <div class="col-lg-3 col-md-3 col-sm-12 col-12 padding0">
+            <div class="topmenu-leftbox w-100">
+                <p>สิทธิพิเศษ<br>ร้านค้า</p>
+            </div>
+        </div> #}
+        <div class="col-lg-3 col-md-12 col-sm-12 col-12 padding0">
+            <div class="topmenu-leftbox w-100">
+                <div id="tile_sit" class="desktop-show">
+                  <p cl>สิทธิพิเศษ<br>ร้านค้า</p>
+                </div>
+                <div class="mobile-show tablet-show">
+                  <p>สิทธิพิเศษร้านค้า</p>
+                </div>
+            </div>
+        </div>
+         <div class="col-lg-9 col-md-12 col-sm-12 col-12">
+            {# <div class="catagory_icon">
+                    <a href="https://bigcard.bigc.co.th/dining.html" class="level0 ">
+                      <img src="https://bigcard.bigc.co.th/media/catalog/category/icon-food-drink2x_2.png" alt="อาหาร &amp; เครื่องดื่ม" title="อาหาร &amp; เครื่องดื่ม">
+                    <div>อาหาร &amp;<br>  เครื่องดื่ม</div></a>
+            </div>
+            <div class="catagory_icon"><a href="https://bigcard.bigc.co.th/hotel-travel.html" class="level0 ">
+                  <img src="https://bigcard.bigc.co.th/media/catalog/category/icon-hotel2x.png" alt="โรงแรม ที่พัก &amp; ท่องเที่ยว" title="โรงแรม ที่พัก &amp; ท่องเที่ยว"><div>โรงแรม ที่พัก &amp;<br>  ท่องเที่ยว</div></a>
+            </div>
+            <div class="catagory_icon"><a href="https://bigcard.bigc.co.th/health-beauty.html" class="level0 ">
+                  <img src="https://bigcard.bigc.co.th/media/catalog/category/icon-food-drink2x_2.png" alt="สุขภาพ &amp; ความงาม" title="สุขภาพ &amp; ความงาม"><div>สุขภาพ &amp;<br>  ความงาม</div></a>
+            </div>
+            <div class="catagory_icon"><a href="https://bigcard.bigc.co.th/edutainment.html" class="level0 ">
+                  <img src="https://bigcard.bigc.co.th/media/catalog/category/icon-food-drink2x_2.png" alt="การศึกษา" title="การศึกษา"><div>การศึกษา</div></a>
+            </div>
+            <div class="catagory_icon"><a href="https://bigcard.bigc.co.th/lifestyle.html" class="level0 "><span class="icon-cate">
+                    <img src="https://bigcard.bigc.co.th/media/catalog/category/icon-food-drink2x_2.png" alt="ไลฟ์สไตล์" title="ไลฟ์สไตล์"><div>ไลฟ์สไตล์</div></a>
+            </div>    #}
+
+            {% for category_sp_menu_v in category_sp_menu %}
+              <div class="catagory_icon">
+                    <a href="{{category_sp_menu_v.link}}" class="level0 ">
+                      <img src="{{category_sp_menu_v.img_path}}" alt="{{category_sp_menu_v.title}}" title="{{category_sp_menu_v.title}}">
+                      <div>{{category_sp_menu_v.text}}</div>
+                    </a>
+              </div>
+            {% endfor %}
+
+        </div>
+      </div>
+  </div>
+</div> 
+  
+{# mobile category #}
+<div class="category-section mobile-show">
+  <div class="main-wrapper padding0">
+      <div class="row" style="background: #eff3ea;">
+        <div class="col-lg-3 col-md-3 col-sm-12 col-12 padding0 borderccc">
+            <div class="topmenu-leftbox w-100">
+                <p>สิทธิพิเศษร้านค้า</p>
+            </div>
+        </div>
+      </div>
+      <div class="row" style="background: #eff3ea;">
+        <div class="col-sm-6 col-6 text-center borderccc">
+              <div class="catagory_icon w-100">
+                      <a href="{{category_sp_menu[0]['link']}}" class="level0 ">
+                        <img src="{{category_sp_menu[0]['img_path']}}" alt="{{category_sp_menu[0]['title']}}" title="{{category_sp_menu[0]['title']}}">
+                      <div>{{category_sp_menu[0]['text']}}</div></a>
+              </div>
+        </div>
+        <div class="col-sm-6 col-6 text-center borderccc">
+                <div class="catagory_icon w-100">
+                      <a href="{{category_sp_menu[1]['link']}}" class="level0 ">
+                        <img src="{{category_sp_menu[1]['img_path']}}" alt="{{category_sp_menu[1]['title']}}" title="{{category_sp_menu[1]['title']}}">
+                      <div>{{category_sp_menu[1]['text']}}</div></a>
+                </div>
+        </div>
+      </div>
+      <div class="row" style="background: #eff3ea;">
+            {# <div class="catagory_icon category_col3 borderccc"><a href="https://bigcard.bigc.co.th/health-beauty.html" class="level0 ">
+                  <img src="https://bigcard.bigc.co.th/media/catalog/category/icon-food-drink2x_2.png" alt="สุขภาพ &amp; ความงาม" title="สุขภาพ &amp; ความงาม"><div>สุขภาพ &amp;<br>  ความงาม</div></a>
+            </div>
+            <div class="catagory_icon category_col3 borderccc"><a href="https://bigcard.bigc.co.th/edutainment.html" class="level0 ">
+                  <img src="https://bigcard.bigc.co.th/media/catalog/category/icon-food-drink2x_2.png" alt="การศึกษา" title="การศึกษา"><div>การศึกษา</div></a>
+            </div>
+            <div class="catagory_icon category_col3 borderccc"><a href="https://bigcard.bigc.co.th/lifestyle.html" class="level0 "><span class="icon-cate">
+                    <img src="https://bigcard.bigc.co.th/media/catalog/category/icon-food-drink2x_2.png" alt="ไลฟ์สไตล์" title="ไลฟ์สไตล์"><div>ไลฟ์สไตล์</div></a>
+            </div>    #}
+                <div class="catagory_icon category_col3 borderccc">
+                  <a href="{{category_sp_menu[2]['link']}}" class="level0 ">
+                          <img src="{{category_sp_menu[2]['img_path']}}" alt="{{category_sp_menu[2]['title']}}" title="{{category_sp_menu[2]['title']}}">
+                          <div>{{category_sp_menu[2]['text']}}</div>
+                  </a>
+                </div>
+                <div class="catagory_icon category_col3 borderccc">
+                  <a href="{{category_sp_menu[3]['link']}}" class="level0 ">
+                          <img src="{{category_sp_menu[3]['img_path']}}" alt="{{category_sp_menu[3]['title']}}" title="{{category_sp_menu[3]['title']}}">
+                        <div>{{category_sp_menu[3]['text']}}</div>
+                  </a>
+                </div>
+                <div class="catagory_icon category_col3 borderccc">
+                  <a href="{{category_sp_menu[4]['link']}}" class="level0 ">
+                          <img src="{{category_sp_menu[4]['img_path']}}" alt="{{category_sp_menu[4]['title']}}" title="{{category_sp_menu[4]['title']}}">
+                        <div>{{category_sp_menu[4]['text']}}</div>
+                  </a>
+                </div>
+      </div>
+  </div>
+</div> 
+
+
+                                  {# SPECIAL PROMOTION #}
+                                  {% set data_desktop = ''  %}
+                                  {% set slide_data_mobile = ''  %}
+                                  {% set slide_indicators = ''  %}
+                                  {% set count = 0  %}
+                                  {% for special_promotion_v in special_promotion %}
+                                     {% if loop.first %}
+                                       {% set slide_data_mobile = slide_data_mobile ~ '<div class="carousel-item active">'  %}
+                                       {% set slide_indicators = slide_indicators ~ '<li data-target="#myCarousel1" data-slide-to="'~ count ~'" class="active"></li>' %}
+                                     {% else %}
+                                       {% set slide_data_mobile = slide_data_mobile ~ '<div class="carousel-item">'  %}
+                                       {% set slide_indicators = slide_indicators ~ '<li data-target="#myCarousel1" data-slide-to="'~ count ~'"></li>' %}
+                                     {% endif %}
+                                       {% set slide_data_mobile = slide_data_mobile ~ '<a href="'~ special_promotion_v.link ~'" title="">
+                                        <img src="'~ special_promotion_v.img_path ~'" alt="'~ special_promotion_v.title ~' style="width:100%;">
+                                      </a></div>' %}
+
+                                     {% set data_desktop = data_desktop ~  
+                                      '<div class="col-lg-3 col-md-3 col-sm-12 col-12">
+                                        <a href="'~ special_promotion_v.link ~'">
+                                          <img title="'~ special_promotion_v.title ~'" src="'~ special_promotion_v.img_path ~'" alt="">
+                                        </a>
+                                      </div>' %}
+
+                                  {% set count = count + 1 %}
+                                  {% endfor %}
+                                  {# SPECIAL PROMOTION #}
+
+
+{# SPECIAL PROMOTION #}
+<div class="std"><!-- HIGH LIGHT -->
+  <div class="banner-hightlight">
+    <div class="main-wrapper padding0">
+      <div class="block-title-sp" style="height: 40px;">
+        <div class="main-title-sp">
+            <h2>Special Promotion</h2>
+            <div class="line-bottom">&nbsp;</div>
+        </div>
+      </div>
+
+      {# desktop #}
+      <div class="highlight-show desktop-show">
+        <div class="wrap-bannerads m15">
+          <!-- Display type Show all -->
+          <div class="div-banner">
+
+              <div class="row">
+                {# <div class="col-lg-3 col-md-3 col-sm-12 col-12">
+                  <img title="ใช้ 2000 คะแนน แลกรับ ฟรี" src="https://bigcard.bigc.co.th/media/bannerads/images/highlight-block-290x410px-dq-itim.jpg" alt="">
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-12 col-12">
+                <img title="ใช้ 2000 คะแนน แลกรับ ฟรี" src="https://bigcard.bigc.co.th/media/bannerads/images/highlight-block-290x410px-dq-itim.jpg" alt="">
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-12 col-12">
+                <img title="ใช้ 2000 คะแนน แลกรับ ฟรี" src="https://bigcard.bigc.co.th/media/bannerads/images/highlight-block-290x410px-dq-itim.jpg" alt="">
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-12 col-12">
+                <img title="ใช้ 2000 คะแนน แลกรับ ฟรี" src="https://bigcard.bigc.co.th/media/bannerads/images/highlight-block-290x410px-dq-itim.jpg" alt="">
+                </div> #}
+
+                {# {% for special_promotion_v in special_promotion %}
+                    <div class="col-lg-3 col-md-3 col-sm-12 col-12">
+                      <a href="{{special_promotion_v.link}}">
+                        <img title="{{special_promotion_v.title}}" src="{{special_promotion_v.img_path}}" alt="">
+                      </a>
+                    </div>
+                {% endfor %} #}
+
+                {{data_desktop|raw}}
+
+              </div>
+
+          </div>
+          {# SPECIAL PROMOTION #}
+        </div>
+      </div>
+      {# desktop #}
+
+
+      {# mobild #}
+
+      <div class="highlight-show mobile-show tablet-show">
+              <div class="wrap-bannerads">
+                <div class="div-banner">
+
+                   <div class="row">
+                      <div class="col-sm-12 col-12 padding0">
+
+                            {# carouse #}
+                            <div class="banner-carousel">
+                              <div id="myCarousel1" class="carousel slide" data-ride="carousel">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators position-indicatiors">
+                                  {# <li data-target="#myCarousel1" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel1" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel1" data-slide-to="2"></li> #}
+
+                                  {{slide_indicators|raw}}
+                                </ol>
+                            
+                                <!-- Wrapper for slides -->
+                                <div class="carousel-inner">
+                                  {# <div class="carousel-item active">
+                                    <img src="https://bigcard.bigc.co.th/media/bannerads/images/highlight-block-290x410px-dq-itim.jpg" alt="Los Angeles" style="width:100%;">
+                                  </div>
+                            
+                                  <div class="carousel-item">
+                                    <img src="https://bigcard.bigc.co.th/media/bannerads/images/highlight-block-290x410px-dq-itim.jpg" alt="Chicago" style="width:100%;">
+                                  </div>
+                                
+                                  <div class="carousel-item">
+                                    <img src="https://bigcard.bigc.co.th/media/bannerads/images/highlight-block-290x410px-dq-itim.jpg" alt="New york" style="width:100%;">
+                                  </div> #}
+
+                                  {# {% for special_promotion_v in special_promotion %}
+                                     {% if loop.first %}
+                                        <div class="carousel-item active">
+                                     {% else %}
+                                        <div class="carousel-item">
+                                     {% endif %}
+                                      <a href="{{special_promotion_v.link}}" title="">
+                                        <img src="{{special_promotion_v.img_path}}" alt="{{special_promotion_v.title}}" style="width:100%;">
+                                      </a>  
+                                    </div>
+                                  {% endfor %} #}
+
+                                   {{slide_data_mobile|raw}}
+
+                                </div>
+                            
+                                <!-- Left and right controls -->
+                                <a class="carousel-control-prev" role="button" href="#myCarousel1" data-slide="prev">
+                                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                 <span class="sr-only">Previous</span>
+                                </a>
+                                <a class="carousel-control-next" role="button" href="#myCarousel1" data-slide="next">
+                                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Next</span>
+                                </a>
+                              </div>
+                            </div>
+                            {# carouse #}
+
+
+                      </div>
+                   </div>
+
+                </div>
+              </div>
+      </div>
+
+      {# mobile #}
+
+
+        </div>
+      </div>
+    </div>
+
+{# SPECIAL PROMOTION #}
+
+
+<p>&nbsp;</p>
+
+
+{# อาหาร & เครื่องดื่ม #}
+<div class="cate_home"><!-- CAT 1 -->
+  <div class="block_cate1">
+    {# desktop #}
+    <div class="main-wrapper desktop-show">
+
+        {# row1 #}
+        <div class="row margin_lr0 bg_group">
+
+          <div class="col-lg-4 col-md-12 col-sm-12 col-12 block-cate-right">
+            <div class="title_area clearfix" style="text-align: center">
+              <div class="title-word">
+                <h2 class="dining">อาหาร</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <div class="title-word">
+                <h2 class="dining">&amp;</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <div class="title-word">
+                <h2 class="dining">เครื่องดื่ม</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <img class="main-cate-img" alt="" src="{{category_sp_menu[0]['img_path']}}">
+            </div>
+          </div>
+          
+      {% set count = 1 %}
+      {% for dinner_v in dinner %}
+          {% if count is divisible by (3) %}
+            <div class="col-lg-4 col-sm-12 col-12">
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                <div class="item">
+                  <div class="cover-img cover-view">
+                    <a href="{{dinner_v.link}}" title="{{dinner_v.title}}"><img src="{{dinner_v.img_path}}" alt="{{dinner_v.title}}"></a>
+                  </div>
+                  <div class="info pt-2">
+                    <a href="{{dinner_v.link}}">
+                        <span class="font_tile">{{dinner_v.article}}</span>
+                    </a>
+                    <p class="desc"></p><p align="left"><span>{{dinner_v.detail}}</span></p><p></p>
+                  </div> 
+                </div>
+            </div>
+                  {% set count = count +2 %}
+          {% else %}
+          <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                <div class="item">
+                  <div class="cover-img cover-view">
+                    <a href="{{dinner_v.link}}" title="{{dinner_v.title}}"><img src="{{dinner_v.img_path}}" alt="{{dinner_v.title}}"></a>
+                  </div>
+                  <div class="info pt-2">
+                    <a href="{{dinner_v.link}}">
+                        <span class="font_tile">{{dinner_v.article}}</span>
+                    </a>
+                    <p class="desc"></p><p align="left"><span>{{dinner_v.detail}}</span></p><p></p>
+                  </div> 
+                </div>
+            </div>
+                  {% set count = count +1 %}
+          {% endif %}
+
+      {% endfor %}
+
+          {# <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                <div class="item">
+                  <div class="cover-img cover-view">
+                    <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_early-bird_4.jpg" alt="Shong Cha"></a>
+                  </div>
+                  <div class="info pt-2">
+                    <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                        <span class="font_tile">Shong Cha</span>
+                    </a>
+                                                  <p class="desc"></p><p align="left"><span>ชานมไข่มุกพ่นไฟ เม็ดไข่มุกลาวา</span></p><p></p>
+                  </div> 
+                </div>
+          </div>
+          <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+
+                <div class="item">
+                  <div class="cover-img cover-view">
+                    <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_early-bird_4.jpg" alt="Shong Cha"></a>
+                  </div>
+                  <div class="info pt-2">
+                    <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                        <span class="font_tile">Shong Cha</span>
+                    </a>
+                                                  <p class="desc"></p><p align="left"><span>ชานมไข่มุกพ่นไฟ เม็ดไข่มุกลาวา</span></p><p></p>
+                  </div> 
+                </div>
+
+          </div> #}
+
+        </div>
+        {# row1 #}
+
+        {# row2 #}
+        {# <div class="row">
+            <div class="col-lg-4 col-sm-12 col-12">
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+              <div class="item">
+                  <div class="cover-img cover-view">
+                    <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_early-bird_4.jpg" alt="Shong Cha"></a>
+                  </div>
+                  <div class="info pt-2">
+                      <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                        <span class="font_tile">Shong Cha</span>
+                      </a>
+                      <p class="desc"></p><p align="left"><span>ชานมไข่มุกพ่นไฟ เม็ดไข่มุกลาวา</span></p><p></p>
+                  </div> 
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+              <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_early-bird_4.jpg" alt="Shong Cha"></a>
+                </div>
+                <div class="info pt-2">
+                  <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                  <span class="font_tile">Shong Cha</span>
+                  </a>
+                  <p class="desc"></p><p align="left"><span>ชานมไข่มุกพ่นไฟ เม็ดไข่มุกลาวา</span></p><p></p>
+                </div> 
+              </div>
+            </div>
+        </div> #}
+       {# row2 #}
+
+    </div>
+    {# desktop #}
+
+    {# mobile #}
+    <div class="main-wrapper mobile-show">
+
+        {# row1 #}
+        <div class="row margin_lr0">
+
+          <div class="col-lg-4 col-md-4 col-sm-12 col-12 block-cate-right">
+            <div class="title_area clearfix">
+              <div class="title-word">
+                <h2 class="dining">อาหาร &amp; เครื่องดื่ม</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <img class="main-cate-img" alt="" src="{{category_sp_menu[0]['img_path']}}">
+            </div>
+          </div>
+          
+          <div class="col-lg-4 col-md-4 col-sm-12 col-12">
+
+                            {# carouse tablet-slide-show #}
+                            <div class="banner-carousel tablet-slide-show">
+                              <div id="myCarousel2" class="carousel slide" data-ride="carousel">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators  position-indicatiors">
+                                  {# <li data-target="#myCarousel2" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel2" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel2" data-slide-to="2"></li> #}
+
+                                  {% set tot_row = ((dinner|length)/2)|round(0, 'ceil') %}
+                                  {% for i in 0..tot_row-1 %}
+
+                                    {% if i == 0 %}
+                                      <li data-target="#myCarousel2" data-slide-to="{{i}}" class="active"></li>
+                                    {% else %}
+                                      <li data-target="#myCarousel2" data-slide-to="{{i}}"></li>
+                                    {% endif %}
+
+                                  {% endfor %}
+                                </ol>
+                    
+                                <!-- tablet slide show -->
+                                  <div class="carousel-inner">
+                                    {# <div class="carousel-item active">
+                                      <div class="row">
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha">
+                                                <img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_early-bird_4.jpg" alt="Shong Cha">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                                                  <span class="font_tile">Shong Cha</span>
+                                              </a>                       
+                                            </div> 
+                                          </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_mister-donut-1-__2.jpg" alt="Shong Cha"></a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                                                  <span class="font_tile">Mister Donut</span>
+                                              </a>                       
+                                            </div> 
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div class="carousel-item">
+                                      <div class="row">
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha">
+                                                <img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_early-bird_4.jpg" alt="Shong Cha">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                                                  <span class="font_tile">Shong Cha</span>
+                                              </a>                       
+                                            </div> 
+                                          </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_mister-donut-1-__2.jpg" alt="Shong Cha"></a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                                                  <span class="font_tile">Mister Donut</span>
+                                              </a>                       
+                                            </div> 
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div> #}
+                                  {# {% set tot_row = ((dinner|length)/2)|round(0, 'ceil') %} #}
+
+                                  {% for i in 0..tot_row-1 %}
+
+                                    {% set j = (i * 2) %}
+
+                                    {% if i == 0 %}
+                                    <div class="carousel-item active">
+                                    {% else %}
+                                    <div class="carousel-item">
+                                    {% endif %}
+
+                                      {# slide แบ่ง 2 #}
+                                      <div class="row">
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="{{dinner[j]['link']}}" title="{{dinner[j]['title']}}">
+                                                <img src="{{dinner[j]['img_path']}}" alt="{{dinner[j]['title']}}">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="{{dinner[j]['link']}}">
+                                                  <span class="font_tile">{{dinner[j]['article']}}</span>
+                                              </a>                       
+                                            </div> 
+                                          </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="{{dinner[j+1]['link']}}" title="{{dinner[j+1]['title']}}">
+                                                <img src="{{dinner[j+1]['img_path']}}" alt="{{dinner[j+1]['title']}}">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="{{dinner[j+1]['link']}}">
+                                                  <span class="font_tile">{{dinner[j+1]['article']}}</span>
+                                              </a>                            
+                                            </div> 
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                  {% endfor %}
+
+                                  <!-- Left and right controls -->
+                                  <a class="carousel-control-prev" role="button" href="#myCarousel2" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                  </a>
+                                  <a class="carousel-control-next" role="button" href="#myCarousel2" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                  </a>
+                                </div>
+                                {# tablet-slide-show #}   
+                              </div>
+                            </div>
+                            {# carouse tablet-slide-show #}        
+
+                            {# carouse mobile-slide-show #}
+                            <div class="banner-carousel mobile-slide-show">
+                              <div id="myCarousel7" class="carousel slide" data-ride="carousel">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators  position-indicatiors">
+                                  {# <li data-target="#myCarousel7" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel7" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel7" data-slide-to="2"></li> #}
+
+                                  {% set tot_row = dinner|length %}
+                                  {% for i in 0..tot_row-1 %}
+
+                                    {% if i == 0 %}
+                                      <li data-target="#myCarousel7" data-slide-to="{{i}}" class="active"></li>
+                                    {% else %}
+                                      <li data-target="#myCarousel7" data-slide-to="{{i}}"></li>
+                                    {% endif %}
+
+                                  {% endfor %}
+
+                                </ol>
+
+                                <!-- mobile slide show -->
+                                <div class="carousel-inner">
+                                  {# <div class="carousel-item active">
+                                      <div class="col-sm-12 col-12">
+                                        <div class="item">
+                                          <div class="cover-img cover-view">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_early-bird_4.jpg" alt="Shong Cha"></a>
+                                          </div>
+                                          <div class="info pt-2">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                                                <span class="font_tile">Shong Cha</span>
+                                            </a>
+                                                                        
+                                          </div> 
+                                        </div>
+                                      </div>
+                                  </div>
+
+                                  <div class="carousel-item">
+                                      <div class="col-sm-12 col-12">
+                                        <div class="item">
+                                          <div class="cover-img cover-view">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_mister-donut-1-__2.jpg" alt="Shong Cha"></a>
+                                          </div>
+                                          <div class="info pt-2">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                                                <span class="font_tile">Mister Donut</span>
+                                            </a>            
+                                          </div> 
+                                        </div>
+                                      </div>
+                                  </div> #}
+
+                                  {% for dinner_v in dinner %}
+                                     {% if loop.first %}
+                                        <div class="carousel-item active">
+                                     {% else %}
+                                        <div class="carousel-item">
+                                     {% endif %}
+                                          <div class="col-sm-12 col-12">
+                                                <div class="item">
+                                                  <div class="cover-img cover-view">
+                                                    <a href="{{dinner_v.link}}" title="{{dinner_v.title}}">
+                                                      <img src="{{dinner_v.img_path}}" alt="{{dinner_v.title}}">
+                                                    </a>
+                                                  </div>
+                                                  <div class="info pt-2">
+                                                    <a href="{{dinner_v.link}}">
+                                                        <span class="font_tile">{{dinner_v.article}}</span>
+                                                    </a>       
+                                                  </div> 
+                                                </div>
+                                          </div>
+                                        </div>
+                                  {% endfor %}
+                             
+                                  <!-- Left and right controls -->
+                                  <a class="carousel-control-prev" role="button" href="#myCarousel7" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                  </a>
+                                  <a class="carousel-control-next" role="button" href="#myCarousel7" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                  </a>
+                                </div>
+                                <!-- mobile slide show -->         
+
+
+                              </div>
+                            </div>
+                            {# carouse mobile-slide-show #}
+
+          </div>
+
+        </div>
+        {# row1 #}
+
+    </div>
+    {# mobile #}
+  </div>
+</div>
+{# อาหาร & เครื่องดื่ม #}
+
+
+
+
+{# โรงแรมที่พัก #}
+<div class="block_cate2">
+  {# desktop #}
+  <div class="main-wrapper desktop-show">
+
+    {# row1 #}
+    <div class="row margin_lr0">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+
+        <div class="col-lg-8 block-cate-right tablet-show" style="margin:20px;margin-bottom: 40px">
+          <div class="title_area text-center" style="text-align: center">
+            <div class="title-word">
+              <h2>โรงแรม ที่พัก &amp; ท่องเที่ยว</h2>
+            </div>
+          </div>
+        </div>
+
+      {# <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+            <div class="item">
+              <div class="cover-img cover-view">
+                <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_scenical-world_2.jpg" alt="Shong Cha"></a>
+              </div>
+              <div class="info pt-2">
+                <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                    <span class="font_tile">Scenical World</span>
+                </a>
+                                              <p class="desc"></p><p align="left"><span>สวนน้ำสวนสนุก ซีนิคอลเวิลด์ เขาใหญ่ เป็นแหล่ง...</span></p><p></p>
+              </div> 
+            </div>
+      </div>
+      <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+            <div class="item">
+              <div class="cover-img cover-view">
+                <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_magic-eye.jpg" alt="Shong Cha"></a>
+              </div>
+              <div class="info pt-2">
+                <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                    <span class="font_tile">Magic Eye Museum</span>
+                </a>
+                                              <p class="desc"></p><p align="left"><span>พิพิธภัณฑ์ภาพวาด 3 มิติ หาดใหญ่เมจิคอาย</span></p><p></p>
+              </div> 
+            </div>
+      </div>
+
+      <div class="col-lg-4 col-md-12 col-sm-12 col-12 desktop-show">
+        <div class="title_area clearfix" style="text-align: center">
+          <div class="title-word">
+            <h2>โรงแรม</h2>
+            <div class="line-bottom">&nbsp;</div>
+          </div>
+          <div class="title-word">
+            <h2>ที่พัก</h2>
+            <div class="line-bottom">&nbsp;</div>
+          </div>
+          <div class="title-word">
+            <h2>&amp; ท่องเที่ยว</h2>
+            <div class="line-bottom">&nbsp;</div>
+          </div>
+          <img class="main-cate-img" alt="" src="https://bigcard.bigc.co.th/skin/frontend/default/bigcard-new2018/images/icon-main-category-img-hotel2x.png">
+        </div>
+      </div> #}
+
+      {% set tot_row = ((hotel|length)/2)|round(0, 'ceil') %}
+      {% for i in 0..tot_row-1 %}
+      {% set j = (i * 2) %}
+          {% if i == 0 %}
+        <div class="row">
+          <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+            <div class="item">
+              <div class="cover-img cover-view">
+                <a href="{{hotel[j]['link']}}" title="{{hotel[j]['title']}}">
+                  <img src="{{hotel[j]['img_path']}}" alt="{{hotel[j]['title']}}">
+                </a>
+              </div>
+              <div class="info pt-2">
+                <a href="{{hotel[j]['link']}}">
+                    <span class="font_tile">{{hotel[j]['article']}}</span>
+                </a>
+                <p class="desc"></p><p align="left"><span>{{hotel[j]['detail']}}</span></p><p></p>
+              </div> 
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+            <div class="item">
+              <div class="cover-img cover-view">
+                <a href="{{hotel[j+1]['link']}}" title="{{hotel[j+1]['title']}}">
+                  <img src="{{hotel[j+1]['img_path']}}" alt="{{hotel[j+1]['title']}}">
+                </a>
+              </div>
+              <div class="info pt-2">
+                <a href="{{hotel[j+1]['link']}}">
+                    <span class="font_tile">{{hotel[j+1]['article']}}</span>
+                </a>
+                <p class="desc"></p><p align="left"><span>{{hotel[j+1]['detail']}}</span></p><p></p>
+              </div> 
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-12 col-sm-12 col-12 desktop-show">
+            <div class="title_area clearfix" style="text-align: center">
+              <div class="title-word">
+                <h2>โรงแรม</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <div class="title-word">
+                <h2>ที่พัก</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <div class="title-word">
+                <h2>&amp; ท่องเที่ยว</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <img class="main-cate-img" alt="" src="{{category_sp_menu[1]['img_path']}}">
+            </div>
+          </div>
+        </div>
+          {% else %}
+            <div class="row">
+              <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                    <div class="item">
+                      <div class="cover-img cover-view">
+                        <a href="{{hotel[j]['link']}}" title="{{hotel[j]['title']}}">
+                          <img src="{{hotel[j]['img_path']}}" alt="{{hotel[j]['title']}}">
+                        </a>
+                      </div>
+                      <div class="info pt-2">
+                        <a href="{{hotel[j]['link']}}">
+                            <span class="font_tile">{{hotel[j]['article']}}</span>
+                        </a>
+                        <p class="desc"></p><p align="left"><span>{{hotel[j]['detail']}}</span></p><p></p>
+                      </div> 
+                    </div>
+              </div>
+              <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                    <div class="item">
+                      <div class="cover-img cover-view">
+                        <a href="{{hotel[j+1]['link']}}" title="{{hotel[j+1]['title']}}"><img src="{{hotel[j+1]['img_path']}}" alt="{{hotel[j+1]['title']}}"></a>
+                      </div>
+                      <div class="info pt-2">
+                        <a href="{{hotel[j+1]['link']}}">
+                            <span class="font_tile">{{hotel[j+1]['article']}}</span>
+                        </a>
+                        <p class="desc"></p><p align="left"><span>{{hotel[j+1]['detail']}}</span></p><p></p>
+                      </div> 
+                    </div>
+              </div>
+              <div class="col-lg-4 col-sm-12 col-12">
+              </div>
+            </div>
+          {% endif %}
+      {% endfor %}
+
+      </div>
+    </div>
+  </div>
+    {# row1 #}
+
+    {# row2 #}
+    {# <div class="row margin_lr0">
+        <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+              <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_scenical-world_2.jpg" alt="Shong Cha"></a>
+                </div>
+                <div class="info pt-2">
+                  <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                      <span class="font_tile">Scenical World</span>
+                  </a>
+                                                <p class="desc"></p><p align="left"><span>สวนน้ำสวนสนุก ซีนิคอลเวิลด์ เขาใหญ่ เป็นแหล่ง...</span></p><p></p>
+                </div> 
+              </div>
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+              <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_magic-eye.jpg" alt="Shong Cha"></a>
+                </div>
+                <div class="info pt-2">
+                  <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                      <span class="font_tile">Magic Eye Museum</span>
+                  </a>
+                                                <p class="desc"></p><p align="left"><span>พิพิธภัณฑ์ภาพวาด 3 มิติ หาดใหญ่เมจิคอาย</span></p><p></p>
+                </div> 
+              </div>
+        </div>
+        <div class="col-lg-4 col-sm-12 col-12">
+        </div>
+    </div>
+
+  </div> #}
+  {# desktop #}
+
+    {# mobile #}
+    <div class="main-wrapper mobile-show">
+
+        {# row1 #}
+        <div class="row margin_lr0">
+
+          <div class="col-lg-4 col-md-4 col-sm-12 col-12 block-cate-right">
+            <div class="title_area clearfix" style="padding: 20px;text-align: center;padding-bottom: 40px;padding-top: 50px;">
+              <div class="title-word">
+                <h2 class="dining">โรงแรมที่พัก &amp; ท่องเที่ยว</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <img class="main-cate-img" alt="" src="{{category_sp_menu[2]['img_path']}}">
+            </div>
+          </div>
+          
+          <div class="col-lg-4 col-md-4 col-sm-12 col-12">
+          
+                        
+                            {# carouse tablet-slide-show #}
+                            <div class="banner-carousel tablet-slide-show">
+                              <div id="myCarousel3" class="carousel slide" data-ride="carousel">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators  position-indicatiors">
+                                  {# <li data-target="#myCarousel3" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel3" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel3" data-slide-to="2"></li> #}
+
+                                  {% set tot_row = ((hotel|length)/2)|round(0, 'ceil') %}
+                                  {% for i in 0..tot_row-1 %}
+
+                                    {% if i == 0 %}
+                                      <li data-target="#myCarousel3" data-slide-to="{{i}}" class="active"></li>
+                                    {% else %}
+                                      <li data-target="#myCarousel3" data-slide-to="{{i}}"></li>
+                                    {% endif %}
+
+                                  {% endfor %}
+                                </ol>
+                    
+                                <!-- tablet slide show -->
+                                  <div class="carousel-inner">
+                                  {% set tot_row = ((hotel|length)/2)|round(0, 'ceil') %}
+                                  {% for i in 0..tot_row-1 %}
+                                  {% set j = (i * 2) %}
+                                    {% if i == 0 %}
+                                    <div class="carousel-item active">
+                                    {% else %}
+                                    <div class="carousel-item">
+                                    {% endif %}
+
+                                      {# slide แบ่ง 2 #}
+                                      <div class="row">
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="{{hotel[j]['link']}}" title="{{hotel[j]['title']}}">
+                                                <img src="{{hotel[j]['img_path']}}" alt="{{hotel[j]['title']}}">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="{{hotel[j]['link']}}">
+                                                  <span class="font_tile">{{hotel[j]['article']}}</span>
+                                              </a>                       
+                                            </div> 
+                                          </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="{{hotel[j+1]['link']}}" title="{{hotel[j+1]['title']}}">
+                                                <img src="{{hotel[j+1]['img_path']}}" alt="{{hotel[j+1]['title']}}">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="{{hotel[j+1]['link']}}">
+                                                  <span class="font_tile">{{hotel[j+1]['article']}}</span>
+                                              </a>                            
+                                            </div> 
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                  {% endfor %}
+
+                                  <!-- Left and right controls -->
+                                  <a class="carousel-control-prev" role="button" href="#myCarousel3" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                  </a>
+                                  <a class="carousel-control-next" role="button" href="#myCarousel3" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                  </a>
+                                </div>
+                                {# tablet-slide-show #}   
+                              </div>
+                            </div>
+                            {# carouse tablet-slide-show #}        
+
+                            {# carouse mobile-slide-show #}
+                            <div class="banner-carousel mobile-slide-show">
+                              <div id="myCarousel8" class="carousel slide" data-ride="carousel">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators position-indicatiors">
+                                  {# <li data-target="#myCarousel8" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel8" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel8" data-slide-to="2"></li> #}
+
+                                  {% set tot_row = hotel|length %}
+                                  {% for i in 0..tot_row-1 %}
+
+                                    {% if i == 0 %}
+                                      <li data-target="#myCarousel8" data-slide-to="{{i}}" class="active"></li>
+                                    {% else %}
+                                      <li data-target="#myCarousel8" data-slide-to="{{i}}"></li>
+                                    {% endif %}
+
+                                  {% endfor %}
+
+
+                                </ol>
+
+                                <!-- mobile slide show -->
+                                <div class="carousel-inner">
+                                  {% for hotel_v in hotel %}
+                                     {% if loop.first %}
+                                        <div class="carousel-item active">
+                                     {% else %}
+                                        <div class="carousel-item">
+                                     {% endif %}
+                                          <div class="col-sm-12 col-12">
+                                                <div class="item">
+                                                  <div class="cover-img cover-view">
+                                                    <a href="{{hotel_v.link}}" title="{{hotel_v.title}}">
+                                                      <img src="{{hotel_v.img_path}}" alt="{{hotel_v.title}}">
+                                                    </a>
+                                                  </div>
+                                                  <div class="info pt-2">
+                                                    <a href="{{hotel_v.link}}">
+                                                        <span class="font_tile">{{hotel_v.article}}</span>
+                                                    </a>       
+                                                  </div> 
+                                                </div>
+                                          </div>
+                                        </div>
+                                  {% endfor %}
+                             
+                                  <!-- Left and right controls -->
+                                  <a class="carousel-control-prev" role="button" href="#myCarousel8" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                  </a>
+                                  <a class="carousel-control-next" role="button" href="#myCarousel8" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                                <!-- mobile slide show -->         
+                            
+                            
+          </div>
+
+        </div>
+        {# row1 #}
+
+    </div>
+  {# mobile #}
+
+</div>
+{# โรงแรมที่พัก #}
+
+
+{# สุขภาพ & ความงาม #}
+<div class="cate_home">
+  <div class="block_cate1">
+    {# desktop #}
+    <div class="main-wrapper desktop-show">
+        {# row1 #}
+        <div class="row margin_lr0 bg_group">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+
+          {# <div class="col-lg-4 col-md-12 col-sm-12 col-12 block-cate-right">
+            <div class="title_area clearfix" style="text-align: center">
+              <div class="title-word">
+                <h2 class="dining">สุขภาพ</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <div class="title-word">
+                <h2 class="dining">&amp;</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <div class="title-word">
+                <h2 class="dining">ความงาม</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <img class="main-cate-img" alt="" src="{{category_sp_menu[3]['img_path']}}">
+            </div>
+          </div>
+          
+          <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                <div class="item">
+                  <div class="cover-img cover-view">
+                    <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_doctor-life_2.jpg" alt="Shong Cha"></a>
+                  </div>
+                  <div class="info pt-2">
+                    <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                        <span class="font_tile">Doctorlife Clinic</span>
+                    </a>
+                                                  <p class="desc"></p><p align="left"><span>คลินิกเวชกรรมความงามแบบครบวงจร ก่อตั้งขึ้นโดย...</span></p><p></p>
+                  </div> 
+                </div>
+          </div>
+          <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+
+                <div class="item">
+                  <div class="cover-img cover-view">
+                    <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_early-bird_4.jpg" alt="Shong Cha"></a>
+                  </div>
+                  <div class="info pt-2">
+                    <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                        <span class="font_tile">Shong Cha</span>
+                    </a>
+                                                  <p class="desc"></p><p align="left"><span>ชานมไข่มุกพ่นไฟ เม็ดไข่มุกลาวา</span></p><p></p>
+                  </div> 
+                </div>
+
+          </div> #}
+
+      {% set tot_row = ((health|length)/2)|round(0, 'ceil') %}
+      {% for i in 0..tot_row-1 %}
+      {% set j = (i * 2) %}
+          {% if i == 0 %}
+        <div class="row">
+          <div class="col-lg-4 col-md-12 col-sm-12 col-12 block-cate-right">
+            <div class="title_area clearfix" style="text-align: center">
+              <div class="title-word">
+                <h2 class="dining">สุขภาพ</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <div class="title-word">
+                <h2 class="dining">&amp;</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <div class="title-word">
+                <h2 class="dining">ความงาม</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <img class="main-cate-img" alt="" src="{{category_sp_menu[3]['img_path']}}">
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                <div class="item">
+                  <div class="cover-img cover-view">
+                    <a href="{{health[j]['link']}}" title="{{health[j]['title']}}"><img src="{{health[j]['img_path']}}" alt="{{health[j]['title']}}"></a>
+                  </div>
+                  <div class="info pt-2">
+                    <a href="{{health[j]['link']}}">
+                        <span class="font_tile">{{health[j]['article']}}</span>
+                    </a>
+                      <p class="desc"></p><p align="left"><span>{{health[j]['detail']}}</span></p><p></p>
+                  </div> 
+                </div>
+          </div>
+          <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                <div class="item">
+                  <div class="cover-img cover-view">
+                    <a href="{{health[j+1]['link']}}" title="{{health[j+1]['title']}}"><img src="{{health[j+1]['img_path']}}" alt="{{health[j+1]['title']}}"></a>
+                  </div>
+                  <div class="info pt-2">
+                    <a href="{{health[j+1]['link']}}">
+                        <span class="font_tile">{{health[j+1]['article']}}</span>
+                    </a>
+                      <p class="desc"></p><p align="left"><span>{{health[j+1]['detail']}}</span></p><p></p>
+                  </div> 
+                </div>
+          </div>
+        </div>
+          {% else %}
+          <div class="row">
+            <div class="col-lg-4 col-sm-12 col-12">
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                <div class="item">
+                  <div class="cover-img cover-view">
+                    <a href="{{health[j]['link']}}" title="{{health[j]['title']}}"><img src="{{health[j]['img_path']}}" alt="{{health[j]['title']}}"></a>
+                  </div>
+                  <div class="info pt-2">
+                    <a href="{{health[j]['link']}}">
+                        <span class="font_tile">{{health[j]['article']}}</span>
+                    </a>
+                      <p class="desc"></p><p align="left"><span>{{health[j]['detail']}}</span></p><p></p>
+                  </div> 
+                </div>
+            </div>
+            {% if health[j+1]['link'] is not empty %}
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+                <div class="item">
+                  <div class="cover-img cover-view">
+                    <a href="{{health[j+1]['link']}}" title="{{health[j+1]['title']}}"><img src="{{health[j+1]['img_path']}}" alt="{{health[j+1]['title']}}"></a>
+                  </div>
+                  <div class="info pt-2">
+                    <a href="{{health[j+1]['link']}}">
+                        <span class="font_tile">{{health[j+1]['article']}}</span>
+                    </a>
+                      <p class="desc"></p><p align="left"><span>{{health[j+1]['detail']}}</span></p><p></p>
+                  </div> 
+                </div>
+            </div>
+            {% else %}
+              <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+              </div>
+            {% endif %}
+          </div>
+          {% endif %}
+      {% endfor %}
+
+          </div>
+        </div>
+        {# row1 #}
+
+        {# row2 #}
+        {# <div class="row">
+            <div class="col-lg-4 col-sm-12 col-12">
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+              <div class="item">
+                  <div class="cover-img cover-view">
+                    <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_early-bird_4.jpg" alt="Shong Cha"></a>
+                  </div>
+                  <div class="info pt-2">
+                      <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                        <span class="font_tile">Shong Cha</span>
+                      </a>
+                      <p class="desc"></p><p align="left"><span>ชานมไข่มุกพ่นไฟ เม็ดไข่มุกลาวา</span></p><p></p>
+                  </div> 
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
+              <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_early-bird_4.jpg" alt="Shong Cha"></a>
+                </div>
+                <div class="info pt-2">
+                  <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                  <span class="font_tile">Shong Cha</span>
+                  </a>
+                  <p class="desc"></p><p align="left"><span>ชานมไข่มุกพ่นไฟ เม็ดไข่มุกลาวา</span></p><p></p>
+                </div> 
+              </div>
+            </div>
+        </div> #}
+       {# row2 #}
+
+    </div>
+    {# desktop #}
+
+    {# mobile #}
+    <div class="main-wrapper mobile-show">
+
+        {# row1 #}
+        <div class="row margin_lr0">
+
+          <div class="col-lg-4 col-md-4 col-sm-12 col-12 block-cate-right">
+            <div class="title_area clearfix">
+              <div class="title-word">
+                <h2 class="dining">สุขภาพ &amp; ความงาม</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <img class="main-cate-img" alt="" src="https://bigcard.bigc.co.th/skin/frontend/default/bigcard-new2018/images/icon-food@2x.png">
+            </div>
+          </div>
+          
+          <div class="col-lg-4 col-md-4 col-sm-12 col-12">
+          
+                            {# carouse #}
+                            {# <div class="banner-carousel">
+                              <div id="myCarousel4" class="carousel slide" data-ride="carousel">
+                                <ol class="carousel-indicators">
+                                  <li data-target="#myCarousel4" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel4" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel4" data-slide-to="2"></li>
+                                </ol>
+                            
+                                <div class="carousel-inner">
+                                  <div class="carousel-item active">
+                                   
+                                      <div class="col-sm-12 col-12">
+                                        <div class="item">
+                                          <div class="cover-img cover-view">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_scenical-world_2.jpg" alt="Shong Cha"></a>
+                                          </div>
+                                          <div class="info pt-2">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                                                <span class="font_tile">Shong Cha</span>
+                                            </a>
+                                                                        
+                                          </div> 
+                                        </div>
+                                      </div>
+
+                                  </div>
+
+                                  <div class="carousel-item">
+                                      <div class="col-sm-12 col-12">
+                                        <div class="item">
+                                          <div class="cover-img cover-view">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_scenical-world_2.jpg" alt="Shong Cha"></a>
+                                          </div>
+                                          <div class="info pt-2">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                                                <span class="font_tile">Mister Donut</span>
+                                            </a>
+                                                                        
+                                          </div> 
+                                        </div>
+                                      </div>
+                                  </div>
+                            
+                                  <a class="carousel-control-prev" role="button" href="#myCarousel4" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                  </a>
+                                  <a class="carousel-control-next" role="button" href="#myCarousel4" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                  </a>
+                                </div>
+                              </div>
+                            </div> #}
+                            {# carouse #}
+
+                            {# carouse tablet-slide-show #}
+                            <div class="banner-carousel tablet-slide-show">
+                              <div id="myCarousel4" class="carousel slide" data-ride="carousel">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators position-indicatiors">
+                                  {# <li data-target="#myCarousel4" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel4" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel4" data-slide-to="2"></li> #}
+
+                                  {% set tot_row = ((health|length)/2)|round(0, 'ceil') %}
+                                  {% for i in 0..tot_row-1 %}
+
+                                    {% if i == 0 %}
+                                      <li data-target="#myCarousel4" data-slide-to="{{i}}" class="active"></li>
+                                    {% else %}
+                                      <li data-target="#myCarousel4" data-slide-to="{{i}}"></li>
+                                    {% endif %}
+
+                                  {% endfor %}
+
+                                </ol>
+                    
+                                <!-- tablet slide show -->
+                                  <div class="carousel-inner">
+                                  
+                                  {# {% set tot_row = ((health|length)/2)|round(0, 'ceil') %} #}
+                                  {% for i in 0..tot_row-1 %}
+                                  {% set j = (i * 2) %}
+                                    {% if i == 0 %}
+                                    <div class="carousel-item active">
+                                    {% else %}
+                                    <div class="carousel-item">
+                                    {% endif %}
+
+                                      {# slide แบ่ง 2 #}
+                                      <div class="row">
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="{{health[j]['link']}}" title="{{health[j]['title']}}">
+                                                <img src="{{health[j]['img_path']}}" alt="{{health[j]['title']}}">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="{{health[j]['link']}}">
+                                                  <span class="font_tile">{{health[j]['article']}}</span>
+                                              </a>                       
+                                            </div> 
+                                          </div>
+                                        </div>
+
+                                  
+                                      {% if health[j+1]['img_path'] is not empty %}
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="{{health[j+1]['link']}}" title="{{health[j+1]['title']}}">
+                                                <img src="{{health[j+1]['img_path']}}" alt="{{health[j+1]['title']}}">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="{{health[j+1]['link']}}">
+                                                  <span class="font_tile">{{health[j+1]['article']}}</span>
+                                              </a>                            
+                                            </div> 
+                                          </div>
+                                        </div>
+                                      {% else %}
+                                         <div class="col-sm-6">
+                                         </div>
+                                      {% endif %}
+                                        
+                                      </div>
+                                    </div>
+
+                                  {% endfor %}
+
+                                  <!-- Left and right controls -->
+                                  <a class="carousel-control-prev" role="button" href="#myCarousel4" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                  </a>
+                                  <a class="carousel-control-next" role="button" href="#myCarousel4" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                  </a>
+                                </div>
+                                {# tablet-slide-show #}   
+                              </div>
+                            </div>
+                            {# carouse tablet-slide-show #}        
+
+                            {# carouse mobile-slide-show #}
+                            <div class="banner-carousel mobile-slide-show">
+                              <div id="myCarousel11" class="carousel slide" data-ride="carousel">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators position-indicatiors">
+                                  {# <li data-target="#myCarousel11" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel11" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel11" data-slide-to="2"></li> #}
+                                  {% set tot_row = dinner|length %}
+                                  {% for i in 0..tot_row-1 %}
+
+                                    {% if i == 0 %}
+                                      <li data-target="#myCarousel11" data-slide-to="{{i}}" class="active"></li>
+                                    {% else %}
+                                      <li data-target="#myCarousel11" data-slide-to="{{i}}"></li>
+                                    {% endif %}
+
+                                  {% endfor %}
+                                </ol>
+
+                                <!-- mobile slide show -->
+                                <div class="carousel-inner">
+                          
+                                  {% for health_v in health %}
+                                     {% if loop.first %}
+                                        <div class="carousel-item active">
+                                     {% else %}
+                                        <div class="carousel-item">
+                                     {% endif %}
+                                          <div class="col-sm-12 col-12">
+                                                <div class="item">
+                                                  <div class="cover-img cover-view">
+                                                    <a href="{{health_v.link}}" title="{{health_v.title}}">
+                                                      <img src="{{health_v.img_path}}" alt="{{health_v.title}}">
+                                                    </a>
+                                                  </div>
+                                                  <div class="info pt-2">
+                                                    <a href="{{health_v.link}}">
+                                                        <span class="font_tile">{{health_v.article}}</span>
+                                                    </a>       
+                                                  </div> 
+                                                </div>
+                                          </div>
+                                        </div>
+                                  {% endfor %}
+                             
+                                  <!-- Left and right controls -->
+                                  <a class="carousel-control-prev" role="button" href="#myCarousel11" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                  </a>
+                                  <a class="carousel-control-next" role="button" href="#myCarousel11" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                  </a>
+                                </div>
+                                <!-- mobile slide show -->         
+
+
+                              </div>
+                            </div>
+                            {# carouse mobile-slide-show #}
+
+                            
+          </div>
+
+        </div>
+        {# row1 #}
+
+    </div>
+    {# mobile #}
+  </div>
+</div>
+{# สุขภาพ & ความงาม #}
+
+
+
+{# การศึกษา #}
+<div class="block_cate3">
+  {# desktop #}
+  <div class="main-wrapper desktop-show block_education_cover">
+    <div class="row bg_group" style="margin-left:0px;margin-right:0px;">
+      {# <div class="col-lg-3 col-md-12 col-sm-12 col-12 block-cate-left">
+        <div class="title_area clearfix" style="text-align: center">
+          <div class="title-word">
+            <h2>การศึกษา</h2>
+            <div class="line-bottom">&nbsp;</div>
+          </div>
+           <div class="home_cate_icon_img"><img class="main-cate-img" alt="" src="{{category_sp_menu[4]['img_path']}}"></div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+       <div class="item">
+          <div class="cover-img cover-view">
+            <a href="https://bigcard.bigc.co.th/sm31122020.html" title="Smartbrain &amp; Sense math Rama 2"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_swimmimg-kids_4.jpg" alt="Smartbrain &amp; Sense math Rama 2"></a>
+          </div>
+          <div class="info3">
+            <a href="https://bigcard.bigc.co.th/sm31122020.html"><span class="font_tile1">Smartbrain &amp; Sense math Rama 2</span></a>
+                                          <p class="desc"></p><p><span>สอนว่ายน้ำทารกและเด็กเล็ก (4 เดือน – 9 ...</span></p><p></p>
+          </div>
+        </div>  
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+       <div class="item">
+          <div class="cover-img cover-view">
+            <a href="https://bigcard.bigc.co.th/sm31122020.html" title="Smartbrain &amp; Sense math Rama 2"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_swimmimg-kids_4.jpg" alt="Smartbrain &amp; Sense math Rama 2"></a>
+          </div>
+          <div class="info3">
+            <a href="https://bigcard.bigc.co.th/sm31122020.html"><span class="font_tile1">Smartbrain &amp; Sense math Rama 2</span></a>
+                                          <p class="desc"></p><p><span>สอนว่ายน้ำทารกและเด็กเล็ก (4 เดือน – 9 ...</span></p><p></p>
+          </div>
+        </div>  
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+       <div class="item">
+          <div class="cover-img cover-view">
+            <a href="https://bigcard.bigc.co.th/sm31122020.html" title="Smartbrain &amp; Sense math Rama 2"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_swimmimg-kids_4.jpg" alt="Smartbrain &amp; Sense math Rama 2"></a>
+          </div>
+          <div class="info3">
+            <a href="https://bigcard.bigc.co.th/sm31122020.html"><span class="font_tile1">Smartbrain &amp; Sense math Rama 2</span></a>
+                                          <p class="desc"></p><p><span>สอนว่ายน้ำทารกและเด็กเล็ก (4 เดือน – 9 ...</span></p><p></p>
+          </div>
+        </div>  
+      </div> #}
+
+        {% set tot_row = ((education|length)/3)|round(0, 'ceil') %}
+        {% for i in 0..tot_row-1 %}
+        {% set j = (i * 3) %}
+        {% if i == 0 %}
+
+          <div class="col-lg-3 col-md-12 col-sm-12 col-12 block-cate-left">
+            <div class="title_area clearfix" style="text-align: center">
+              <div class="title-word">
+                <h2>การศึกษา</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <div class="home_cate_icon_img"><img class="main-cate-img" alt="" src="{{category_sp_menu[4]['img_path']}}"></div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+            <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="{{education[j]['link']}}" title="{{education[j]['title']}}">
+                    <img src="{{education[j]['img_path']}}" alt="{{education[j]['title']}}">
+                  </a>
+                </div>
+                <div class="info3">
+                  <a href="{{education[j]['link']}}">
+                    <span class="font_tile1">{{education[j]['article']}}</span>
+                  </a>
+                      <p class="desc"></p><p><span>{{education[j]['detail']}}</span></p><p></p>
+                </div>
+              </div>  
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+            <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="{{education[j+1]['link']}}" title="{{education[j+1]['title']}}">
+                    <img src="{{education[j+1]['img_path']}}" alt="{{education[j+1]['title']}}">
+                  </a>
+                </div>
+                <div class="info3">
+                  <a href="{{education[j+1]['link']}}">
+                    <span class="font_tile1">{{education[j+1]['article']}}</span>
+                  </a>
+                      <p class="desc"></p><p><span>{{education[j+1]['detail']}}</span></p><p></p>
+                </div>
+              </div>  
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+            <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="{{education[j+2]['link']}}" title="{{education[j+2]['title']}}">
+                    <img src="{{education[j+2]['img_path']}}" alt="{{education[j+2]['title']}}">
+                  </a>
+                </div>
+                <div class="info3">
+                  <a href="{{education[j+2]['link']}}">
+                    <span class="font_tile1">{{education[j+2]['article']}}</span>
+                  </a>
+                      <p class="desc"></p><p><span>{{education[j+2]['detail']}}</span></p><p></p>
+                </div>
+              </div>  
+          </div>
+
+        {% else %}
+
+          <div class="col-lg-3 col-md-12 col-sm-12 col-12 block-cate-left">
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+            <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="{{education[j]['link']}}" title="{{education[j]['title']}}">
+                    <img src="{{education[j]['img_path']}}" alt="{{education[j]['title']}}">
+                  </a>
+                </div>
+                <div class="info3">
+                  <a href="{{education[j]['link']}}">
+                    <span class="font_tile1">{{education[j]['article']}}</span>
+                  </a>
+                      <p class="desc"></p><p><span>{{education[j]['detail']}}</span></p><p></p>
+                </div>
+              </div>  
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+            <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="{{education[j+1]['link']}}" title="{{education[j+1]['title']}}">
+                    <img src="{{education[j+1]['img_path']}}" alt="{{education[j+1]['title']}}">
+                  </a>
+                </div>
+                <div class="info3">
+                  <a href="{{education[j+1]['link']}}">
+                    <span class="font_tile1">{{education[j+1]['article']}}</span>
+                  </a>
+                      <p class="desc"></p><p><span>{{education[j+1]['detail']}}</span></p><p></p>
+                </div>
+              </div>  
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+            <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="{{education[j+2]['link']}}" title="{{education[j+2]['title']}}">
+                    <img src="{{education[j+2]['img_path']}}" alt="{{education[j+2]['title']}}">
+                  </a>
+                </div>
+                <div class="info3">
+                  <a href="{{education[j+2]['link']}}">
+                    <span class="font_tile1">{{education[j+2]['article']}}</span>
+                  </a>
+                      <p class="desc"></p><p><span>{{education[j+2]['detail']}}</span></p><p></p>
+                </div>
+              </div>  
+          </div>
+
+        {% endif %}
+        {% endfor %}
+
+
+    </div>
+
+  </div>
+  {# desktop #}
+
+   {# mobile #}
+    <div class="main-wrapper mobile-show">
+
+        {# row1 #}
+        <div class="row margin_lr0">
+
+          <div class="col-lg-4 col-md-4 col-sm-12 col-12 block-cate-right">
+            <div class="clearfix">
+               <div class="title_area">
+                  <div class="title-word">
+                    <h2 class="dining">การศึกษา</h2>
+                    <div class="line-bottom">&nbsp;</div>
+                  </div>
+                </div>
+
+            </div>
+          </div>
+          
+          <div class="col-lg-4 col-md-4 col-sm-12 col-12">
+          
+                            {# carouse #}
+                            {# <div class="banner-carousel">
+                              <div id="myCarousel5" class="carousel slide" data-ride="carousel">
+                                <ol class="carousel-indicators">
+                                  <li data-target="#myCarousel5" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel5" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel5" data-slide-to="2"></li>
+                                </ol>
+                            
+                                <div class="carousel-inner">
+                                  <div class="carousel-item active">
+                                   
+                                      <div class="col-sm-12 col-12">
+                                        <div class="item">
+                                          <div class="cover-img cover-view">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_scenical-world_2.jpg" alt="Shong Cha"></a>
+                                          </div>
+                                          <div class="info3 pt-2">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                                                <span class="font_tile">Shong Cha</span>
+                                            </a>
+                                                                        
+                                          </div> 
+                                        </div>
+                                      </div>
+
+                                  </div>
+
+                                  <div class="carousel-item">
+                                      <div class="col-sm-12 col-12">
+                                        <div class="item">
+                                          <div class="cover-img cover-view">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_scenical-world_2.jpg" alt="Shong Cha"></a>
+                                          </div>
+                                          <div class="info3 pt-2">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                                                <span class="font_tile">Mister Donut</span>
+                                            </a>
+                                                                        
+                                          </div> 
+                                        </div>
+                                      </div>
+                                  </div>
+                            
+                                <a class="carousel-control-prev" role="button" href="#myCarousel5" data-slide="prev">
+                                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                 <span class="sr-only">Previous</span>
+                                </a>
+                                <a class="carousel-control-next" role="button" href="#myCarousel5" data-slide="next">
+                                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Next</span>
+                                </a>
+                              </div>
+                            </div> #}
+                            {# carouse #}
+
+                           {# carouse tablet-slide-show #}
+                            <div class="banner-carousel tablet-slide-show">
+                              <div id="myCarousel5" class="carousel slide" data-ride="carousel">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators position-indicatiors">
+                                  {# <li data-target="#myCarousel5" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel5" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel5" data-slide-to="2"></li> #}
+                                  {% set tot_row = ((education|length)/2)|round(0, 'ceil') %}
+                                  {% for i in 0..tot_row-1 %}
+
+                                    {% if i == 0 %}
+                                      <li data-target="#myCarousel5" data-slide-to="{{i}}" class="active"></li>
+                                    {% else %}
+                                      <li data-target="#myCarousel5" data-slide-to="{{i}}"></li>
+                                    {% endif %}
+
+                                  {% endfor %}
+                                </ol>
+                    
+                                <!-- tablet slide show -->
+                                  <div class="carousel-inner">
+                                  
+                                  {% set tot_row = ((education|length)/2)|round(0, 'ceil') %}
+                                  {% for i in 0..tot_row-1 %}
+                                  {% set j = (i * 2) %}
+                                    {% if i == 0 %}
+                                    <div class="carousel-item active">
+                                    {% else %}
+                                    <div class="carousel-item">
+                                    {% endif %}
+
+                                      {# slide แบ่ง 2 #}
+                                      <div class="row">
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="{{education[j]['link']}}" title="{{education[j]['title']}}">
+                                                <img src="{{education[j]['img_path']}}" alt="{{education[j]['title']}}">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="{{education[j]['link']}}">
+                                                  <span class="font_tile">{{education[j]['article']}}</span>
+                                              </a>                       
+                                            </div> 
+                                          </div>
+                                        </div>
+
+                                        {# <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="{{education[j+1]['link']}}" title="{{education[j+1]['title']}}">
+                                                <img src="{{education[j+1]['img_path']}}" alt="{{education[j+1]['title']}}">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="{{education[j+1]['link']}}">
+                                                  <span class="font_tile">{{lifestyle[j+1]['article']}}</span>
+                                              </a>                            
+                                            </div> 
+                                          </div>
+                                        </div> #}
+
+                                      {% if education[j+1]['img_path'] is not empty %}
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="{{education[j+1]['link']}}" title="{{education[j+1]['title']}}">
+                                                <img src="{{education[j+1]['img_path']}}" alt="{{education[j+1]['title']}}">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="{{education[j+1]['link']}}">
+                                                  <span class="font_tile">{{education[j+1]['article']}}</span>
+                                              </a>                            
+                                            </div> 
+                                          </div>
+                                        </div>
+                                      {% else %}
+                                         <div class="col-sm-6">
+                                         </div>
+                                      {% endif %}
+
+                                      </div>
+                                    </div>
+
+                                  {% endfor %}
+
+                                  <!-- Left and right controls -->
+                                  <a class="carousel-control-prev" role="button" href="#myCarousel5" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                  </a>
+                                  <a class="carousel-control-next" role="button" href="#myCarousel5" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                  </a>
+                                </div>
+                                {# tablet-slide-show #}   
+                              </div>
+                            </div>
+                            {# carouse tablet-slide-show #}        
+
+                            {# carouse mobile-slide-show #}
+                            <div class="banner-carousel mobile-slide-show">
+                              <div id="myCarousel9" class="carousel slide" data-ride="carousel">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators position-indicatiors">
+                                  {# <li data-target="#myCarousel9" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel9" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel9" data-slide-to="2"></li> #}
+
+                                  {% set tot_row = education|length %}
+                                  {% for i in 0..tot_row-1 %}
+
+                                    {% if i == 0 %}
+                                      <li data-target="#myCarousel9" data-slide-to="{{i}}" class="active"></li>
+                                    {% else %}
+                                      <li data-target="#myCarousel9" data-slide-to="{{i}}"></li>
+                                    {% endif %}
+
+                                  {% endfor %}
+
+                                </ol>
+
+                                <!-- mobile slide show -->
+                                <div class="carousel-inner">
+                          
+                                  {% for education_v in education %}
+                                     {% if loop.first %}
+                                        <div class="carousel-item active">
+                                     {% else %}
+                                        <div class="carousel-item">
+                                     {% endif %}
+                                          <div class="col-sm-12 col-12">
+                                                <div class="item">
+                                                  <div class="cover-img cover-view">
+                                                    <a href="{{education_v.link}}" title="{{education_v.title}}">
+                                                      <img src="{{education_v.img_path}}" alt="{{education_v.title}}">
+                                                    </a>
+                                                  </div>
+                                                  <div class="info pt-2">
+                                                    <a href="{{education_v.link}}">
+                                                        <span class="font_tile">{{education_v.article}}</span>
+                                                    </a>       
+                                                  </div> 
+                                                </div>
+                                          </div>
+                                        </div>
+                                  {% endfor %}
+                             
+                                  <!-- Left and right controls -->
+                                  <a class="carousel-control-prev" role="button" href="#myCarousel9" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                  </a>
+                                  <a class="carousel-control-next" role="button" href="#myCarousel9" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                  </a>
+                                </div>
+                                <!-- mobile slide show -->         
+
+
+                              </div>
+                            </div>
+                            {# carouse mobile-slide-show #}
+
+          </div>
+
+        </div>
+        {# row1 #}
+
+    </div>
+    {# mobile #}
+  {# mobile #}
+</div>
+{# การศึกษา #}
+
+
+
+
+{# ไลฟ์สไตล์ #}
+<div class="block_cate3">
+  {# desktop #}
+  <div class="main-wrapper desktop-show block_education_cover">
+    <div class="row bg_group" style="margin-left:0px;margin-right:0px;">
+      {# <div class="col-lg-3 col-md-12 col-sm-12 col-12 block-cate-left">
+        <div class="title_area clearfix" style="text-align: center">
+          <div class="title-word">
+            <h2>ไลฟ์สไตล์</h2>
+            <div class="line-bottom">&nbsp;</div>
+          </div>
+           <div class="home_cate_icon_img"><img class="main-cate-img" alt="" src="https://bigcard.bigc.co.th/skin/frontend/default/bigcard-new2018/images/icon-main-cate-lifestyle2x.png"></div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+       <div class="item">
+          <div class="cover-img cover-view">
+            <a href="https://bigcard.bigc.co.th/sm31122020.html" title="Smartbrain &amp; Sense math Rama 2"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px___3_172.jpg" alt="Smartbrain &amp; Sense math Rama 2"></a>
+          </div>
+          <div class="info3">
+            <a href="https://bigcard.bigc.co.th/sm31122020.html"><span class="font_tile1">ห้างทองเยาวราชสินทวี</span></a>
+                                          <p class="desc"></p><p><span>ซื้อทอง ขายทอง แลกเปลี่ยนทอง ห้างทองเยาวราชสิ...</span></p><p></p>
+          </div>
+        </div>  
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+       <div class="item">
+          <div class="cover-img cover-view">
+            <a href="https://bigcard.bigc.co.th/sm31122020.html" title="Smartbrain &amp; Sense math Rama 2"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_asia-book_6.jpg" alt="Smartbrain &amp; Sense math Rama 2"></a>
+          </div>
+          <div class="info3">
+            <a href="https://bigcard.bigc.co.th/sm31122020.html"><span class="font_tile1">Smartbrain &amp; Sense math Rama 2</span></a>
+                                          <p class="desc"></p><p><span>สอนว่ายน้ำทารกและเด็กเล็ก (4 เดือน – 9 ...</span></p><p></p>
+          </div>
+        </div>  
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+       <div class="item">
+          <div class="cover-img cover-view">
+            <a href="https://bigcard.bigc.co.th/sm31122020.html" title="Smartbrain &amp; Sense math Rama 2"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_asia-book_6.jpg" alt="Smartbrain &amp; Sense math Rama 2"></a>
+          </div>
+          <div class="info3">
+            <a href="https://bigcard.bigc.co.th/sm31122020.html"><span class="font_tile1">Smartbrain &amp; Sense math Rama 2</span></a>
+                                          <p class="desc"></p><p><span>สอนว่ายน้ำทารกและเด็กเล็ก (4 เดือน – 9 ...</span></p><p></p>
+          </div>
+        </div>  
+      </div> #}
+
+        {% set tot_row = ((lifestyle|length)/3)|round(0, 'ceil') %}
+        {% for i in 0..tot_row-1 %}
+        {% set j = (i * 3) %}
+        {% if i == 0 %}
+
+          <div class="col-lg-3 col-md-12 col-sm-12 col-12 block-cate-left">
+            <div class="title_area clearfix" style="text-align: center">
+              <div class="title-word">
+                <h2>ไลฟ์สไตล์</h2>
+                <div class="line-bottom">&nbsp;</div>
+              </div>
+              <div class="home_cate_icon_img"><img class="main-cate-img" alt="" src="{{category_sp_menu[4]['img_path']}}"></div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+            <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="{{lifestyle[j]['link']}}" title="{{lifestyle[j]['title']}}">
+                    <img src="{{lifestyle[j]['img_path']}}" alt="{{lifestyle[j]['title']}}">
+                  </a>
+                </div>
+                <div class="info3">
+                  <a href="{{lifestyle[j]['link']}}">
+                    <span class="font_tile1">{{lifestyle[j]['article']}}</span>
+                  </a>
+                      <p class="desc"></p><p><span>{{lifestyle[j]['detail']}}</span></p><p></p>
+                </div>
+            </div>  
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+            <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="{{lifestyle[j+1]['link']}}" title="{{lifestyle[j+1]['title']}}">
+                    <img src="{{lifestyle[j+1]['img_path']}}" alt="{{lifestyle[j+1]['title']}}">
+                  </a>
+                </div>
+                <div class="info3">
+                  <a href="{{lifestyle[j+1]['link']}}">
+                    <span class="font_tile1">{{lifestyle[j+1]['article']}}</span>
+                  </a>
+                      <p class="desc"></p><p><span>{{lifestyle[j+1]['detail']}}</span></p><p></p>
+                </div>
+            </div>  
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+            <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="{{lifestyle[j+2]['link']}}" title="{{lifestyle[j+2]['title']}}">
+                    <img src="{{lifestyle[j+2]['img_path']}}" alt="{{lifestyle[j+2]['title']}}">
+                  </a>
+                </div>
+                <div class="info3">
+                  <a href="{{lifestyle[j+2]['link']}}">
+                    <span class="font_tile1">{{lifestyle[j+2]['article']}}</span>
+                  </a>
+                      <p class="desc"></p><p><span>{{lifestyle[j+2]['detail']}}</span></p><p></p>
+                </div>
+            </div>  
+          </div>
+
+        {% else %}
+
+          <div class="col-lg-3 col-md-12 col-sm-12 col-12 block-cate-left">
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+            <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="{{lifestyle[j]['link']}}" title="{{lifestyle[j]['title']}}">
+                    <img src="{{lifestyle[j]['img_path']}}" alt="{{lifestyle[j]['title']}}">
+                  </a>
+                </div>
+                <div class="info3">
+                  <a href="{{lifestyle[j]['link']}}">
+                    <span class="font_tile1">{{lifestyle[j]['article']}}</span>
+                  </a>
+                      <p class="desc"></p><p><span>{{lifestyle[j]['detail']}}</span></p><p></p>
+                </div>
+            </div>  
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+            <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="{{lifestyle[j+1]['link']}}" title="{{lifestyle[j+1]['title']}}">
+                    <img src="{{lifestyle[j+1]['img_path']}}" alt="{{lifestyle[j+1]['title']}}">
+                  </a>
+                </div>
+                <div class="info3">
+                  <a href="{{lifestyle[j+1]['link']}}">
+                    <span class="font_tile1">{{lifestyle[j+1]['article']}}</span>
+                  </a>
+                      <p class="desc"></p><p><span>{{lifestyle[j+1]['detail']}}</span></p><p></p>
+                </div>
+            </div>  
+          </div>
+
+          <div class="col-lg-3 col-md-4 col-sm-12 col-12">
+            <div class="item">
+                <div class="cover-img cover-view">
+                  <a href="{{lifestyle[j+2]['link']}}" title="{{lifestyle[j+2]['title']}}">
+                    <img src="{{lifestyle[j+2]['img_path']}}" alt="{{lifestyle[j+2]['title']}}">
+                  </a>
+                </div>
+                <div class="info3">
+                  <a href="{{lifestyle[j+2]['link']}}">
+                    <span class="font_tile1">{{lifestyle[j+2]['article']}}</span>
+                  </a>
+                      <p class="desc"></p><p><span>{{lifestyle[j+2]['detail']}}</span></p><p></p>
+                </div>
+            </div>  
+          </div>
+
+        {% endif %}
+        {% endfor %}
+
+
+
+    </div>
+  </div>
+  {# desktop #}
+
+    {# mobile #}
+    <div class="main-wrapper mobile-show">
+
+        {# row1 #}
+        <div class="row margin_lr0">
+
+          <div class="col-lg-4 col-md-4 col-sm-12 col-12 block-cate-right">
+            <div class="clearfix">
+               <div class="title_area">
+                  <div class="title-word">
+                    <h2 class="dining">ไลฟ์สไตล์</h2>
+                    <div class="line-bottom">&nbsp;</div>
+                  </div>
+                </div>
+             
+            </div>
+          </div>
+          
+          <div class="col-lg-4 col-md-4 col-sm-12 col-12">
+          
+                            {# carouse #}
+                            {# <div class="banner-carousel">
+                              <div id="myCarousel6" class="carousel slide" data-ride="carousel">
+                                <ol class="carousel-indicators">
+                                  <li data-target="#myCarousel6" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel6" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel6" data-slide-to="2"></li>
+                                </ol>
+                            
+                                <div class="carousel-inner">
+                                  <div class="carousel-item active">
+                                   
+                                      <div class="col-sm-12 col-12">
+                                        <div class="item">
+                                          <div class="cover-img cover-view">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_scenical-world_2.jpg" alt="Shong Cha"></a>
+                                          </div>
+                                          <div class="info3 pt-2">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                                                <span class="font_tile">Shong Cha</span>
+                                            </a>
+                                                                        
+                                          </div> 
+                                        </div>
+                                      </div>
+
+                                  </div>
+
+                                  <div class="carousel-item">
+                                      <div class="col-sm-12 col-12">
+                                        <div class="item">
+                                          <div class="cover-img cover-view">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html" title="Shong Cha"><img src="https://bigcard.bigc.co.th/media/catalog/product/cache/3/thumbnail/9df78eab33525d08d6e5fb8d27136e95/i/n/inside-banner-420x690px_scenical-world_2.jpg" alt="Shong Cha"></a>
+                                          </div>
+                                          <div class="info3 pt-2">
+                                            <a href="https://bigcard.bigc.co.th/sc31082020.html">
+                                                <span class="font_tile">Mister Donut</span>
+                                            </a>
+                                                                        
+                                          </div> 
+                                        </div>
+                                      </div>
+                                  </div>
+                            
+                                <a class="carousel-control-prev" role="button" href="#myCarousel6" data-slide="prev">
+                                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                 <span class="sr-only">Previous</span>
+                                </a>
+                                <a class="carousel-control-next" role="button" href="#myCarousel6" data-slide="next">
+                                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Next</span>
+                                </a>
+                              </div>
+                            </div> #}
+                            {# carouse #}
+
+                              {# carouse tablet-slide-show #}
+                            <div class="banner-carousel tablet-slide-show">
+                              <div id="myCarousel6" class="carousel slide" data-ride="carousel">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators position-indicatiors">
+                                  {# <li data-target="#myCarousel6" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel6" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel6" data-slide-to="2"></li> #}
+
+                                  {% set tot_row = ((lifestyle|length)/2)|round(0, 'ceil') %}
+                                  {% for i in 0..tot_row-1 %}
+
+                                    {% if i == 0 %}
+                                      <li data-target="#myCarousel6" data-slide-to="{{i}}" class="active"></li>
+                                    {% else %}
+                                      <li data-target="#myCarousel6" data-slide-to="{{i}}"></li>
+                                    {% endif %}
+
+                                  {% endfor %}
+
+                                </ol>
+                    
+                                <!-- tablet slide show -->
+                                  <div class="carousel-inner">
+                                  
+                                  {# {% set tot_row = ((lifestyle|length)/2)|round(0, 'ceil') %} #}
+                                  {% for i in 0..tot_row-1 %}
+                                  {% set j = (i * 2) %}
+                                    {% if i == 0 %}
+                                    <div class="carousel-item active">
+                                    {% else %}
+                                    <div class="carousel-item">
+                                    {% endif %}
+
+                                      {# slide แบ่ง 2 #}
+                                      <div class="row">
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="{{lifestyle[j]['link']}}" title="{{lifestyle[j]['title']}}">
+                                                <img src="{{lifestyle[j]['img_path']}}" alt="{{lifestyle[j]['title']}}">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="{{lifestyle[j]['link']}}">
+                                                  <span class="font_tile">{{lifestyle[j]['article']}}</span>
+                                              </a>                       
+                                            </div> 
+                                          </div>
+                                        </div>
+
+                                        {# <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="{{lifestyle[j+1]['link']}}" title="{{lifestyle[j+1]['title']}}">
+                                                <img src="{{lifestyle[j+1]['img_path']}}" alt="{{lifestyle[j+1]['title']}}">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="{{lifestyle[j+1]['link']}}">
+                                                  <span class="font_tile">{{lifestyle[j+1]['article']}}</span>
+                                              </a>                            
+                                            </div> 
+                                          </div>
+                                        </div> #}
+
+
+                                      {% if lifestyle[j+1]['img_path'] is not empty %}
+                                        <div class="col-sm-6">
+                                          <div class="item">
+                                            <div class="cover-img cover-view">
+                                              <a href="{{lifestyle[j+1]['link']}}" title="{{lifestyle[j+1]['title']}}">
+                                                <img src="{{lifestyle[j+1]['img_path']}}" alt="{{lifestyle[j+1]['title']}}">
+                                              </a>
+                                            </div>
+                                            <div class="info pt-2">
+                                              <a href="{{lifestyle[j+1]['link']}}">
+                                                  <span class="font_tile">{{lifestyle[j+1]['article']}}</span>
+                                              </a>                            
+                                            </div> 
+                                          </div>
+                                        </div>
+                                      {% else %}
+                                         <div class="col-sm-6">
+                                         </div>
+                                      {% endif %}
+
+                                      </div>
+                                    </div>
+
+                                  {% endfor %}
+
+                                  <!-- Left and right controls -->
+                                  <a class="carousel-control-prev" role="button" href="#myCarousel6" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                  </a>
+                                  <a class="carousel-control-next" role="button" href="#myCarousel6" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                  </a>
+                                </div>
+                                {# tablet-slide-show #}   
+                              </div>
+                            </div>
+                            {# carouse tablet-slide-show #}        
+
+                            {# carouse mobile-slide-show #}
+                            <div class="banner-carousel mobile-slide-show">
+                              <div id="myCarousel10" class="carousel slide" data-ride="carousel">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators">
+                                  {# <li data-target="#myCarousel10" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel10" data-slide-to="1"></li>
+                                  <li data-target="#myCarousel10" data-slide-to="2"></li> #}
+
+                                  {% set tot_row = lifestyle|length %}
+                                  {% for i in 0..tot_row-1 %}
+
+                                    {% if i == 0 %}
+                                      <li data-target="#myCarousel10" data-slide-to="{{i}}" class="active"></li>
+                                    {% else %}
+                                      <li data-target="#myCarousel10" data-slide-to="{{i}}"></li>
+                                    {% endif %}
+
+                                  {% endfor %}
+                                </ol>
+
+                                <!-- mobile slide show -->
+                                <div class="carousel-inner">
+                          
+                                  {% for lifestyle_v in lifestyle %}
+                                     {% if loop.first %}
+                                        <div class="carousel-item active">
+                                     {% else %}
+                                        <div class="carousel-item">
+                                     {% endif %}
+                                          <div class="col-sm-12 col-12">
+                                                <div class="item">
+                                                  <div class="cover-img cover-view">
+                                                    <a href="{{lifestyle_v.link}}" title="{{lifestyle_v.title}}">
+                                                      <img src="{{lifestyle_v.img_path}}" alt="{{lifestyle_v.title}}">
+                                                    </a>
+                                                  </div>
+                                                  <div class="info pt-2">
+                                                    <a href="{{lifestyle_v.link}}">
+                                                        <span class="font_tile">{{lifestyle_v.article}}</span>
+                                                    </a>       
+                                                  </div> 
+                                                </div>
+                                          </div>
+                                        </div>
+                                  {% endfor %}
+                             
+                                  <!-- Left and right controls -->
+                                  <a class="carousel-control-prev" role="button" href="#myCarousel10" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                  </a>
+                                  <a class="carousel-control-next" role="button" href="#myCarousel10" data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                  </a>
+                                </div>
+                                <!-- mobile slide show -->         
+
+
+                              </div>
+                            </div>
+                            {# carouse mobile-slide-show #}
+
+                            
+          </div>
+          <p>&nbsp;</p>
+        </div>
+        {# row1 #}
+
+    </div>
+    {# mobile #}
+  {# mobile #}
+</div>
+{# ไลฟ์สไตล์ #}
+
+<p>&nbsp;</p>

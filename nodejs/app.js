@@ -28,6 +28,7 @@ const Lotterys        = require('./models/lotterys')
 const ShootNumbers    = require('./models/shoot_numbers')
 const UserSocketID    = require('./models/user_socket_id')
 const DepositStatus   = require('./models/deposit_status')
+const AwardsModel     = require('./models/awards')
 
 const connectMongoose = require("./src/connection")
 const User            = require("./src/User.model")
@@ -524,7 +525,6 @@ app.post('/api/bet_cancel', async(req, res) => {
   }
 });
 
-
 app.post('/api/shoot_number', async(req, res) => {
   let start_time = new Date();
   
@@ -533,11 +533,24 @@ app.post('/api/shoot_number', async(req, res) => {
 
     let user = await People.findOne({uid: req.body.uid});
     if(!_.isEmpty(user)){
-      let fs = await ShootNumbers.findOne({round_id: req.body.round_tid});
+
+      await ShootNumbers.create({ round_id: req.body.round_tid, 
+                                    number: req.body.data, 
+                                       uid: user.uid
+                                });
+
+      let data = await ShootNumbers.findOne({round_id: req.body.round_tid});
     
-      let data = {};
+      // let data = {};
+      /*
       if(_.isEmpty(fs)){
-        data = await ShootNumbers.create({'round_id': req.body.round_tid, 'numbers':[{_id:utils.makeid(24), user:{name: user.name, uid:user.uid, image_url: user.image_url}, 'number':req.body.data, 'created': Date.now()}]});
+        data = await ShootNumbers.create({'round_id': req.body.round_tid, 
+                                          'numbers' : [{_id  : utils.makeid(24), 
+                                                        user : {name: user.name, 
+                                                                uid:user.uid, 
+                                                                image_url: user.image_url}, 
+                                                        'number':req.body.data, 
+                                                        'created': Date.now()}]});
       }else{
         await ShootNumbers.update(
          { 'round_id': req.body.round_tid }, 
@@ -545,6 +558,8 @@ app.post('/api/shoot_number', async(req, res) => {
         );
         data = await ShootNumbers.findOne({round_id: req.body.round_tid});
       }
+      */
+
       res.send({result:true, data, execution_time: (new Date() - start_time) });
     }else{
       res.send({result:false, status: '-1'});
@@ -673,6 +688,53 @@ app.post('/api/add-deposit', upload.single('attached_file'), async (req, res) =>
 //   }
 // });
 ///////// ดึงรายการ ฝาก/ถอน //////////
+
+// config.d8.get_yeekee_answer 
+app.post('/api/get_yeekee_answer', async(req, res) => {
+  let start_time = new Date();
+
+  let is_session = await sessionMongoStore.get(req.session.id);
+  if (is_session !== undefined) {  
+
+    if( _.isEmpty(req.body.uid) || 
+        _.isEmpty(req.body.type_lotterys)|| 
+        _.isEmpty(req.body.date) || 
+        _.isEmpty(req.body.round_tid) ){
+      res.send({result:false, status: '-2'});
+    }
+
+    let {type_lotterys, date, round_tid} = req.body
+
+    // console.log(uid);
+    // console.log(type_lotterys);
+    // console.log(date);
+    // console.log(round_tid);
+
+    let data = await AwardsModel.findOne({ type_lotterys,  round_tid, date});
+    // console.log(data);
+
+    res.send({ result:true, data, execution_time: (new Date() - start_time) });
+  
+    /*
+    var data = {
+      "uid"      : req.body.uid,
+      "date"     : req.body.date,
+      "round_tid": req.body.round_tid
+    }
+
+    fetch(config.d8.get_yeekee_answer, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
+      .then((res) => {
+        return res.json()
+    })
+    .then((json) => {
+      console.log(json);
+      res.send(json);
+    });
+    */
+  }else{
+    res.send({result:false, status: '-1'}); ;
+  }
+});
 
 // var request = require('request');
 // io.adapter(mongoAdapter( config.mongo.url ));
@@ -947,10 +1009,10 @@ const getApiAndEmit = socket => {
 server.listen(PORT, function (err) {
   console.log('listening on port 8080')
 
-  connectMongoose().then((db) => {
+  connectMongoose().then(() => {
     console.log("MongoDb connected");
 
-    console.log(db);
+    console.log();
     // console.log(socket_connection);
 
     // User ทั้งหมดทีมีอยู่ในระบบ
@@ -1283,11 +1345,11 @@ server.listen(PORT, function (err) {
         case 'update':{
           console.log('Lotterys > update');
           
-          if(socket_local.connected){
+          // if(socket_local.connected){
             // socket_local.emit("lotterys", JSON.stringify(await Lotterys.find({})));
           
             io.sockets.emit("lotterys", JSON.stringify(await Lotterys.find({})));
-          }
+          // }
           break;
         }
         case 'drop':{
@@ -1312,7 +1374,7 @@ server.listen(PORT, function (err) {
     ShootNumbers.watch().on('change', async data =>{
       console.log(new Date(), data)
 
-      console.log(new Date(), data.documentKey._id.toString())
+      // console.log(new Date(), data.documentKey._id.toString())
       //operationType
       switch(data.operationType){
         case 'insert':{
@@ -1322,10 +1384,21 @@ server.listen(PORT, function (err) {
           //   io.sockets.emit("shoot_numbers", JSON.stringify(find));
           // } 
           
+          /*
           let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
           if(find){
             io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(find));
           }
+          */
+
+          /*
+         let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
+         // console.log(find)
+         if(find){
+           let data = await ShootNumbers.findOne({ round_id: find.round_id });
+           io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(data));
+         }
+         */
           break;
         }
         case 'delete':{
@@ -1338,11 +1411,14 @@ server.listen(PORT, function (err) {
         }
         case 'update':{
           console.log('ShootNumbers > update');
+          /*
           let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
           // console.log(find)
           if(find){
-            io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(find));
+            let data = await ShootNumbers.findOne({ round_id: find.round_id });
+            io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(data));
           }
+          */
           break;
         }
         case 'drop':{
@@ -1363,6 +1439,49 @@ server.listen(PORT, function (err) {
         }
       }
     });
+
+    /*
+    AwardsModel.watch().on('change', async data =>{
+      console.log(new Date(), data)
+
+      // console.log(new Date(), data.documentKey._id.toString())
+      //operationType
+      switch(data.operationType){
+        case 'insert':{
+          console.log('AwardsModel > insert');
+          break;
+        }
+        case 'delete':{
+          console.log('AwardsModel > delete');
+          break;
+        }
+        case 'replace':{
+          console.log('AwardsModel > replace');
+          break;
+        }
+        case 'update':{
+          console.log('AwardsModel > update');
+          break;
+        }
+        case 'drop':{
+          console.log('AwardsModel > drop');
+          break;
+        }
+        case 'rename':{
+          console.log('AwardsModel > rename');
+          break;
+        }
+        case 'dropDatabase':{
+          console.log('AwardsModel > dropDatabase');
+          break;
+        }
+        case 'invalidate':{
+          console.log('AwardsModel > dropDatabase');
+          break;
+        }
+      }
+    });
+    */
    
     UserSocketID.watch().on('change', async data =>{
       console.log(new Date(), data)
@@ -1448,6 +1567,8 @@ server.listen(PORT, function (err) {
     // sessionMongoStore.all(function(error, sessions){
     //   console.log(sessions);
     // })
+  }).catch(err => {
+    console.log( 'DB Connection Error: ${err.message}' );
   });
 
 })

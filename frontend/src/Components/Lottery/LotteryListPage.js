@@ -65,7 +65,7 @@ class LotteryListPage extends Component {
   handleClick = (e, item) => {
     // access to e.target here
     console.log(item);
-    // 
+
 
     let {history} = this.props;
     // /reward/:id

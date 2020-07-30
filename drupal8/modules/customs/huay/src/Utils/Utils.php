@@ -7,6 +7,7 @@ use Drupal\taxonomy\Entity\Term;
 use \Drupal\config_pages\Entity\ConfigPages;
 use Drupal\user\Entity\User;
 use Drupal\paragraphs\Entity\Paragraph;
+use Drupal\file\Entity\File;
 
 use \MongoDB\Client;
 
@@ -59,6 +60,62 @@ class Utils extends ControllerBase {
 
       $our_service->setCache($type, $branchs, $cid);
       return $branchs;
+    }else{
+      return $cache;
+    }   
+  }
+
+  public static function get_fid_cache($fid){
+    $type = 'fid_cache';
+
+    $our_service = \Drupal::service('huay.cache');
+    $cache = $our_service->getCache($type, $fid);
+    if($cache  === NULL) {
+      $file =File::load($fid);    
+      
+      if(empty($file)){
+        return NULL;
+      }
+
+      $contents = file_get_contents( $file->getFileUri() );
+
+      $our_service->setCache($type, $contents, $fid);
+      return $contents;
+
+      /*
+      $branchs_terms = \Drupal::entityManager()->getStorage($type)->loadTree($cid);
+      $branchs = array();
+
+      // จะมีกรณีที่ tid เกิดไม่ต้องกันในเครือง dev, uat, production เราจึงกำหนด id ให่แต่ละ term เราจึงต้องดึงจาก field_id_term เราต้อง check เพราะว่าเราค่อยแก้ๆ
+      // $terms = array('current_d_e_ratio', 'type_payment');
+
+      //   $terms = \Drupal\config_pages\Entity\ConfigPages::config('vocabulary')->get('field_vocabulary')->value;
+      //   $terms = explode(",", $terms);
+
+      //   if (in_array( $cid , $terms)) {
+      foreach($branchs_terms as $tag_term) {
+        // $tid_code = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tag_term->tid)->get('field_tid_code')->getValue();
+        // if(!empty( $tid_code )){
+        //   $new_tid =  $tid_code[0]['value'];
+        //   $branchs[$new_tid] = $tag_term->name;
+        // }
+
+        $branchs[$tag_term->tid] = $tag_term->name;
+      }
+    //   }else{
+    //     foreach ($branchs_terms as $tag_term) {
+    //       $branchs[$tag_term->tid] = $tag_term->name;
+    //     }
+    //   }
+
+      $our_service->setCache($type, $branchs, $cid);
+      return $branchs;
+      */
+
+      // $file = file_get_contents('sites/default/files/shoot_numbers/41_07-27-2020_0830am.txt');
+      // foreach( json_decode( $file ) as $i => $item) {
+      //   dpm( json_decode($item) );
+      // }
     }else{
       return $cache;
     }   
@@ -1313,6 +1370,9 @@ class Utils extends ControllerBase {
     return implode(", ", $ids);
   }
 
+  /*
+  การดึง tid ของรอบทีออกล่าสุด
+  */
   public static function get__taxonomy_term_tid__by_time(){
     // โหลด  รอบที่ 1
     $term = Term::load(31);
@@ -1335,6 +1395,38 @@ class Utils extends ControllerBase {
     $tid = 0;
     foreach($branchs_terms as $tag_term) {
       if(strcmp($tag_term->name, (floor($minutes/15) + 1) ) == 0){
+        $tid = $tag_term->tid;
+        break;
+      }
+    }
+    return $tid;
+  }
+
+  /*
+  การดึง tid ของรอบปัจจุบัน
+  */
+  public static function get__taxonomy_term_tid_current__by_time(){
+    // โหลด  รอบที่ 1
+    $term = Term::load(31);
+
+    $date1 = new \DateTime();
+    $date1->setTimestamp($term->get('field_time_answer')->value);
+
+    $date2 = new \DateTime();
+    // $date2->setTimestamp('1595277900');
+
+    $interval = $date1->diff($date2);
+    // dpm( $interval );
+
+    $minutes = $interval->days * 24 * 60;
+    $minutes += $interval->h * 60;
+    $minutes += $interval->i;
+    // echo $minutes.' minutes';
+
+    $branchs_terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('yeekee_round');
+    $tid = 0;
+    foreach($branchs_terms as $tag_term) {
+      if(strcmp($tag_term->name, (floor($minutes/15) + 2) ) == 0){
         $tid = $tag_term->tid;
         break;
       }
@@ -1386,16 +1478,172 @@ class Utils extends ControllerBase {
 
     $result = $cursor->toArray();
     foreach($result as $i => $doc) {
-      $result[$i] = MongoDB\BSON\toJSON(MongoDB\BSON\fromPHP($doc));
+      $result[$i] = \MongoDB\BSON\toJSON(\MongoDB\BSON\fromPHP($doc));
     }
 
-    $numbers = json_decode($result[0])->numbers;
-    usort($numbers, function($firstItem, $secondItem) {
-            $timeStamp1 =$firstItem->created;
-            $timeStamp2 =$secondItem->created;
-            return $timeStamp2 - $timeStamp1;
-        });
+    // $numbers = json_decode($result[0])->numbers;
+    // usort($numbers, function($firstItem, $secondItem) {
+    //         $timeStamp1 =$firstItem->created;
+    //         $timeStamp2 =$secondItem->created;
+    //         return $timeStamp2 - $timeStamp1;
+    //     });
 
-    return base64_encode(json_encode($numbers));
+    usort($result,  function($firstItem, $secondItem) {
+                      $timeStamp1 =json_decode($firstItem)->created;
+                      $timeStamp2 =json_decode($secondItem)->created;
+
+                      return $timeStamp2 - $timeStamp1;
+                    }
+          );
+
+    ////////////////  insert to mongodb
+    
+    $date = 0;
+    foreach(\Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('yeekee_round') as $ytag_term) {
+      if(strcmp($ytag_term->tid, $round_tid) == 0){
+        $term = Term::load($ytag_term->tid);
+        $date = $term->field_time_answer->value * 1000;
+        break;
+      }
+    }
+
+    $p1  = 0;
+    $p16 = 0;
+    $sum = 0;
+    foreach($result as $i => $value) {
+      $value = json_decode( $value );
+      $sum +=$value->number;
+      switch($i){
+        case 0:{
+          $p1 = $value;
+          break;
+        }
+      
+        case 15:{
+          $p16 = $value;
+          break;
+        }
+      }
+    }
+
+    $data = array();
+    $data['type_lotterys'] = '67';
+    $data['round_tid']     = $round_tid;
+    $data['date']          = strval($date);
+    $data['data']          = (object)array('p1'=>json_encode($p1), 'p16'=>json_encode($p16), 'sum'=>$sum);
+
+    /*
+      $response['data']['p1']       = base64_encode(json_encode($p1));  
+      $response['data']['p16']      = base64_encode(json_encode($p16));  
+      $response['data']['sum']      = base64_encode($sum);  
+    */
+    
+    $collection = Utils::GetMongoDB()->awards;
+    $filter = array('round_tid'=>$round_tid, 'date'=>$date);
+
+    // \Drupal::logger('huay')->notice(serialize($filter));
+    if($collection->count($filter)){
+        // udpate
+        $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
+        $collection->updateOne($filter, array('$set' =>$data) );
+    }else{
+        // create
+        $data['createdAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
+        $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
+        $collection->insertOne($data);
+    }
+    ////////////////   insert to mongodb
+
+    // save string to file 
+    // https://drupal.stackexchange.com/questions/231554/how-can-i-get-the-file-id-if-i-use-the-file-save-data-function
+    
+    // $file = file_save_data('content', 'public://file_uploads/example.txt', FILE_EXISTS_RENAME);
+
+    // dpm( $file );
+
+      
+    // $file = file_directory_temp(). "/".$round_tid."_". date('m-d-Y_hia') .".txt";
+    // $data = json_encode(base64_encode($result));
+    // file_put_contents($file, $data);
+
+    // dpm( $contents );
+    $shoot_numbers = "public://shoot_numbers";
+
+    if(!file_exists($shoot_numbers)){
+      mkdir($shoot_numbers, 0777);
+    }
+
+    $filesaved = file_save_data( json_encode($result), $shoot_numbers . "/". $round_tid ."_". date('m-d-Y_hia') .".txt", 'FILE_EXISTS_REPLACE');  
+    return $filesaved;
+  }
+
+  public static function autoShootNumber(){
+
+    $round_tid = Utils::get__taxonomy_term_tid_current__by_time();
+
+    \Drupal::logger('auto shoot number')->notice('round_tid : ' . $round_tid);
+
+    // findOne
+    $collection = Utils::GetMongoDB()->shoot_numbers;
+    $cursor     = $collection->findOne(['round_id'=>$round_tid]);
+
+    if(empty($cursor)){
+      // $numbers = array();
+
+      $sn = array();
+      for ($x = 0; $x < 1000; $x++) {
+        // $numbers[] = (object)array('_id'   =>Utils::generateRandomString(FALSE, 22), 
+        //                           'number' =>Utils::generateRandomString(TRUE,5), 
+        //                           'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
+        //                           'user'   =>(object)array(
+        //                                               'name'      => 'u6',
+        //                                               'uid'       => '7',
+        //                                               'image_url' => 'http://localhost:8055/sites/default/files/pictures/2020-04/images.png'
+        //                                               )
+        //                           );
+
+        /*
+         await ShootNumbers.create({ round_id: req.body.round_tid, 
+                                    number: req.body.data, 
+                                       uid: user.uid, 
+                                   created: Date.now()
+                                }); 
+        */
+
+        $sn[] =   [
+                    'round_id' => $round_tid,
+                    'number'   => Utils::generateRandomString(TRUE,5),
+                    'uid'      => '7',
+                    'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
+                  ];
+      }
+
+      $insertOneResult = $collection->insertMany($sn);
+
+      // $insertOneResult = $collection->insertOne([
+      //   'round_id' => $round_tid,
+      //   'numbers'  => $numbers,
+      // ]);
+    }
+  }
+
+  function generateRandomString($is_number = FALSE, $length = 10) {
+    if($is_number){
+      $characters = '0123456789';
+      $charactersLength = strlen($characters);
+      $randomString = '';
+      for ($i = 0; $i < $length; $i++) {
+          $randomString .= $characters[rand(0, $charactersLength - 1)];
+      }
+      return $randomString;
+    }
+
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[rand(0, $charactersLength - 1)];
+    }
+    return $randomString;
   }
 }
