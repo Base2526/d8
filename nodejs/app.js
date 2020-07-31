@@ -36,6 +36,20 @@ const config          = require("./src/utils/config")
 
 const utils           = require("./src/utils/utils")
 
+
+
+////////////////// redis /////////////////////
+
+const { promisify } = require("util");
+
+const redisClient = require("redis").createClient;
+const redis = redisClient({
+  host: "redis"
+});
+const getAsync = promisify(redis.get).bind(redis);
+
+////////////////// redis /////////////////////
+
 var socket_local;
 // var session_local;
 
@@ -127,7 +141,22 @@ app.get('/session', (req, res) => {
   res.send({_id: 'test' })
 })
 
-app.get('/api/hello', (req, res) => {
+app.get('/api/hello', async (req, res) => {
+
+  // set & update cache
+  await redis.set('title', JSON.stringify({'key':'value'}));
+
+  /*
+  redis.set(title, JSON.stringify(doc), function () {
+                        callback(doc);
+                    });
+  */
+
+  // get cacke by key
+  let getTitleDataFromCache = await getAsync('title');
+
+  console.log( getTitleDataFromCache );
+
   res.send({ express: 'Hello From Express' });
 });
 
@@ -137,6 +166,8 @@ app.get('/api/hello', (req, res) => {
     // })
     .get(sid, callback)
 */
+
+
 
 var sid = 0
 app.get('/s', async (req, res) => {
