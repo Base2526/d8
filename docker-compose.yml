@@ -105,12 +105,13 @@ services:
     build: './docker-cron'
     container_name: "docker-cron"
     restart: always
-  # redis:
-  #   image: redis
-  #   # networks:
-  #   #   - chat
-  #   ports:
-  #     - 6379:6379
+    
+  redis:
+    image: redis
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - 6379:6379
 
   # elasticsearch:
   # elasticsearch:
