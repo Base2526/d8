@@ -167,3 +167,6 @@ https://www.techighness.com/post/hook-node-js-console-log-insert-in-mongodb/
 # สร้าง Caching layer สำหรับ MongoDB ง่ายๆ ด้วย Redis
 - https://medium.com/@goangle/%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87-caching-layer-%E0%B8%AA%E0%B8%B3%E0%B8%AB%E0%B8%A3%E0%B8%B1%E0%B8%9A-mongodb-%E0%B8%87%E0%B9%88%E0%B8%B2%E0%B8%A2%E0%B9%86-%E0%B8%94%E0%B9%89%E0%B8%A7%E0%B8%A2-redis-9c3facfece82
 - https://github.com/iamgoangle/node-redis-mongodb
+
+- https://medium.com/@subhrapaladhi9/using-redis-with-nodejs-and-mongodb-28e5a39a2696
+- https://github.com/subhrapaladhi/Node-Redis-Mongo-app
