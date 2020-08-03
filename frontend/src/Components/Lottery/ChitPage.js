@@ -26,7 +26,8 @@ import {headers,
         getTime,
         difference_between_two_timestamps,
         getTimeWithDate} from '../Utils/Config';
-import { loadingOverlayActive } from '../../actions/huay'
+import {  loadingOverlayActive,
+          updateShootNumbers } from '../../actions/huay'
 import '../../index.css';
 
 import {socketIO} from '../../socket.io'
@@ -151,9 +152,31 @@ class ChitPage extends Component {
     this.subscribeEvent = this.subscribeEvent.bind(this)
   }
 
-  componentDidMount() {
+  componentWillReceiveProps(nextProps){
+    if(nextProps.numbers.length !== this.state.numbers.length){
+
+      nextProps.numbers.sort((date1, date2) =>{
+        // This is a comparison function that will result in dates being sorted in
+        // DESCENDING order.
+  
+        // Math.round(new Date(i.createdAt).getTime()/1000)
+  
+        let d1 = Math.round(new Date(date1.createdAt).getTime()/1000);
+        let d2 = Math.round(new Date(date2.createdAt).getTime()/1000);
+        if (d1 > d2) return -1;
+        if (d1 < d2) return 1;
+        return 0;
+      });
+
+      this.setState({numbers:nextProps.numbers})
+    }
+  }
+
+  componentDidMount  = async() =>{
     let _this = this;
-    let {round, location} = this.props; 
+    let {round, location, numbers} = this.props; 
+
+    console.log(round)
     switch(location.state.type){
       case 'yeekee':{
         this.setState({time: difference_between_two_timestamps(round.date), date_time: new Date().getTime()});
@@ -174,21 +197,23 @@ class ChitPage extends Component {
 
     this.socketIOAddEventListener();
 
-    axios.get('/api/shoot_number_by_tid', {
-      params: { tid: location.state.tid }
-    })
-    .then(function (response) {
-      
+    if(isEmpty(numbers)){
+      let response = await axios.get('/api/shoot_number_by_tid', {
+        params: { tid: location.state.tid, date: round.date }
+      });
       let {result, data} = response.data;
-      console.log(result);
-      console.log(data);
 
+      console.log(data)
       if(result){
-        _this.setState({numbers: data.numbers});
-      }
-    })
+        data.map((v, k) =>{
+          _this.props.updateShootNumbers(v);
+        })
 
-    // console.log(this.props.getPeopleByUID({uid: 18}))
+        this.setState({numbers:data})
+      }
+    }else{
+      this.setState({numbers})
+    }
   }
 
   componentWillUnmount(){
@@ -200,21 +225,34 @@ class ChitPage extends Component {
   }
 
   subscribeEvent(event){    
-    let numbers = (JSON.parse(event)).numbers
+    // let numbers = (JSON.parse(event)).numbers
+    let numbers = JSON.parse(event)
     // เราต้อง sort ก่อนเอาไป compare เพระาว่า this.state.numbers มีการ sort จึงต้อง sort ถึงจะ compare ได้
+   
     numbers.sort((date1, date2) =>{
       // This is a comparison function that will result in dates being sorted in
       // DESCENDING order.
-      if (date1.created > date2.created) return -1;
-      if (date1.created < date2.created) return 1;
+
+      // Math.round(new Date(i.createdAt).getTime()/1000)
+
+      let d1 = Math.round(new Date(date1.createdAt).getTime()/1000);
+      let d2 = Math.round(new Date(date2.createdAt).getTime()/1000);
+      if (d1 > d2) return -1;
+      if (d1 < d2) return 1;
       return 0;
     });
 
     // console.log('>>>subscribeEvent', numbers, this.state.numbers);
 
-    if(!_.isEqual(numbers, this.state.numbers)){
-      this.setState({numbers});
-    }
+    // if(!_.isEqual(numbers, this.state.numbers)){
+    //   this.setState({numbers});
+    // }
+
+    // this.props.updateShootNumbers(v);
+
+    numbers.map((v, k) =>{
+      this.props.updateShootNumbers(v);
+    })
   }
 
   socketIOAddEventListener(){
@@ -445,20 +483,25 @@ class ChitPage extends Component {
         btn_interval = undefined;
 
         let {shoot_number} = this.state
-        let {user, location} = this.props
-        
+        let {user, location, round} = this.props
+
         let response  = await axios.post('/api/shoot_number', 
                                         { uid: user.uid,
                                           data: shoot_number,
-                                          round_tid: location.state.tid
+                                          round_tid: location.state.tid,
+                                          date: round.date
                                         }, 
                                         {headers:headers()});
         // console.log(response);
         if( response.status==200 && response.statusText == "OK" ){
           let {result, message, data} = response.data;
           if(result){
-            // console.log(data);
-            this.setState({shoot_number: '', numbers: data.numbers /*shoot_number_show:false*/ })
+            console.log(data);
+
+            this.props.updateShootNumbers(data);
+
+            this.setState({shoot_number: ''})
+
             showToast('success', 'เพิ่มเลข เรียบร้อย');
           }else{
             showToast('error', message);
@@ -466,7 +509,6 @@ class ChitPage extends Component {
         }else{
           showToast('error', 'Error');
         }
-
       }
     }, 1000);
   }
@@ -480,7 +522,7 @@ class ChitPage extends Component {
   }
 
   loadingOverlayActive(){
-    this.props.loadingOverlayActive(this.state.is_active, this.state.loading_text);
+    // this.props.loadingOverlayActive(this.state.is_active, this.state.loading_text);
   }
 
   onCloseAlert(){
@@ -972,15 +1014,25 @@ class ChitPage extends Component {
       return<Modal.Header closeButton>
               <Modal.Title id="example-custom-modal-styling-title">ยิงเลข</Modal.Title>
               <Form.Group controlId="formGroupEmail">
-                <Form.Control 
-                  type="number"  
-                  value={shoot_number}
+                  {/* <input
+                  // type="number"  
+                  type="text" 
+                  pattern="[0-9]*"
+                  // value={shoot_number}
                   onInput = {(e) =>{
-                    e.target.value = Math.max(0, parseInt(e.target.value) ).toString().slice(0,5)
-                    // console.log(e.target.value);
+                    e.target.value = parseInt(e.target.value).toString().slice(0,5)
+                    console.log(e.target.value);
                     this.setState({shoot_number:e.target.value})
                   }} 
-                  placeholder="กรอบตัวเลข 5 หลัก" />
+                  placeholder="กรอบตัวเลข 5 หลัก" /> */}
+
+                <input 
+                  value={this.state.shoot_number} 
+                  onChange={event => 
+                    this.setState({shoot_number: event.target.value.replace(/\D/,'').toString().slice(0,5)})
+                  }
+                  placeholder="กรอบตัวเลข 5 หลัก" 
+                />
               </Form.Group>
               {btn_shoot_number}
             </Modal.Header>
@@ -989,13 +1041,20 @@ class ChitPage extends Component {
     return  <Modal.Header closeButton>
               <Modal.Title id="example-custom-modal-styling-title">ยิงเลข</Modal.Title>
               <Form.Group controlId="formGroupEmail">
-                <Form.Control 
+                {/* <Form.Control 
                   disabled
                   type="number"  
                   onInput = {(e) =>{
                           e.target.value = Math.max(0, parseInt(e.target.value) ).toString().slice(0,5)
                   }} 
-                  placeholder="กรอบตัวเลข 5 หลัก" />
+                  placeholder="กรอบตัวเลข 5 หลัก" /> */}
+                <input 
+                  // value={this.state.shoot_number} 
+                  onChange={event => 
+                    this.setState({shoot_number: event.target.value.replace(/\D/,'').toString().slice(0,5)})
+                  }
+                  placeholder="กรอบตัวเลข 5 หลัก" 
+                />
               </Form.Group>
               <Button disabled onClick={() =>{ this.handleShootNumberClick() }}>{this.state.shoot_number_text}</Button>
             </Modal.Header>
@@ -1017,49 +1076,57 @@ class ChitPage extends Component {
     // });
 
     let modal_body = <div/>
-    // if(!isEmpty(numbers)){
-    //   modal_body =  <Modal.Body>
-    //                   <InfiniteScroll
-    //                     dataLength={ isEmpty(numbers)? 0 :numbers.length}
-    //                     // next={this.fetchMoreData}
-    //                     // hasMore={true}
-    //                     loader={<h4>Loading...</h4>}
-    //                     height={400}
-    //                     endMessage={
-    //                       <p style={{ textAlign: "center" }}>
-    //                         <b>Yay! You have seen it all</b>
-    //                       </p>
-    //                     }>
-    //                     {numbers.map((i, index) => {
-    //                       // console.log(i)
+    if(!isEmpty(numbers)){
 
-    //                       var date = new Date(i.created);
-    //                       // Year
-    //                       var year = date.getFullYear();
-    //                       // Month
-    //                       var month = date.getMonth();
-    //                       // Day
-    //                       var day = date.getDate();
-    //                       // Hours
-    //                       var hours = date.getHours();
-    //                       // Minutes
-    //                       var minutes = "0" + date.getMinutes();
-    //                       // Seconds
-    //                       var seconds = "0" + date.getSeconds();
-    //                       // Display date time in MM-dd-yyyy h:m:s format
-    //                       var time = day +'-'+month+'-'+year+' '+hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+      // numbers.map((i, index) => {
+      //   console.log(new Date(i.createdAt).getTime()/1000);
+      // })
 
-    //                       return<div /*style={style}*/ key={index} className={'sq-order'}>
-    //                               ลำดับที่ {index+1} หมายเลข {i.number}
-    //                               ผู้ส่งเลข  {i.user.name}
-    //                               เมื่อ {time}
-    //                             </div>
-    //                       }
-    //                     )}
+      // 
+      // 
+      
+      modal_body =  <Modal.Body>
+                      <InfiniteScroll
+                        dataLength={ isEmpty(numbers)? 0 :numbers.length}
+                        // next={this.fetchMoreData}
+                        // hasMore={true}
+                        loader={<h4>Loading...</h4>}
+                        height={400}
+                        endMessage={
+                          <p style={{ textAlign: "center" }}>
+                            <b>Yay! You have seen it all</b>
+                          </p>
+                        }>
+                        {numbers.map((i, index) => {
+                          // console.log(i)
+
+                          var date = new Date(i.createdAt);
+                          // Year
+                          var year = date.getFullYear();
+                          // Month
+                          var month = date.getMonth();
+                          // Day
+                          var day = date.getDate();
+                          // Hours
+                          var hours = date.getHours();
+                          // Minutes
+                          var minutes = "0" + date.getMinutes();
+                          // Seconds
+                          var seconds = "0" + date.getSeconds();
+                          // Display date time in MM-dd-yyyy h:m:s format
+                          var time = day +'-'+month+'-'+year+' '+hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+
+                          return<div  key={index} className={'sq-order'}>
+                                  ลำดับที่ {index+1} หมายเลข {i.number}
+                                  ผู้ส่งเลข  {i.uid}
+                                  เมื่อ {time}
+                                </div>
+                          }
+                        )}
                         
-    //                   </InfiniteScroll>
-    //                 </Modal.Body>
-    // }
+                      </InfiniteScroll>
+                    </Modal.Body>
+    }
     
     return  <Modal
               show={this.state.shoot_number_show}
@@ -1246,7 +1313,7 @@ const mapStateToProps = (state, ownProps) => {
 		return {};
   }
 
-  // console.log(state)
+  console.log(state)
   
   if(state.auth.isLoggedIn){
     /*
@@ -1278,10 +1345,21 @@ const mapStateToProps = (state, ownProps) => {
     let {tid, type} = ownProps.location.state
 
     let round = {};
+    let numbers = [];
     switch(type){
       case 'yeekee':{
         let yeekees = state.lotterys.data.find((val) => { return val.tid == 67 });
         round = yeekees.rounds.find((val) => { return val.tid == tid });
+
+        let {location} = ownProps; 
+
+        numbers = state.shoot_numbers.data.filter((val) => { return val.round_id == location.state.tid });
+
+        console.log(state.shoot_numbers.data)
+
+        console.log(state.shoot_numbers);
+        console.log(numbers, location.state.tid);
+
         break;
       }
       // case 'thai-government':
@@ -1323,7 +1401,7 @@ const mapStateToProps = (state, ownProps) => {
               lotterys,
               // yeekee_round: state.yeekee_round.data,
               round,
-              // numbers,
+              numbers,
               is_connect: state.socket_io.is_connect};
   }else{
     return { logged_in: false };
@@ -1335,9 +1413,9 @@ const mapDispatchToProps = (dispatch) => {
     loadingOverlayActive: (isActivie, loadingText) =>{
       dispatch(loadingOverlayActive(isActivie, loadingText))
     },
-    // getPeopleByUID: (data) =>{
-    //   dispatch(getPeopleByUID(data))
-    // },
+    updateShootNumbers: (data) =>{
+      dispatch(updateShootNumbers(data))
+    },
 	}
 }
 

@@ -990,6 +990,12 @@ class Utils extends ControllerBase {
     $collection = Utils::GetMongoDB()->lotterys;
     foreach($branchs_terms as $tag_term) {
 
+        if($tag_term->tid == 67){
+
+          Utils::mongodb_lotterys_yeekee_rounds();
+          continue;
+        }
+
         $child_term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tag_term->tid);
    
         // $huay_name_bank = '';
@@ -1036,7 +1042,7 @@ class Utils extends ControllerBase {
         $data['is_open']   = $is_open;
         $data['is_display']= $is_display;
         $data['image_url'] = $image_url;
-        $data['weight']    = $tag_term->weight;;
+        $data['weight']    = $tag_term->weight;
         $data['type_lottery']= $type_lottery;
 
         // หวยรัฐบาลไทย
@@ -1051,58 +1057,60 @@ class Utils extends ControllerBase {
         }
 
         // จับยี่กี VIP
+        
         if($tag_term->tid == 67){
-            $type = 'taxonomy_term';
-            $yeekee_round_terms = \Drupal::entityManager()->getStorage($type)->loadTree('yeekee_round');
+          $type = 'taxonomy_term';
+          $yeekee_round_terms = \Drupal::entityManager()->getStorage($type)->loadTree('yeekee_round');
 
-            $rounds = array();
-            foreach($yeekee_round_terms as $yeekee_round_tag_term) {
-                $round = array();
-                $round['tid']    = $yeekee_round_tag_term->tid;
-                $round['name']   = $yeekee_round_tag_term->name;
-                
+          $rounds = array();
+          foreach($yeekee_round_terms as $yeekee_round_tag_term) {
+              $round = array();
+              $round['tid']    = $yeekee_round_tag_term->tid;
+              $round['name']   = $yeekee_round_tag_term->name;
+              
 
-                // $yeekee_round_tag = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($yeekee_round_tag_term->tid);
-                // $field_end_time = $yeekee_round_tag->get('field_end_time')->getValue();
-                // if(!empty($field_end_time)){
-                //   $round['end_time'] = $field_end_time[0]['value'];
-                // }else{
-                //   $round['end_time'] = 0;
-                // }
-                // $round['end_time'] = 0;
-                // $round['date'] = '';
-                // $field_yk_round = $yeekee_round_tag->get('field_yk_round')->date;
-                // if(!empty($field_yk_round)){
-                //   $round['date']= $field_yk_round->getTimestamp() * 1000;
-                // }
+              // $yeekee_round_tag = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($yeekee_round_tag_term->tid);
+              // $field_end_time = $yeekee_round_tag->get('field_end_time')->getValue();
+              // if(!empty($field_end_time)){
+              //   $round['end_time'] = $field_end_time[0]['value'];
+              // }else{
+              //   $round['end_time'] = 0;
+              // }
+              // $round['end_time'] = 0;
+              // $round['date'] = '';
+              // $field_yk_round = $yeekee_round_tag->get('field_yk_round')->date;
+              // if(!empty($field_yk_round)){
+              //   $round['date']= $field_yk_round->getTimestamp() * 1000;
+              // }
 
-                $weight = $yeekee_round_tag_term->weight;
+              $weight = $yeekee_round_tag_term->weight;
 
-                // $date = new \DateTime();
-                // $date->setTime(6, 15*$weight, 0);
+              // $date = new \DateTime();
+              // $date->setTime(6, 15*$weight, 0);
 
-                $term = Term::load($yeekee_round_tag_term->tid);
+              $term = Term::load($yeekee_round_tag_term->tid);
 
-                $date = new \DateTime();
-                $date->setTimestamp($term->field_time_answer->value);
+              $date = new \DateTime();
+              $date->setTimestamp($term->field_time_answer->value);
 
-                if( (new \DateTime())->getTimestamp() > $date->getTimestamp() ){
-                  $round['is_close'] = TRUE;
-                }else{
-                  $round['is_close'] = FALSE;
-                }
+              if( (new \DateTime())->getTimestamp() > $date->getTimestamp() ){
+                $round['is_close'] = TRUE;
+              }else{
+                $round['is_close'] = FALSE;
+              }
 
-                
-                // $r = 15*($ytag_term->name - 1);
-                // $date->setTime(6, 10, 0);
+              
+              // $r = 15*($ytag_term->name - 1);
+              // $date->setTime(6, 10, 0);
 
-                $round['date']   = $date->getTimestamp() * 1000;
-                $round['weight'] = $weight;
+              $round['date']   = $date->getTimestamp() * 1000;
+              $round['weight'] = $weight;
 
-                $rounds[] = $round;
-            }
-            $data['rounds'] = $rounds;
+              $rounds[] = $round;
+          }
+          $data['rounds'] = $rounds;
         }
+        
 
         $filter = array('tid'=>$tag_term->tid);
         if($collection->count($filter)){
@@ -1114,6 +1122,93 @@ class Utils extends ControllerBase {
             $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
             $collection->insertOne($data);
         }
+    }
+  }
+
+  /*
+  เราแยกรอบ ยี่กี่ออกมาเพราะ ยี่กี่จะมีการ update ทุกวัน
+  */
+  public function mongodb_lotterys_yeekee_rounds(){
+    $data = array();
+
+    $child_term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load(67);
+
+    // field_open
+    $is_open = FALSE;
+    $field_open = $child_term->get('field_open')->getValue();
+    if(!empty($field_open)){
+        if ($field_open[0]['value']) {
+        $is_open = TRUE;
+        }
+    }
+
+    $is_display     = FALSE;
+    $field_display  = $child_term->get('field_display')->getValue();
+    if(!empty($field_display)){
+        if ($field_display[0]['value']) {
+        $is_display = TRUE;
+        }
+    }
+
+    $image_url = '';
+    $field_image = $child_term->get('field_image')->getValue();
+    if(!empty($field_image)){
+        $image_url = Utils::get_file_url($field_image[0]['target_id']);
+    }
+
+    $type_lottery = $child_term->get('field_type_lottery')->target_id;
+
+    $data['tid']       = '67';//$tag_term->tid;
+    $data['name']      = $child_term->label();
+    // $data['end_time']  = $end_time;
+    $data['is_open']   = $is_open;
+    $data['is_display']= $is_display;
+    $data['image_url'] = $image_url;
+    $data['weight']    = $child_term->getWeight();
+    $data['type_lottery']= $type_lottery;
+
+    // จับยี่กี VIP
+    // if($tag_term->tid == 67){
+    $type = 'taxonomy_term';
+    $yeekee_round_terms = \Drupal::entityManager()->getStorage($type)->loadTree('yeekee_round');
+
+    $rounds = array();
+    foreach($yeekee_round_terms as $yeekee_round_tag_term) {
+        $round = array();
+        $round['tid']    = $yeekee_round_tag_term->tid;
+        $round['name']   = $yeekee_round_tag_term->name;
+        
+        $weight = $yeekee_round_tag_term->weight;
+
+        $term = Term::load($yeekee_round_tag_term->tid);
+
+        $date = new \DateTime();
+        $date->setTimestamp($term->field_time_answer->value);
+
+        if( (new \DateTime())->getTimestamp() > $date->getTimestamp() ){
+        $round['is_close'] = TRUE;
+        }else{
+        $round['is_close'] = FALSE;
+        }
+
+        $round['date']   = $date->getTimestamp() * 1000;
+        $round['weight'] = $weight;
+
+        $rounds[] = $round;
+    }
+    $data['rounds'] = $rounds;
+    // }
+
+    $collection = Utils::GetMongoDB()->lotterys;
+    $filter = array('tid'=>'67');
+    if($collection->count($filter)){
+        $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
+        $collection->updateOne($filter, array('$set' =>$data) );
+    }else{
+        // create
+        $data['createdAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
+        $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
+        $collection->insertOne($data);
     }
   }
 
@@ -1578,6 +1673,8 @@ class Utils extends ControllerBase {
   }
 
   public static function autoShootNumber(){
+
+    return true;
 
     $round_tid = Utils::get__taxonomy_term_tid_current__by_time();
 

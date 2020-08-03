@@ -1324,6 +1324,8 @@ class API extends ControllerBase {
     }
     // reset time ของรอบหวยยี่กี่
 
+    Utils::mongodb_lotterys_yeekee_rounds();
+
     $response['result']  = TRUE;  
     return new JsonResponse( $response );
   }
