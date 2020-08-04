@@ -298,7 +298,8 @@ function huay_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
                 }
                 // หวยเด่น & หวยหุ้น
                 case 'lotterys':
-                case 'yeekee_round':{
+                // case 'yeekee_round':
+                    {
                     Utils::mongodb_lotterys($entity->id());
                 break;
                 }

@@ -320,6 +320,8 @@ const mapStateToProps = (state, ownProps) => {
     let notables = lotterys.filter(v => v.type_lottery == 90 && v.is_display)
     let shares   = lotterys.filter(v => v.type_lottery == 91 && v.is_display)
 
+    console.log(notables)
+
     return {  loggedIn: true, 
               user:state.auth.user,
               lotterys:[notables, shares]};

@@ -36,11 +36,14 @@ const config          = require("./src/utils/config")
 
 const utils           = require("./src/utils/utils")
 
+const cache           = require("./src/utils/cache")
+
 
 
 ////////////////// redis /////////////////////
 
 const { promisify } = require("util");
+const { isEmpty } = require('lodash');
 
 const redisClient = require("redis").createClient;
 const redis = redisClient({
@@ -141,10 +144,10 @@ app.get('/session', (req, res) => {
   res.send({_id: 'test' })
 })
 
-app.get('/api/hello', async (req, res) => {
+app.get('/api/hello', (req, res) => {
 
   // set & update cache
-  await redis.set('title', JSON.stringify({'key':'value'}));
+  // await redis.set('title', JSON.stringify({'key':'value'}));
 
   /*
   redis.set(title, JSON.stringify(doc), function () {
@@ -153,20 +156,29 @@ app.get('/api/hello', async (req, res) => {
   */
 
   // get cacke by key
-  let getTitleDataFromCache = await getAsync('title');
+  // let getTitleDataFromCache = await getAsync('title');
 
-  console.log( getTitleDataFromCache );
+  // console.log( getTitleDataFromCache );
+
+  console.log(cache.getCache('1'));
 
   res.send({ express: 'Hello From Express' });
 });
 
-/*
-// mongoStore.all(function(error, sessions){
-    //   console.log(sessions);
-    // })
-    .get(sid, callback)
-*/
+app.get('/api/get_cache', async(req, res) => {
+  let c = await cache.getCache('1');
+  console.log(c)
 
+  res.send({ express: 'Hello From Express' });
+});
+
+
+app.get('/api/set_cache', async(req, res) => {
+  let vv = await cache.setCache('1', {'key1':'somkid', 'key2':'simajarn'})
+
+  console.log(vv)
+  res.send({ express: 'Hello From Express' });
+});
 
 
 var sid = 0
@@ -291,12 +303,58 @@ app.post('/api/login', async(req, res) => {
     if(response.result){
       // session_local = response.data;
   
-      const lotterys        = await Lotterys.find({});
-      const huay_list_bank  = await HuayListBank.find({});
-      const transfer_method = await TransferMethod.find({});
-      const contact_us      = (await ContactUs.find({}))[0];
-      const list_bank       = await ListBank.find({});
-      const deposit_status       = await DepositStatus.find({});
+      var lotterys = await cache.getCache('lotterys');
+      console.log(lotterys)
+      if(isEmpty(lotterys)){
+        lotterys   = await Lotterys.find({});
+        await cache.setCache('lotterys', lotterys)
+      }else{
+        console.log('cache >lotterys')
+      }
+
+      var huay_list_bank = await cache.getCache('huay_list_bank');
+      if(isEmpty(huay_list_bank)){
+        huay_list_bank   = await HuayListBank.find({});
+        await cache.setCache('huay_list_bank', huay_list_bank)
+      }else{
+        console.log('cache >huay_list_bank')
+      }
+
+      // const transfer_method = await TransferMethod.find({});
+      var transfer_method = await cache.getCache('transfer_method');
+      if(isEmpty(transfer_method)){
+        transfer_method   = await TransferMethod.find({});
+        await cache.setCache('transfer_method', transfer_method)
+      }else{
+        console.log('cache >transfer_method')
+      }
+
+      // const contact_us      = (await ContactUs.find({}))[0];
+      var contact_us = await cache.getCache('contact_us');
+      if(isEmpty(contact_us)){
+        contact_us   = (await ContactUs.find({}))[0];
+        await cache.setCache('contact_us', contact_us)
+      }else{
+        console.log('cache >contact_us')
+      }
+
+      // const list_bank       = await ListBank.find({});
+      var list_bank = await cache.getCache('list_bank');
+      if(isEmpty(list_bank)){
+        list_bank   = await ListBank.find({});
+        await cache.setCache('list_bank', list_bank)
+      }else{
+        console.log('cache >list_bank')
+      }
+
+      // const deposit_status       = await DepositStatus.find({});
+      var deposit_status = await cache.getCache('deposit_status');
+      if(isEmpty(deposit_status)){
+        deposit_status   = await DepositStatus.find({});
+        await cache.setCache('deposit_status', deposit_status)
+      }else{
+        console.log('cache >deposit_status')
+      }
 
       var _people = await People.findOne({ uid: response.data.uid });
 
@@ -560,39 +618,16 @@ app.post('/api/shoot_number', async(req, res) => {
   
   let is_session = await sessionMongoStore.get(req.session.id);
   if (is_session !== undefined) {  
-
-    let user = await People.findOne({uid: req.body.uid});
-    if(!_.isEmpty(user)){
-
-      await ShootNumbers.create({ round_id: req.body.round_tid, 
-                                    number: req.body.data, 
-                                       uid: user.uid
-                                });
-
-      let data = await ShootNumbers.findOne({round_id: req.body.round_tid});
-    
-      // let data = {};
-      /*
-      if(_.isEmpty(fs)){
-        data = await ShootNumbers.create({'round_id': req.body.round_tid, 
-                                          'numbers' : [{_id  : utils.makeid(24), 
-                                                        user : {name: user.name, 
-                                                                uid:user.uid, 
-                                                                image_url: user.image_url}, 
-                                                        'number':req.body.data, 
-                                                        'created': Date.now()}]});
-      }else{
-        await ShootNumbers.update(
-         { 'round_id': req.body.round_tid }, 
-         { $push: { 'numbers': [{_id:utils.makeid(24), user:{name: user.name, uid:user.uid, image_url: user.image_url}, 'number':req.body.data, 'created': Date.now()}]}}
-        );
-        data = await ShootNumbers.findOne({round_id: req.body.round_tid});
-      }
-      */
-
+    // เราต้องเอาเวลาของ round มาคิดด้วยถ้าเลยเวลาเราจะไม่ให้มี การเพิ่ม
+    if(new Date(req.body.date) >= new Date()){
+      let data = await ShootNumbers.create({ round_id: req.body.round_tid, 
+                                  number: req.body.data, 
+                                      uid: req.body.uid,
+                                    date: req.body.date,
+                              });
       res.send({result:true, data, execution_time: (new Date() - start_time) });
     }else{
-      res.send({result:false, status: '-1'});
+      res.send({result:false, status: '-1', message:'timeout'});
     }
   }else{
     res.send({result:false, status: '-1'});
@@ -602,11 +637,18 @@ app.post('/api/shoot_number', async(req, res) => {
 app.get("/api/shoot_number_by_tid", async (req, res) => {
   let start_time = new Date();
 
-  let fs = await ShootNumbers.findOne({round_id: req.query.tid});
-  if(_.isEmpty(fs)){
-    res.send({ result:false, data: {} });
+  let is_session = await sessionMongoStore.get(req.session.id);
+  if (is_session !== undefined) {  
+    // let fs = await ShootNumbers.findOne({round_id: req.query.tid});
+
+    var fs = await cache.getCache("shoot_numbers_" + req.query.tid + "_" + req.query.date);
+    if(_.isEmpty(fs)){
+      res.send({ result:false, data: {} });
+    }else{
+      res.send({ result:true, data: fs, execution_time: (new Date() - start_time) });
+    }
   }else{
-    res.send({ result:true, data: fs, execution_time: (new Date() - start_time) });
+    res.send({result:false, status: '-1'});
   }
 });
 
@@ -740,27 +782,16 @@ app.post('/api/get_yeekee_answer', async(req, res) => {
     // console.log(date);
     // console.log(round_tid);
 
-    let data = await AwardsModel.findOne({ type_lotterys,  round_tid, date});
-    // console.log(data);
+    let hashkey = type_lotterys +'_'+ round_tid +'_'+ date;
 
-    res.send({ result:true, data, execution_time: (new Date() - start_time) });
-  
-    /*
-    var data = {
-      "uid"      : req.body.uid,
-      "date"     : req.body.date,
-      "round_tid": req.body.round_tid
+    var data = await cache.getCache(hashkey)
+    if(isEmpty(data)){
+      data = await AwardsModel.findOne({ type_lotterys,  round_tid, date});
+
+      await cache.setCache(hashkey, data)
     }
 
-    fetch(config.d8.get_yeekee_answer, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-      .then((res) => {
-        return res.json()
-    })
-    .then((json) => {
-      console.log(json);
-      res.send(json);
-    });
-    */
+    res.send({ result:true, data, execution_time: (new Date() - start_time) });
   }else{
     res.send({result:false, status: '-1'}); ;
   }
@@ -770,12 +801,12 @@ app.post('/api/get_yeekee_answer', async(req, res) => {
 // io.adapter(mongoAdapter( config.mongo.url ));
 io.on('connection', (socket) => { 
   let handshake = socket.handshake;
-  console.log(socket);
-  console.log(handshake);
-  console.log(socket.id);
-  console.log(handshake.time);
-  console.log(handshake.query);
-  console.log(`Socket ${socket.id} connected.`);
+  // console.log(socket);
+  // console.log(handshake);
+  // console.log(socket.id);
+  // console.log(handshake.time);
+  // console.log(handshake.query);
+  // console.log(`Socket ${socket.id} connected.`);
 
   socket_local = socket;
 
@@ -1189,47 +1220,7 @@ server.listen(PORT, function (err) {
       }
     });
 
-    // รอบหวยยี่กี่
-    // YeekeeRound.watch().on('change', async data =>{
-    //   console.log(new Date(), data)
-    //   //operationType
-    //   switch(data.operationType){
-    //     case 'insert':{
-    //       console.log('YeekeeRound > insert');
-    //       break;
-    //     }
-    //     case 'delete':{
-    //       console.log('YeekeeRound > delete');
-    //       break;
-    //     }
-    //     case 'replace':{
-    //       console.log('YeekeeRound > replace');
-    //       break;
-    //     }
-    //     case 'update':{
-    //       console.log('YeekeeRound > update');
-    //       socket_local.emit("yeekee_round", JSON.stringify(await YeekeeRound.find({})));
-    //       break;
-    //     }
-    //     case 'drop':{
-    //       console.log('YeekeeRound > drop');
-    //       break;
-    //     }
-    //     case 'rename':{
-    //       console.log('YeekeeRound > rename');
-    //       break;
-    //     }
-    //     case 'dropDatabase':{
-    //       console.log('YeekeeRound > dropDatabase');
-    //       break;
-    //     }
-    //     case 'invalidate':{
-    //       console.log('YeekeeRound > dropDatabase');
-    //       break;
-    //     }
-    //   }
-    // });
-
+ 
     // ข้อมูลติดต่อเว็บฯ
     ContactUs.watch().on('change', async data =>{
       console.log(new Date(), data)
@@ -1249,9 +1240,14 @@ server.listen(PORT, function (err) {
         }
         case 'update':{
           console.log('ContactUs > update');
-          if(socket_local.connected){
-            socket_local.emit("contact_us", JSON.stringify(await ContactUs.find({})));
-          }
+          // if(socket_local.connected){
+          //   socket_local.emit("contact_us", JSON.stringify(await ContactUs.find({})));
+          // }
+
+          var contact_us = await ContactUs.find({});
+          await cache.setCache('contact_us', contact_us)
+          io.sockets.emit("contact_us", JSON.stringify( contact_us ));
+
           break;
         }
         case 'drop':{
@@ -1293,9 +1289,14 @@ server.listen(PORT, function (err) {
         case 'update':{
           console.log('ListBank > update');
 
-          if(socket_local.connected){
-            socket_local.emit("list_bank", JSON.stringify(await ListBank.find({})));
-          }
+          // if(socket_local.connected){
+          //   socket_local.emit("list_bank", JSON.stringify(await ListBank.find({})));
+          // }
+
+          var list_bank = await ListBank.find({});
+          await cache.setCache('list_bank', list_bank)
+          io.sockets.emit("list_bank", JSON.stringify( list_bank ));
+
           break;
         }
         case 'drop':{
@@ -1317,45 +1318,6 @@ server.listen(PORT, function (err) {
       }
     });
 
-    // Sessions.watch().on('change', async data =>{
-    //   console.log(new Date(), data)
-    //   //operationType
-    //   switch(data.operationType){
-    //     case 'insert':{
-    //       console.log('Sessions > insert');
-    //       break;
-    //     }
-    //     case 'delete':{
-    //       console.log('Sessions > delete');
-    //       break;
-    //     }
-    //     case 'replace':{
-    //       console.log('Sessions > replace');
-    //       break;
-    //     }
-    //     case 'update':{
-    //       console.log('Sessions > update');
-    //       break;
-    //     }
-    //     case 'drop':{
-    //       console.log('Sessions > drop');
-    //       break;
-    //     }
-    //     case 'rename':{
-    //       console.log('Sessions > rename');
-    //       break;
-    //     }
-    //     case 'dropDatabase':{
-    //       console.log('Sessions > dropDatabase');
-    //       break;
-    //     }
-    //     case 'invalidate':{
-    //       console.log('Sessions > dropDatabase');
-    //       break;
-    //     }
-    //   }
-    // });
-    
     Lotterys.watch().on('change', async data =>{
       console.log(new Date(), data)
       //operationType
@@ -1374,12 +1336,11 @@ server.listen(PORT, function (err) {
         }
         case 'update':{
           console.log('Lotterys > update');
+
+          var lotterys = await Lotterys.find({});
+          await cache.setCache('lotterys', lotterys)
           
-          // if(socket_local.connected){
-            // socket_local.emit("lotterys", JSON.stringify(await Lotterys.find({})));
-          
-            io.sockets.emit("lotterys", JSON.stringify(await Lotterys.find({})));
-          // }
+          io.sockets.emit("lotterys", JSON.stringify( lotterys ));
           break;
         }
         case 'drop':{
@@ -1429,6 +1390,16 @@ server.listen(PORT, function (err) {
            io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(data));
          }
          */
+
+          let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
+          // console.log(find)
+          if(find){
+            let data = await ShootNumbers.find({ round_id: find.round_id });
+
+            await cache.setCache("shoot_numbers_" + find.round_id + "_" + find.date, data)
+
+            io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(data));
+          }
           break;
         }
         case 'delete':{
@@ -1449,6 +1420,25 @@ server.listen(PORT, function (err) {
             io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(data));
           }
           */
+
+//          await ShootNumbers.create({ round_id: req.body.round_tid, 
+//           number: req.body.data, 
+//              uid: user.uid,
+//             date: req.body.date,
+    //       });
+
+    // let data = await ShootNumbers.findOne({round_id: req.body.round_tid});
+
+          let find= await ShootNumbers.findById({_id: data.documentKey._id.toString()});
+          // console.log(find)
+          if(find){
+            let data = await ShootNumbers.find({ round_id: find.round_id });
+
+            await cache.setCache("shoot_numbers_" + find.round_id + "_" + find.date, data)
+
+            io.sockets.emit("shoot_numbers_" + find.round_id, JSON.stringify(data));
+          }
+         
           break;
         }
         case 'drop':{
