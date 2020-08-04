@@ -1,5 +1,0 @@
-bg.import_excel:
-    title: 'Import master data'
-    description: 'นำข้อมูล ข้อมูลจังหวัด อำเภอ ตำบล รหัสโปรษณี.'
-    route_name: import_excel.form
-    parent: system.admin_config_system  
