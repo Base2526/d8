@@ -621,9 +621,9 @@ app.post('/api/shoot_number', async(req, res) => {
     // เราต้องเอาเวลาของ round มาคิดด้วยถ้าเลยเวลาเราจะไม่ให้มี การเพิ่ม
     if(new Date(req.body.date) >= new Date()){
       let data = await ShootNumbers.create({ round_id: req.body.round_tid, 
-                                  number: req.body.data, 
-                                      uid: req.body.uid,
-                                    date: req.body.date,
+                                               number: req.body.data, 
+                                                  uid: req.body.uid,
+                                                 date: req.body.date,
                               });
       res.send({result:true, data, execution_time: (new Date() - start_time) });
     }else{
@@ -643,7 +643,16 @@ app.get("/api/shoot_number_by_tid", async (req, res) => {
 
     var fs = await cache.getCache("shoot_numbers_" + req.query.tid + "_" + req.query.date);
     if(_.isEmpty(fs)){
-      res.send({ result:false, data: {} });
+
+      let data = await ShootNumbers.find({ round_id: req.query.tid });
+
+      await cache.setCache("shoot_numbers_" + req.query.tid + "_" + req.query.date, data)
+
+      if(_.isEmpty(data)){
+        res.send({ result:false, data: {} });
+      }else{
+        res.send({ result:true, data, execution_time: (new Date() - start_time) });
+      }
     }else{
       res.send({ result:true, data: fs, execution_time: (new Date() - start_time) });
     }

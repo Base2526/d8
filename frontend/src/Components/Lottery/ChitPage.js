@@ -150,6 +150,8 @@ class ChitPage extends Component {
     this.handleShootNumberClick = this.handleShootNumberClick.bind(this);
 
     this.subscribeEvent = this.subscribeEvent.bind(this)
+
+    this.clickSendBet   = this.clickSendBet.bind(this)
   }
 
   componentWillReceiveProps(nextProps){
@@ -203,7 +205,6 @@ class ChitPage extends Component {
       });
       let {result, data} = response.data;
 
-      console.log(data)
       if(result){
         data.map((v, k) =>{
           _this.props.updateShootNumbers(v);
@@ -372,14 +373,17 @@ class ChitPage extends Component {
     })
   } 
 
-  /*
-  
-  let {user, location} = this.props
-        
-        let response  = await axios.post('/api/shoot_number', 
-                                        { uid: user.uid,
-                                          data: shoot_number,
-                                          round_tid: location.state.tid,*/
+  // กดส่งโพย
+  clickSendBet = () =>{
+    let {data} = this.state;
+    // กรณียังไม่มีการเลือก จะให้แสดงข้อความ
+    if(isEmpty(data.filter(function(v) { return !isEmpty(v.items)}))){
+      showToast('warn', 'ยังไม่มีการเลือกหวย');
+    }else{
+      this.setState({confirm_show: true})
+    }
+  } 
+
   handleBetClick = async()=>{
     this.setState({confirm_show: false, is_active:true})
 
@@ -1101,10 +1105,16 @@ class ChitPage extends Component {
                           // console.log(i)
 
                           var date = new Date(i.createdAt);
+
+                          // console.log(date.toString())
+                          // console.log(date.getUTCMonth())
+
+                          const months = ["JAN", "FEB", "MAR","APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
                           // Year
                           var year = date.getFullYear();
                           // Month
-                          var month = date.getMonth();
+                          var month = months[date.getMonth()];//date.getMonth() + 1;
                           // Day
                           var day = date.getDate();
                           // Hours
@@ -1146,12 +1156,18 @@ class ChitPage extends Component {
   กรณี user open page แล้ว timeout ต้อง redirect หน้า
   */
   gotoPageExit(){
-    // let {history, match} = this.props; 
+    let {history, round} = this.props; 
     // let {time} = this.state;
     // console.log(history);
     // if(time == -1){
     //   history.push('/lottery-list/reward/'+ match.params.type +'/' + match.params.id)
     // }
+
+    // console.log(round.is_close);
+    if(round.is_close){
+      history.push({pathname: '/lottery-list/reward',
+                    state: { type_lotterys:'67', params: JSON.stringify(round) } })
+    }
 
     // เราต้องคิดกรณีที่ user เปิดหน้าค้างข้างวันกรณีเรายังไม่ได้ นําเอามาคิด
   }
@@ -1228,9 +1244,7 @@ class ChitPage extends Component {
             <Col style={{ border: '1px solid #61dafb' }} md={4} xs={12}>
               <Button
                 variant="primary"
-                onClick={() =>{
-                  this.setState({confirm_show: true})
-                } }>
+                onClick={() =>this.clickSendBet() }>
                 กดส่งโพย
               </Button>
             { view_shoot_number_show }
@@ -1355,10 +1369,10 @@ const mapStateToProps = (state, ownProps) => {
 
         numbers = state.shoot_numbers.data.filter((val) => { return val.round_id == location.state.tid });
 
-        console.log(state.shoot_numbers.data)
+        // console.log(state.shoot_numbers.data)
 
-        console.log(state.shoot_numbers);
-        console.log(numbers, location.state.tid);
+        // console.log(state.shoot_numbers);
+        // console.log(numbers, location.state.tid);
 
         break;
       }
@@ -1395,6 +1409,8 @@ const mapStateToProps = (state, ownProps) => {
     // if(!isEmpty(numbers)){
     //   numbers = numbers.numbers.sort(function(obj1, obj2) {return obj2.nid - obj1.nid;});
     // }
+
+    // console.log( round );
 
     return {  logged_in: true, 
               user: state.auth.user,
