@@ -1298,7 +1298,7 @@ class API extends ControllerBase {
   public function cron_heartbeat(Request $request){
     \Drupal::logger('cron_heartbeat')->notice('Runing.');
 
-    Utils::autoShootNumber();
+    // Utils::autoShootNumber();
 
     $response['result']  = TRUE;  
     return new JsonResponse( $response );
