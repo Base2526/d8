@@ -24,6 +24,7 @@ class RewardPage extends Component {
   componentDidMount = async() => {
     let {award} = this.props;
 
+
     this.setState({is_active:false});
 
     if(isEmpty(award)){
@@ -32,6 +33,8 @@ class RewardPage extends Component {
 
       let {params, type_lotterys} = this.props.location.state
       params = JSON.parse(params);
+
+      console.log(params)
     
       let response  = await axios.post('/api/get_yeekee_answer', 
                       { uid: this.props.user.uid,
@@ -40,6 +43,7 @@ class RewardPage extends Component {
                         round_tid: params.tid }, 
                       {headers:JSON.parse(Base64.decode(Base64.decode(localStorage.getItem('headers'))))});
       
+      console.log( response )
       if( response.status==200 && response.statusText == "OK" ){
         if(response.data.result){  
           this.props.addAward(response.data.data);
@@ -56,15 +60,14 @@ class RewardPage extends Component {
   }
 
   render() {
-    let {params, type_lotterys} = this.props.location.state
-
+    
     // let {p1, p16, sum} = this.state;
 
     // console.log(p1);
     // console.log(p16);
     // console.log(sum);
 
-    this.loadingOverlayActive();
+    // this.loadingOverlayActive();
 
     let {award} = this.props;
 
@@ -72,10 +75,16 @@ class RewardPage extends Component {
       return <div/>;
     }
 
-    var {p1, p16, sum} = award.data
+    let {params, type_lotterys} = this.props.location.state
 
-    p1  = JSON.parse(p1);
-    p16 = JSON.parse(p16);
+    // console.log(params, type_lotterys)
+
+    params = JSON.parse(params);
+
+    var {p1, p16, sum} = award
+
+    // p1  = JSON.parse(p1);
+    // p16 = JSON.parse(p16);
     
     let reward = sum - p16.number;
     reward = reward.toString();
@@ -83,6 +92,7 @@ class RewardPage extends Component {
     let _3up   = reward.substring(reward.length- 3, reward.length);
     let _2down = reward.substring(reward.length- 5, reward.length- 3);
     return (<div>
+              <div>หวยยี่กี - รอบที่ {params.name}</div>
               <div>ผลรางวัล : {reward}</div>
               <div>3ตัวบน : {_3up}</div>
               <div>2ตัวล่าง : {_2down}</div>
@@ -101,7 +111,7 @@ const mapStateToProps = (state, ownProps) => {
     
   if(state.auth.isLoggedIn){
     let awards = state.awards;
-    // console.log(awards);
+    console.log(awards);
 
     var award ={};
     if(!isEmpty(awards.data)){
@@ -119,7 +129,6 @@ const mapStateToProps = (state, ownProps) => {
       console.log(award);
     }
     
-
     return { loggedIn: true, user:state.auth.user, award};
   }else{
       return { loggedIn: false };

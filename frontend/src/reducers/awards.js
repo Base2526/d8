@@ -18,15 +18,30 @@ const awards = (state = initialState, action) => {
                 };
             }
 
-            let find = _.find(state_data,  function(v, k) {return v._id == action.data._id})
-            if(isEmpty(find)){
-                return {
-                    ...state,
-                    data:[...state_data, action.data],
-                };
+            if(action.data.type_lotterys == '67'){
+                let find = _.find(state_data,  function(v, k) {return v.round_tid == action.data.round_tid &&  v.date == action.data.date })
+                if(isEmpty(find)){
+                    return {
+                        ...state,
+                        data:[...state_data, action.data],
+                    };
+                }
+            }else{
+                let find = _.find(state_data,  function(v, k) {return v.type_lotterys == action.data.type_lotterys })
+            
+                if(isEmpty(find)){
+                    return {
+                        ...state,
+                        data:[...state_data, action.data],
+                    };
+                }
             }
-
+        
             return state;
+
+        case types.DELETE_AWARD:{
+            return initialState;
+        }
         default:{
             return state;
         }

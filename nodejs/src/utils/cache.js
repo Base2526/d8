@@ -21,9 +21,18 @@ exports.getCache =   async function setCache(hashkey){
 }
 // redis.set('title', JSON.stringify({'key':'value'}));
 
-exports.clearCache =    function clearCache(hashkey){
-                        redis.del(JSON.stringify(hashkey))
-                    }
+exports.clearCache =    function clearCache(){
+                            redis.flushall((err, success) => {
+                                if (err) {
+                                throw new Error(err);
+                                }
+                                console.log(success); // will be true if successfull
+                            })
+                        }
+
+                    /*
+                    ;
+                    */
 
                     /*
                     

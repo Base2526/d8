@@ -60,3 +60,8 @@ export const addAward = (data) => ({
     type: types.ADD_AWARD,
     data
 });
+
+export const deleteAward = (data) => ({
+    type: types.DELETE_AWARD,
+    data
+});

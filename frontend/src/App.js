@@ -27,7 +27,10 @@ import {  loadingOverlayActive,
           updateDepositStatus,
 
 
-          updateSocketIOStatus
+          updateSocketIOStatus,
+
+
+          deleteAward
         } from './actions/huay'
 
 import './App.css';
@@ -167,6 +170,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     updateSocketIOStatus: (data)=>{
       dispatch(updateSocketIOStatus(data))
+    },
+    deleteAward: (data)=>{
+      dispatch(deleteAward(data))
     },
 	}
 }

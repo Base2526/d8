@@ -23,3 +23,4 @@ export const UPDATE_PEOPLE           = "update_people";
 // export const GET_PEOPLE_BY_UID       = "get_people_by_uid";
 
 export const ADD_AWARD               = "add_award";
+export const DELETE_AWARD            = "delete_award";

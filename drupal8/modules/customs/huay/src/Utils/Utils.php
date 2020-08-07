@@ -1675,12 +1675,49 @@ class Utils extends ControllerBase {
   public static function autoShootNumber(){
 
     $collection = Utils::GetMongoDB()->shoot_numbers;
-    $sn = array();
-    $yeekee_round_terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('yeekee_round');
-    $data = array();
-    foreach($yeekee_round_terms as $yeekee_round_tag_term) {
-      $data[] = $yeekee_round_tag_term->tid;
-    }
+    // $cursor     = $collection->findOne(['round_id'=>$round_tid]);
+
+    // if(empty($cursor)){
+      // $numbers = array();
+
+      $sn = array();
+      // for ($x = 0; $x < 1000; $x++) {
+      //   $sn[] =   [
+      //               'round_id' => $round_tid,
+      //               'number'   => Utils::generateRandomString(TRUE,5),
+      //               'uid'      => '7',
+      //               'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
+      //             ];
+      // }
+
+      $yeekee_round_terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('yeekee_round');
+
+      // dpm( $yeekee_round_terms );
+      $data = array();
+      foreach($yeekee_round_terms as $yeekee_round_tag_term) {
+        $data[] = $yeekee_round_tag_term->tid;
+      }
+
+      sort($data);
+      for ($x = 0; $x <=1000; $x++) {
+        $round_tid = rand( $data[0], $data[ count($data) -1 ] );
+        if(in_array($round_tid, $data)){
+          // dpm( $x .' > '.$rand );
+
+          $term = Term::load($round_tid);
+          // $date = new \DateTime();
+          // $date->setTimestamp($term->field_time_answer->value);
+
+          $sn[] =   [
+              'round_id' => strval($round_tid),
+              'number'   => Utils::generateRandomString(TRUE,5),
+              'uid'      => '7',
+              // 'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
+              'date'     => strval($term->field_time_answer->value * 1000),
+              'createdAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
+              'updatedAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
+
+            ];
 
     sort($data);
     for ($x = 0; $x <= 10000; $x++) {
