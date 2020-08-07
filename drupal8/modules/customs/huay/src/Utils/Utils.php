@@ -1674,73 +1674,33 @@ class Utils extends ControllerBase {
 
   public static function autoShootNumber(){
 
-    // return true;
-
-    // $round_tid = Utils::get__taxonomy_term_tid_current__by_time();
-
-    // \Drupal::logger('auto shoot number')->notice('round_tid : ' . $round_tid);
-
-    // findOne
     $collection = Utils::GetMongoDB()->shoot_numbers;
-    // $cursor     = $collection->findOne(['round_id'=>$round_tid]);
+    $sn = array();
+    $yeekee_round_terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('yeekee_round');
+    $data = array();
+    foreach($yeekee_round_terms as $yeekee_round_tag_term) {
+      $data[] = $yeekee_round_tag_term->tid;
+    }
 
-    // if(empty($cursor)){
-      // $numbers = array();
+    sort($data);
+    for ($x = 0; $x <= 10000; $x++) {
+      $round_tid = rand( $data[0], $data[ count($data) -1 ] );
+      if(in_array($round_tid, $data)){
+        $term = Term::load($round_tid);
+        $sn[] =   [
+            'round_id' => strval($round_tid),
+            'number'   => Utils::generateRandomString(TRUE,5),
+            'uid'      => '7',
+            // 'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
+            'date'     => $term->field_time_answer->value ,
+            'createdAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
+            'updatedAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
 
-      $sn = array();
-      // for ($x = 0; $x < 1000; $x++) {
-      //   $sn[] =   [
-      //               'round_id' => $round_tid,
-      //               'number'   => Utils::generateRandomString(TRUE,5),
-      //               'uid'      => '7',
-      //               'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
-      //             ];
-      // }
-
-      $yeekee_round_terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('yeekee_round');
-
-      // dpm( $yeekee_round_terms );
-      $data = array();
-      foreach($yeekee_round_terms as $yeekee_round_tag_term) {
-        $data[] = $yeekee_round_tag_term->tid;
+          ];
       }
+    }
 
-      sort($data);
-      for ($x = 0; $x <= 10000; $x++) {
-        $round_tid = rand( $data[0], $data[ count($data) -1 ] );
-        if(in_array($round_tid, $data)){
-          // dpm( $x .' > '.$rand );
-
-          $term = Term::load($round_tid);
-          // $date = new \DateTime();
-          // $date->setTimestamp($term->field_time_answer->value);
-
-          $sn[] =   [
-              'round_id' => strval($round_tid),
-              'number'   => Utils::generateRandomString(TRUE,5),
-              'uid'      => '7',
-              // 'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
-              'date'     => $term->field_time_answer->value ,
-              'createdAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
-              'updatedAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
-
-            ];
-
-            /*
-            $data['createdAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
-          $data['updatedAt']=new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000);
-            */
-        }
-      }
-
-
-      $insertOneResult = $collection->insertMany($sn);
-
-      // $insertOneResult = $collection->insertOne([
-      //   'round_id' => $round_tid,
-      //   'numbers'  => $numbers,
-      // ]);
-    // }
+    $collection->insertMany($sn);
   }
 
   function generateRandomString($is_number = FALSE, $length = 10) {
