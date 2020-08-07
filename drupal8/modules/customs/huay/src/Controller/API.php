@@ -1243,24 +1243,24 @@ class API extends ControllerBase {
       }
     }
 
-    $round_tid = Utils::get__taxonomy_term_tid__by_time();
+    // $round_tid = Utils::get__taxonomy_term_tid__by_time();
 
     // 
-    $fid_shoot_number_txt = Utils::getShootNumberByRound($round_tid)->id();
+    // $fid_shoot_number_txt = Utils::getShootNumberByRound($round_tid)->id();
 
-    $item_yeekee_answer = Paragraph::create([
-                                              'type'               => 'item_yeekee_answer',
-                                              'field_shoot_number_txt' => [
-                                                'target_id' => $fid_shoot_number_txt,
-                                              ],
-                                              'field_round_ye'     => $round_tid,
-                                            ]);
-    $item_yeekee_answer->save();
+    // $item_yeekee_answer = Paragraph::create([
+    //                                           'type'               => 'item_yeekee_answer',
+    //                                           'field_shoot_number_txt' => [
+    //                                             'target_id' => $fid_shoot_number_txt,
+    //                                           ],
+    //                                           'field_round_ye'     => $round_tid,
+    //                                         ]);
+    // $item_yeekee_answer->save();
 
-    $answer_yks[] = array('target_id'=> $item_yeekee_answer->id(), 'target_revision_id' => $item_yeekee_answer->getRevisionId());
+    // $answer_yks[] = array('target_id'=> $item_yeekee_answer->id(), 'target_revision_id' => $item_yeekee_answer->getRevisionId());
 
-    $yeekee_answer->set('field_answer_yk', $answer_yks);
-    $yeekee_answer->save();
+    // $yeekee_answer->set('field_answer_yk', $answer_yks);
+    // $yeekee_answer->save();
     // --------- d8
 
     // --------- delete shoot_numbers on mongo

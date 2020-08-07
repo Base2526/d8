@@ -1706,7 +1706,7 @@ class Utils extends ControllerBase {
       }
 
       sort($data);
-      for ($x = 0; $x <= 10000; $x++) {
+      for ($x = 0; $x <=1000; $x++) {
         $round_tid = rand( $data[0], $data[ count($data) -1 ] );
         if(in_array($round_tid, $data)){
           // dpm( $x .' > '.$rand );
@@ -1720,7 +1720,7 @@ class Utils extends ControllerBase {
               'number'   => Utils::generateRandomString(TRUE,5),
               'uid'      => '7',
               // 'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
-              'date'     => $term->field_time_answer->value ,
+              'date'     => strval($term->field_time_answer->value * 1000),
               'createdAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
               'updatedAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
 

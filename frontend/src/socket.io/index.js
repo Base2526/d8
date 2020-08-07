@@ -102,9 +102,11 @@ export function connect_socketIO(props){
         props.userLogout();
       })
 
-      // isocket.on('shoot_numbers', (data) => {
-      //   console.log('Socket io, connected! > ChitPage-8000');
-      // });
+      isocket.on('clear_cache', (data) => {
+        console.log('clear_cache');
+
+        props.deleteAward({});
+      });
     }
     
     return true;

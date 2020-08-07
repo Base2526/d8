@@ -144,7 +144,7 @@ app.get('/session', (req, res) => {
   res.send({_id: 'test' })
 })
 
-app.get('/api/hello', (req, res) => {
+app.get('/api/hello', async(req, res) => {
 
   // set & update cache
   // await redis.set('title', JSON.stringify({'key':'value'}));
@@ -160,7 +160,19 @@ app.get('/api/hello', (req, res) => {
 
   // console.log( getTitleDataFromCache );
 
-  console.log(cache.getCache('1'));
+  // console.log(cache.getCache('1'));
+
+  /*
+  const getUserProfile = async(uid)=>{
+  var user = await cache.getCache(uid)
+
+  if(isEmpty(user)){
+    user = await People.find({ uid });
+    await cache.setCache(uid, user)
+  }
+  */
+
+  console.log(await getUserProfile('15'))
 
   res.send({ express: 'Hello From Express' });
 });
@@ -180,10 +192,57 @@ app.get('/api/set_cache', async(req, res) => {
   res.send({ express: 'Hello From Express' });
 });
 
+// clearCache
+app.get('/clear_cache', (req, res) => {
+  cache.clearCache()
+
+  io.sockets.emit("clear_cache", JSON.stringify({}));
+  res.send({'result': true});
+});
+
 
 var sid = 0
 app.get('/s', async (req, res) => {
-  console.log(sid);
+
+
+  // ShootNumbers
+
+  let round_id = '125';
+  let date = 'date';
+
+  let data = await ShootNumbers.find({ round_id: round_id, date: date });
+  
+  var p1=0, p16=0, sum = 0;
+  data.sort((a, b) => b.createdAt - a.createdAt).forEach((v, i) => {
+    sum +=parseInt(v.number)
+    switch(i){
+      case 0:{
+        p1 = v.number;
+        break;
+      }
+
+      case 15:{
+        p16 = v.number;
+        break;
+      }
+    }
+  })
+
+  console.log(p1, p16, sum)
+
+  await cache.setCache("shoot_numbers_" + round_id + "_" + date, { p1, p16, sum, data })
+
+  /**
+   
+       var fs = await cache.getCache("shoot_numbers_" + req.query.tid + "_" + req.query.date);
+    if(_.isEmpty(fs)){
+
+      let data = await ShootNumbers.find({ round_id: req.query.tid });
+
+      await cache.setCache("shoot_numbers_" + req.query.tid + "_" + req.query.date, data)
+* 
+  */
+  res.send({'result': true});
 })
 
 app.get('/c', async (req, res) => {
@@ -624,6 +683,7 @@ app.post('/api/shoot_number', async(req, res) => {
       let data = await ShootNumbers.create({ round_id: req.body.round_tid, 
                                                number: req.body.data, 
                                                   uid: req.body.uid,
+                                                  user: getUserProfile(req.body.uid),
                                                  date: req.body.date,
                               });
       res.send({result:true, data, execution_time: (new Date() - start_time) });
@@ -795,9 +855,31 @@ app.post('/api/get_yeekee_answer', async(req, res) => {
     let hashkey = type_lotterys +'_'+ round_tid +'_'+ date;
 
     var data = await cache.getCache(hashkey)
+    console.log(data);
     if(isEmpty(data)){
-      data = await AwardsModel.findOne({ type_lotterys,  round_tid, date});
+    
+      var sn_data = await ShootNumbers.find({ round_id: round_tid.toString(), date: date.toString() });
+      
+      var p1={}, p16={}, sum = 0;
+      sn_data.sort((a, b) => b.createdAt - a.createdAt).forEach((v, i) => {
+        sum +=parseInt(v.number)
+        switch(i){
+          case 0:{
+            p1 = v;
+            break;
+          }
+    
+          case 15:{
+            p16 = v;
+            break;
+          }
+        }
+      })
+    
+      // console.log(p1, p16, sum)
 
+      data = { round_tid, type_lotterys, date, p1, p16, sum, sn_data }
+    
       await cache.setCache(hashkey, data)
     }
 
@@ -1072,6 +1154,19 @@ const getApiAndEmit = socket => {
   // จะส่งไปตามแต่ละ socket.id
   // io.to('vwMRV1tla8OILFnWAAAC').emit('FromAPI', 'for your eyes only');
 };
+
+const getUserProfile = async(uid)=>{
+  var user = await cache.getCache(uid)
+
+  if(isEmpty(user)){
+    user = await People.findOne({ uid });
+
+    user = {uid, email: user.email, name: user.name }
+    await cache.setCache(uid, user)
+  }
+
+  return user
+}
 
 // io.on('disconnect', () => {
 //   console.log("disconnection");
