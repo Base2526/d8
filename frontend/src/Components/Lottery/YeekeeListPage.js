@@ -88,14 +88,13 @@ class YeekeeListPage extends Component {
   }
 
   handleItemClick = (e, round) => {
-    let {history} = this.props
-
+    let {history} = this.props    
     if(round.is_close){
-      history.push({pathname: '/lottery-list/reward',
+      history.push({pathname: '/lottery-list/yeekee-list/reward',
                     state: { type_lotterys:'67', params: JSON.stringify(round) } })
     }else{
-      history.push({pathname: '/lottery-list/yeekee-list/chit',
-                    state: { type:'yeekee', tid:round.tid } })
+      history.push({pathname: '/lottery-list/yeekee-list/yeekee-chit',
+                    state: { type:'yeekee', type_lotterys:'67', tid:round.tid } })
     }
   }
 
@@ -168,7 +167,7 @@ class YeekeeListPage extends Component {
       let round_minutes = ("0" + date.getMinutes()).slice(-2);
       let round_seconds = ("0" + date.getSeconds()).slice(-2);
 
-      console.log(round)
+      // console.log(round)
 
       return<a key={key} onClick={((e) => this.handleItemClick(e, round))}>
               <div key={key} className={'square-item' + (index % 2 ? '' : ' even') + (round.is_close ? ' square-item-close' : '')}>
@@ -195,7 +194,7 @@ const mapStateToProps = (state, ownProps) => {
     return {};
   }
   
-  console.log( state );
+  // console.log( state );
   if(state.auth.isLoggedIn){
     let yeekees = state.lotterys.data.find((val) => { return val.tid == 67 });
     let rounds =  yeekees.rounds.sort(function(a, b) {

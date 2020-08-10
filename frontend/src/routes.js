@@ -117,16 +117,16 @@ export default [
     { path: "/request-all", name: "สถานะ ฝาก/ถอนเงิน", Component: RequestAllPage },
 
     { path: "/lottery-list", name: "แทงหวย", Component: LotteryListPage },
-    { path: "/lottery-list/:type/:id", name: "โพย", Component: ChitPage },
+    // { path: "/lottery-list/:type/:id", name: "โพย", Component: ChitPage },
     { path: "/lottery/government", name: "หวยรัฐบาลไทย", Component: GovernmentPage },
 
     { path: "/lottery-list/yeekee-list", name: "จับยี่กี VIP", Component: YeekeeListPage },
-    { path: "/lottery-list/yeekee-list/:type/:id", name: "โพย", Component: ChitPage },
-    { path: "/lottery-list/yeekee-list/chit", name: "โพย", Component: ChitPage },
+    // { path: "/lottery-list/yeekee-list/yeekee/:id", name: "โพย 1", Component: ChitPage },
+    { path: "/lottery-list/yeekee-list/yeekee-chit", name: "โพย", Component: ChitPage },
 
     // /lottery/yeekee
-    { path: "/lottery-list/reward/:type/:id", name:"ผลรางวัล", Component: RewardPage },
-    { path: "/lottery-list/reward", name:"ผลรางวัล", Component: RewardPage },
+    { path: "/lottery-list/yeekee-list/reward", name:"ผลรางวัล", Component: RewardPage },
+    // { path: "/lottery-list/reward", name:"ผลรางวัล", Component: RewardPage },
 
     { path: "/deposit", name: "ฝากเงิน", Component: DepositPage },
     { path: "/withdraw", name: "ถอนเงิน", Component: WithdrawPage },

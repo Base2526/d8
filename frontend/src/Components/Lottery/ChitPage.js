@@ -25,9 +25,14 @@ import {headers,
         getCurrentTime, 
         getTime,
         difference_between_two_timestamps,
-        getTimeWithDate} from '../Utils/Config';
+        format_email,
+        getTimeWithDate,
+        chit_status} from '../Utils/Config';
+
 import {  loadingOverlayActive,
-          updateShootNumbers } from '../../actions/huay'
+          updateShootNumbers,
+          setTypeChitTemp} from '../../actions/huay';
+
 import '../../index.css';
 
 import {socketIO} from '../../socket.io'
@@ -61,65 +66,7 @@ class ChitPage extends Component {
 
       numbers:[],
 
-      data: [
-        {
-          headerName: 'สามตัวบน',
-          isOpened: true,
-          type:'type_3_up',
-          height: 120,
-          items: [],
-        },
-        {
-          headerName: 'สามตัวโต๊ด',
-          isOpened: true,
-          type:'type_3_toot',
-          height: 120,
-          items: [],
-        },
-        {
-          headerName: 'สองตัวบน',
-          isOpened: true,
-          type:'type_2_up',
-          height: 120,
-          items: [],
-        },
-        {
-          headerName: 'สองตัวล่าง',
-          isOpened: true,
-          isReactComponent: false,
-          type:'type_2_down',
-          height: 120,
-          items: [],
-        },
-        {
-          headerName: 'สามตัวกลับ',
-          isOpened: true,
-          type:'type_3_undo',
-          height: 120,
-          items: [],
-        },
-        {
-          headerName: 'สองตัวกลับ',
-          isOpened: true,
-          type:'type_2_undo',
-          height: 120,
-          items: [],
-        },
-        {
-          headerName: 'วิ่งบน',
-          isOpened: true,
-          type:'type_1_up',
-          height: 120,
-          items: [],
-        },
-        {
-          headerName: 'วิ่งล่าง',
-          isOpened: true,
-          type:'type_1_down',
-          height: 120,
-          items: [],
-        }
-      ]
+      data: this.initData()
     }
 
     this.handleItemClick = this.handleItemClick.bind(this);
@@ -179,12 +126,15 @@ class ChitPage extends Component {
     let {round, location, numbers} = this.props; 
 
     console.log(round)
-    switch(location.state.type){
-      case 'yeekee':{
+    console.log(location.state)
+    switch(location.state.type_lotterys){
+      case '67':{
         this.setState({time: difference_between_two_timestamps(round.date), date_time: new Date().getTime()});
         interval = setInterval(() => {
           let {round} = this.props; 
-          this.setState({time: difference_between_two_timestamps(round.date)});
+
+          let time = difference_between_two_timestamps(round.date);
+          this.setState({time});
         }, 1000);
         break;
       }
@@ -223,6 +173,68 @@ class ChitPage extends Component {
     }
 
     this.socketIORemoveEventListener();
+  }
+
+  initData(){
+    return [
+      {
+        headerName: 'สามตัวบน',
+        isOpened: true,
+        type:'type_3_up',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'สามตัวโต๊ด',
+        isOpened: true,
+        type:'type_3_toot',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'สองตัวบน',
+        isOpened: true,
+        type:'type_2_up',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'สองตัวล่าง',
+        isOpened: true,
+        isReactComponent: false,
+        type:'type_2_down',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'สามตัวกลับ',
+        isOpened: true,
+        type:'type_3_undo',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'สองตัวกลับ',
+        isOpened: true,
+        type:'type_2_undo',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'วิ่งบน',
+        isOpened: true,
+        type:'type_1_up',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'วิ่งล่าง',
+        isOpened: true,
+        type:'type_1_down',
+        height: 120,
+        items: [],
+      }
+    ]
   }
 
   subscribeEvent(event){    
@@ -343,6 +355,8 @@ class ChitPage extends Component {
     let {user} = this.props;
     let {data, m} = this.state;
 
+    console.log(m)
+
     m.mi.map((key, i) =>{
       let find = data.find((val) => { return val.type === key});
       let items = find.items;
@@ -365,6 +379,9 @@ class ChitPage extends Component {
             total+=parseInt(nvv.quantity)
           })
         })
+
+
+        console.log(newData)
         
         this.setState({data: newData, total})
       }else{
@@ -390,6 +407,9 @@ class ChitPage extends Component {
     let {location, round} = this.props; 
     let {data} = this.state;
 
+    round  = {...round, 'chit_status': chit_status.wait_approve};
+
+
     data =  data.filter(function(val) { return !isEmpty(val.items)})
 
     // var b64 = btoa(JSON.stringify(data));
@@ -400,15 +420,15 @@ class ChitPage extends Component {
 
     // let round = {};
     let buff;
-    switch(location.state.type){
-      case 'yeekee':{
+    switch(location.state.type_lotterys){
+      case '67':{
         // let child = childs.find((val) => { return val.tid == 67 });
         // round = child.rounds.find((val) => { return val.tid == params.id });
         
         // let yeekees = state.lotterys.data.find((val) => { return val.tid == 67 });
         // round = yeekees.rounds.find((val) => { return val.tid == params.id });
 
-        buff = new Buffer(JSON.stringify({round_tid:round.tid,  chit_type: 67, data}));
+        buff = new Buffer(JSON.stringify({round_tid:round.tid, round,  chit_type: 67, data}));
 
         break;
       }
@@ -444,7 +464,7 @@ class ChitPage extends Component {
       */
 
       default:{
-        buff = new Buffer(JSON.stringify({chit_type:round.tid, data}));
+        buff = new Buffer(JSON.stringify({chit_type:round.tid, round, data}));
         break;
       }
     }
@@ -453,13 +473,12 @@ class ChitPage extends Component {
                                                   data: buff.toString('base64')
                                                 }, 
                                                 {headers:headers()});
-    console.log(response);
-
     this.setState({is_active:false})
-
     if( response.status==200 && response.statusText == "OK" ){
       if(response.data.result){
-        this.nextPath('/');
+        // this.nextPath('/');
+
+        this.setState({data: this.initData()});
 
         showToast('success', 'ส่งโพยเรียบร้อย');
       }else{
@@ -471,6 +490,7 @@ class ChitPage extends Component {
 
         showToast('error', response.data.message);
       }
+      
     }else{
       showToast('error', 'Error');
     }
@@ -634,6 +654,11 @@ class ChitPage extends Component {
   }
 
   handleType(type){
+
+    // let {round, location, numbers} = this.props; 
+
+    this.props.setTypeChitTemp({type, props: this.props});
+
     let {m} = this.state
     let tmp_m = {}
     switch(type){
@@ -926,8 +951,8 @@ class ChitPage extends Component {
     data =  data.filter(function(val) { return !isEmpty(val.items)})
 
     let header_row;
-    switch(match.params.type){
-      case 'yeekee':{
+    switch(match.params.type_lotterys){
+      case '67':{
         header_row = <p> หวยยี่กี รอบที่ { round.name }</p>
         break;
       }
@@ -1070,7 +1095,7 @@ class ChitPage extends Component {
     }
 
     let {numbers} = this.state
-    console.log( numbers );
+    // console.log( numbers );
     // numbers.sort((date1, date2) =>{
     //   // This is a comparison function that will result in dates being sorted in
     //   // DESCENDING order.
@@ -1128,7 +1153,7 @@ class ChitPage extends Component {
 
                           return<div  key={index} className={'sq-order'}>
                                   ลำดับที่ {index+1} หมายเลข {i.number}
-                                  ผู้ส่งเลข  {i.uid}
+                                  ผู้ส่งเลข  { isEmpty(i.user) ? '*' : format_email(i.user.email) }
                                   เมื่อ {time}
                                 </div>
                           }
@@ -1157,29 +1182,16 @@ class ChitPage extends Component {
   */
   gotoPageExit(){
     let {history, round} = this.props; 
-    // let {time} = this.state;
-    // console.log(history);
-    // if(time == -1){
-    //   history.push('/lottery-list/reward/'+ match.params.type +'/' + match.params.id)
-    // }
-
-    // console.log(round.is_close);
-    if(round.is_close){
-      history.push({pathname: '/lottery-list/reward',
+    let {time} = this.state;
+    if(round.is_close || time == -1){
+      history.push({pathname: '/lottery-list/yeekee-list/reward',
                     state: { type_lotterys:'67', params: JSON.stringify(round) } })
     }
-
-    // เราต้องคิดกรณีที่ user เปิดหน้าค้างข้างวันกรณีเรายังไม่ได้ นําเอามาคิด
   }
 
   render() {
     let {location, round} = this.props; 
     let {error, error_message, total, otp, m, time, date_time} = this.state;
-
-    // console.log(date_time)
-    // console.log(getCurrentDate());
-
-    
 
     this.gotoPageExit();
     this.loadingOverlayActive();
@@ -1193,8 +1205,8 @@ class ChitPage extends Component {
     
     let header_row;
     let view_shoot_number_show = <div />;
-    switch(location.state.type){
-      case 'yeekee':{
+    switch(location.state.type_lotterys){
+      case '67':{
         header_row = <Row>
                 <Col style={{border: '1px solid #61dafb'}} md={12} xs={12}>
                   <div>
@@ -1323,12 +1335,12 @@ class ChitPage extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
+
 	if(!state._persist.rehydrated){
 		return {};
   }
 
-  console.log(state)
-  
+  // console.log(state)
   if(state.auth.isLoggedIn){
     /*
       // หวยรัฐบาลไทย  : thai-government : 66 
@@ -1356,12 +1368,12 @@ const mapStateToProps = (state, ownProps) => {
     */
 
     let lotterys = state.lotterys.data.sort(function(obj1, obj2) {return obj1.weight - obj2.weight;});
-    let {tid, type} = ownProps.location.state
+    let {tid, type_lotterys} = ownProps.location.state
 
     let round = {};
     let numbers = [];
-    switch(type){
-      case 'yeekee':{
+    switch(type_lotterys){
+      case '67':{
         let yeekees = state.lotterys.data.find((val) => { return val.tid == 67 });
         round = yeekees.rounds.find((val) => { return val.tid == tid });
 
@@ -1410,7 +1422,7 @@ const mapStateToProps = (state, ownProps) => {
     //   numbers = numbers.numbers.sort(function(obj1, obj2) {return obj2.nid - obj1.nid;});
     // }
 
-    // console.log( round );
+    // console.log( numbers );
 
     return {  logged_in: true, 
               user: state.auth.user,
@@ -1432,6 +1444,9 @@ const mapDispatchToProps = (dispatch) => {
     updateShootNumbers: (data) =>{
       dispatch(updateShootNumbers(data))
     },
+    setTypeChitTemp: (data) =>{
+      dispatch(setTypeChitTemp(data))
+    }
 	}
 }
 

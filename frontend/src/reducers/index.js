@@ -21,6 +21,8 @@ import peoples          from './peoples'
 
 import awards           from './awards'
 
+import chit_temp        from './chit_temp'
+
 export default combineReducers({
   auth,
   todos,
@@ -43,4 +45,6 @@ export default combineReducers({
   peoples,
 
   awards,
+
+  chit_temp,
 })

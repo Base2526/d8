@@ -3,9 +3,16 @@ import { connect } from 'react-redux'
 import { addTodo, userLogin } from '../../actions'
 
 import Image from 'react-bootstrap/Image'
-import Container from 'react-bootstrap/Container'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
+// import Container from 'react-bootstrap/Container'
+// import Row from 'react-bootstrap/Row'
+// import Col from 'react-bootstrap/Col'
+
+import Tabs from 'react-bootstrap/Tabs'
+import Tab from 'react-bootstrap/Tab'
+
+import Button from 'react-bootstrap/Button'
+
+import ReactList from 'react-list';
 
 import history from "../../history";
 // import { doLogin, doLogout } from "../../actions/auth";
@@ -34,6 +41,10 @@ class ProfilePage extends Component {
 
     this.onChange = this.onChange.bind(this);
     this.submitForm = this.submitForm.bind(this);
+
+    this.renderSquareItem = this.renderSquareItem.bind(this);
+    this.handleItemClick  = this.handleItemClick.bind(this);
+    this.handleApproved   = this.handleApproved.bind(this);
   }
 
   componentDidMount() {
@@ -128,23 +139,103 @@ class ProfilePage extends Component {
     */
   }
 
+  handleItemClick = (e, round) => {
+    console.log('handleItemClick');
+  }
+
+  handleDetail = (e, index) => {
+    console.log('handleDetail', index);
+  }
+
+  handleApproved = (e, index) => {
+    console.log('handleApproved', index);
+  }
+
+  handleCancel = (e, index) => {
+    console.log('handleCancel', index);
+  }
+
+  // 
+  renderSquareItem(index, key){
+    return( <div key={key}>
+              <a key={key} onClick={((e) => this.handleItemClick(e, 'round'))}>
+                อันดับ {index}
+              </a>
+              <div>
+                สถานะ 
+              </div>
+              <Button variant="outline-success" onClick={(e) =>this.handleDetail(e, index)} >ดูรายละเอียด</Button>
+              <Button variant="outline-primary" onClick={(e) =>this.handleApproved(e, index)} >อนุมัติ</Button>
+              <Button variant="outline-danger" onClick={(e) =>this.handleCancel(e, index)} >ยกเลิก</Button>
+            </div>)  
+  }
+
   render() {
-    let {name, email,image_url} = this.props.user;
+    let {name, email,image_url, roles} = this.props.user;
     console.log(this.props.user);
-    return (<Container>
-              <Row>
-                <Col>
+
+    /*
+      roles: Array(3) [ "authenticated", "administrator", "lottery_dealer" ]
+    */
+
+    var lottery_dealer = <div />
+    if(roles.includes("lottery_dealer")){
+      console.log(' in lottery_dealer ');
+
+      lottery_dealer =  <div className={'even'}>
+                          <div>รายการขายทั้งหมด</div>
+                          <ReactList
+                              // useTranslate3d={true}
+                              itemRenderer={this.renderSquareItem}
+                              length={100}
+                              type='simple'/>
+                        </div>;
+
+      lottery_dealer = <div>
+                        <Tabs defaultActiveKey="home" transition={false} id="noanim-tab-example">
+                          <Tab eventKey="home" title="ยี่กี่">
+                            <div>
+                              <div>รายการขายทั้งหมด</div>
+                              <ReactList
+                                // useTranslate3d={true}
+                                itemRenderer={this.renderSquareItem}
+                                length={100}
+                                type='simple'/>
+                            </div>
+                          </Tab>
+                          <Tab eventKey="profile" title="หวยรัฐบาลไทย">
+                            <div>
+                              <div>รายการขายทั้งหมด</div>
+                              <ReactList
+                                // useTranslate3d={true}
+                                itemRenderer={this.renderSquareItem}
+                                length={10}
+                                type='simple'/>
+                            </div>
+                          </Tab>
+                          {/* <Tab eventKey="contact" title="Contact">
+                            <div>
+                              contact
+                            </div>
+                          </Tab> */}
+                        </Tabs>
+                       </div>;
+    }
+
+    return (<div>
+              <div>
+                <div>
                   <div>{name}</div>
                   <div><Image style={styles.simage} src={image_url} rounded /></div>
                   <div>{email}</div>
-                </Col>
-              </Row>
-            </Container>);
+                </div>
+              </div>
+              <div>
+                {lottery_dealer}
+              </div>
+            </div>);
   }
 };
-
-// 
-
 
 /*
 	จะเป็น function ที่จะถูกเรียกตลอดเมือ ข้อมูลเปลี่ยนแปลง

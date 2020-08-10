@@ -835,7 +835,6 @@ class API extends ControllerBase {
         $p = Paragraph::load( $vv['target_id'] );
         $chits_paragraphs[] = array('target_id'=> $p->id(), 'target_revision_id' => $p->getRevisionId());
     }
-
     // chit
     $chit = Paragraph::create([
       'type'                   => 'chit',
@@ -855,16 +854,15 @@ class API extends ControllerBase {
     $user_lottery_customer = User::load($uid);              // ลูกค้า
     $user_lottery_dealer   = User::load($lottery_dealer);   // เจ้ามือหวย
 
-    //           User::load($lottery_dealer)->getUsername();
     $node = Node::create([
       'type'                   => 'chits',
       'uid'                    => $uid,
       'status'                 => 1,
       'title'                  => "ลูกค้า : " . $user_lottery_customer->getUsername() ." > เจ้ามือ : ". $user_lottery_dealer->getUsername() ,
-      'field_yeekee_round'     => $data_decode->round_tid,       // รอบการแทงหวยยีกี
-      'field_chit_type'        => $data_decode->chit_type,          // ยี่กี หรือ หวยรัฐบาลไทย
+      'field_yeekee_round'     => $data_decode->round_tid,  // รอบการแทงหวยยีกี
+      'field_chit_type'        => $data_decode->chit_type,  // ยี่กี หรือ หวยรัฐบาลไทย
       'field_list_bet'         => $list_bet_paragraphs,
-      'field_lottery_dealer'   => $lottery_dealer, // 
+      'field_lottery_dealer'   => $lottery_dealer,          // 
       'field_lottery_custom'   => $uid
     ]);
     $node->save();
@@ -1243,7 +1241,7 @@ class API extends ControllerBase {
       }
     }
 
-    // $round_tid = Utils::get__taxonomy_term_tid__by_time();
+    $round_tid = Utils::get__taxonomy_term_tid__by_time();
 
     // 
     // $fid_shoot_number_txt = Utils::getShootNumberByRound($round_tid)->id();

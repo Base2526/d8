@@ -1705,6 +1705,9 @@ class Utils extends ControllerBase {
         $data[] = $yeekee_round_tag_term->tid;
       }
 
+
+      $uids = array(7, 8, 9, 15, 18);      
+
       sort($data);
       for ($x = 0; $x <=1000; $x++) {
         $round_tid = rand( $data[0], $data[ count($data) -1 ] );
@@ -1715,11 +1718,19 @@ class Utils extends ControllerBase {
           // $date = new \DateTime();
           // $date->setTimestamp($term->field_time_answer->value);
 
+          
+
+          $uid =  $uids[rand(0, count($uids)-1 )];
+          $user = User::load($uid);
+
           $sn[] =   [
               'round_id' => strval($round_tid),
               'number'   => Utils::generateRandomString(TRUE,5),
-              'uid'      => '7',
+              'uid'      => $uid,
               // 'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
+              'user'     => (object)array( 'uid'   =>$uid, 
+                                            'name'  =>$user->getUsername(),
+                                            'email' =>$user->getEmail()),
               'date'     => strval($term->field_time_answer->value * 1000),
               'createdAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
               'updatedAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),

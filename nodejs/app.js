@@ -18,6 +18,7 @@ const multer = require("multer");
 const fs = require('fs');
 const FormData = require('form-data'); 
 
+
 const Product         = require('./models/product')
 const People          = require('./models/people')
 const ContactUs       = require('./models/contact_us')
@@ -29,6 +30,7 @@ const ShootNumbers    = require('./models/shoot_numbers')
 const UserSocketID    = require('./models/user_socket_id')
 const DepositStatus   = require('./models/deposit_status')
 const AwardsModel     = require('./models/awards')
+const ChitsModel      = require('./models/chits')
 
 const connectMongoose = require("./src/connection")
 const User            = require("./src/User.model")
@@ -253,9 +255,12 @@ app.get('/c', async (req, res) => {
 })
 
 app.get('/d', async (req, res) => {
-  req.session.destroy(function(err) {
-    // cannot access session here
-  })
+  // req.session.destroy(function(err) {
+  //   // cannot access session here
+  // })
+
+
+
 })
 
 app.get('/',  async(req, res) => {
@@ -632,20 +637,51 @@ app.post('/api/withdraw', async(req, res) => {
 app.post('/api/bet', async(req, res) => {
   let is_session = await sessionMongoStore.get(req.session.id);
   if (is_session !== undefined) {  
-    var data = {
-      "uid"       : req.body.uid,
-      "data"      : req.body.data,
-      "time"      : Date.now()
-    }
+    // var data = {
+    //   "uid"       : req.body.uid,
+    //   "data"      : req.body.data
+    // }
 
-    fetch(config.d8.api_bet, { method: 'POST', headers: config.d8.headers, body: JSON.stringify(data)})
-      .then((res) => {
-        return res.json()
-    })
-    .then((json) => {
-      console.log(json);
-      res.send(json);
-    });
+    // let data = 'stackabuse.com';
+    // let buff = new Buffer(data);
+    // let base64data = buff.toString('base64');
+
+    // console.log('"' + data + '" converted to Base64 is "' + base64data + '"');
+
+    let buff = new Buffer(req.body.data, 'base64');
+    let data = JSON.parse(buff.toString());
+
+    if(new Date(data.round.date) >= new Date()){
+      // console.log( 'สามารถซื้อได้' );
+      // fetch(config.d8.api_bet, { method: 'POST', headers: config.d8.headers, body: JSON.stringify({"uid": req.body.uid, "data": req.body.data})})
+      //   .then((res) => {
+      //     return res.json()
+      // })
+      // .then((json) => {
+      //   console.log(json);
+      //   res.send(json);
+      // });
+
+
+      console.log(data)
+
+      // ChitsModel
+      /*
+      chait_type: String,
+        data: [],
+        round: {}
+      */
+
+      res.send({'result': true, 'data':await ChitsModel.create({ 
+                                    uid: req.body.uid,
+                                    chait_type: data.chait_type, 
+                                    data: data.data, 
+                                    round: data.round,
+                                })
+                });
+    }else{
+      res.send({result:false, status: '-1', message:'Timeout'});
+    }
   }else{
     res.send({result:false, status: '-1'}); ;
   }
@@ -683,12 +719,12 @@ app.post('/api/shoot_number', async(req, res) => {
       let data = await ShootNumbers.create({ round_id: req.body.round_tid, 
                                                number: req.body.data, 
                                                   uid: req.body.uid,
-                                                  user: getUserProfile(req.body.uid),
+                                                  user: (await getUserProfile(req.body.uid)),
                                                  date: req.body.date,
                               });
       res.send({result:true, data, execution_time: (new Date() - start_time) });
     }else{
-      res.send({result:false, status: '-1', message:'timeout'});
+      res.send({result:false, status: '-1', message:'Timeout'});
     }
   }else{
     res.send({result:false, status: '-1'});

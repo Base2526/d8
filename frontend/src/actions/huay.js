@@ -65,3 +65,8 @@ export const deleteAward = (data) => ({
     type: types.DELETE_AWARD,
     data
 });
+
+export const setTypeChitTemp = (data) =>({
+    type: types.CHIT_TEMP_SET_TYPE,
+    data
+})

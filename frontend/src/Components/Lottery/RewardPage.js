@@ -3,13 +3,10 @@ import { connect } from 'react-redux'
 
 import axios from 'axios';
 import { Base64 } from 'js-base64';
+import ReactList from 'react-list';
 
-import {isEmpty} from '../Utils/Config';
-
-// addAward
-
+import {isEmpty, format_email} from '../Utils/Config';
 import { addAward, loadingOverlayActive } from '../../actions/huay'
-import awards from '../../reducers/awards';
 
 class RewardPage extends Component {
   constructor(props) {
@@ -19,14 +16,15 @@ class RewardPage extends Component {
       is_active: false,
       loading_text: 'รอสักครู่',
     }
+
+    this.renderSquareItem = this.renderSquareItem.bind(this)
   }
 
   componentDidMount = async() => {
     let {award} = this.props;
 
-
-    this.setState({is_active:false});
-
+    // this.setState({is_active:false});
+    console.log(localStorage.getItem('headers'))
     if(isEmpty(award)){
 
       this.setState({is_active:true})
@@ -35,7 +33,7 @@ class RewardPage extends Component {
       params = JSON.parse(params);
 
       console.log(params)
-    
+
       let response  = await axios.post('/api/get_yeekee_answer', 
                       { uid: this.props.user.uid,
                         type_lotterys: type_lotterys,
@@ -49,7 +47,7 @@ class RewardPage extends Component {
           this.props.addAward(response.data.data);
         }
       }
-
+      
       this.setState({is_active:false});
     }
   }
@@ -59,14 +57,44 @@ class RewardPage extends Component {
     this.props.loadingOverlayActive(is_active, loading_text);
   }
 
+  renderSquareItem(index, key){
+    let {sn_data} = this.props.award
+
+    let item = sn_data[index];
+    if(isEmpty(item)){
+      return <div />
+    }
+
+    var date = new Date(item.createdAt);
+
+    // console.log(date.toString())
+    // console.log(date.getUTCMonth())
+
+    const months = ["JAN", "FEB", "MAR","APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+    // Year
+    var year = date.getFullYear();
+    // Month
+    var month = months[date.getMonth()];//date.getMonth() + 1;
+    // Day
+    var day = date.getDate();
+    // Hours
+    var hours = date.getHours();
+    // Minutes
+    var minutes = "0" + date.getMinutes();
+    // Seconds
+    var seconds = "0" + date.getSeconds();
+    // Display date time in MM-dd-yyyy h:m:s format
+    var time = day +'-'+month+'-'+year+' '+hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+
+    // console.log(sn_data)
+
+    return( <div key={key} className={ (index == 0 || index == 15) ? 'square-item-close' : '' }>
+              อันดับ {index + 1} : {item.number} : {isEmpty(item.user) ? '*' : format_email(item.user.email)} : {time}
+            </div>)  
+  }
+
   render() {
-    
-    // let {p1, p16, sum} = this.state;
-
-    // console.log(p1);
-    // console.log(p16);
-    // console.log(sum);
-
     // this.loadingOverlayActive();
 
     let {award} = this.props;
@@ -75,16 +103,14 @@ class RewardPage extends Component {
       return <div/>;
     }
 
-    let {params, type_lotterys} = this.props.location.state
-
-    // console.log(params, type_lotterys)
+    
+    let {params} = this.props.location.state
 
     params = JSON.parse(params);
 
-    var {p1, p16, sum} = award
+    let {p1, p16, sum, sn_data} = award
 
-    // p1  = JSON.parse(p1);
-    // p16 = JSON.parse(p16);
+    console.log( sn_data );
     
     let reward = sum - p16.number;
     reward = reward.toString();
@@ -98,8 +124,16 @@ class RewardPage extends Component {
               <div>2ตัวล่าง : {_2down}</div>
               <div>ผลรวมยิงเลข : {sum}</div>
               <div>เลขแถวที่ 16 : {p16.number}</div>
-              <div>สมาชิกยิงเลขได้ อันดับ 1 : {p1.uid}</div>
-              <div>สมาชิกยิงเลขได้ อันดับ 16 : {p16.uid}</div>
+              <div>สมาชิกยิงเลขได้ อันดับ 1 : {isEmpty(p1.user) ? '' : format_email(p1.user.email)}</div>
+              <div>สมาชิกยิงเลขได้ อันดับ 16 : {isEmpty(p16.user) ? '' : format_email(p16.user.email)}</div>
+
+              <div className={'even'}>
+              <ReactList
+                  // useTranslate3d={true}
+                  itemRenderer={this.renderSquareItem}
+                  length={100}
+                  type='simple'/>
+              </div>
             </div>);
   }
 }

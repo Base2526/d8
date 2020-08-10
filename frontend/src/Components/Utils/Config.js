@@ -15,6 +15,8 @@ export function headers() {
     return { 'Content-Type': 'application/json', 'authorization': 'aHVheQ==' };
 }
 
+export const chit_status = {'cancel':'56', 'approve':'57', 'wait_approve':'55'}
+
 /*
 การเรียกใช้งาน
 1.import { authHeader, assets } from '../Config'; 
@@ -374,8 +376,12 @@ export function difference_between_two_timestamps(date){
 
     var res = Math.abs(date1 - date2) / 1000;
 
-    //console.log(date1);
-    //console.log(date2);
+    // console.log(date1);
+    // console.log(date2);
+
+    if(date1 > date2){
+        return -1;
+    }
 
     // get hours        
     var hours = Math.floor(res / 3600) % 24;    
@@ -385,4 +391,8 @@ export function difference_between_two_timestamps(date){
     var seconds = Math.floor(res % 60);
 
     return ("0" + hours).slice(-2) + ':' + ("0" + minutes).slice(-2) +':'+ ("0" + seconds).slice(-2);
+}
+
+export function format_email(str){
+    return str.replace(str.substring(2,str.length-2), "***");
 }

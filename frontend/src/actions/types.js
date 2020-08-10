@@ -24,3 +24,7 @@ export const UPDATE_PEOPLE           = "update_people";
 
 export const ADD_AWARD               = "add_award";
 export const DELETE_AWARD            = "delete_award";
+
+export const ADD_CHIT_TEMP           = "add_chit_temp";
+export const DELETE_CHIT_TEMP        = "delete_chit_temp";
+export const CHIT_TEMP_SET_TYPE      = "chit_temp_set_type";
