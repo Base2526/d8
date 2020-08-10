@@ -36,7 +36,7 @@ class RewardPage extends Component {
 
       let response  = await axios.post('/api/get_yeekee_answer', 
                       { uid: this.props.user.uid,
-                        type_lotterys: type_lotterys,
+                        type_lotterys: type_lotterys, // tid: '67'
                         date: String(params.date), 
                         round_tid: params.tid }, 
                       {headers:JSON.parse(Base64.decode(Base64.decode(localStorage.getItem('headers'))))});

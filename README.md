@@ -60,7 +60,7 @@ mongo-express:
       ME_CONFIG_MONGODB_SERVER: mongo1  # กรณีเรา set replset เราต้องกำหนด ME_CONFIG_MONGODB_SERVER ด้วย
 
 step 2
- - exec -ti mongo1 bash
+ - docker exec -ti mongo1 bash
  - mongo
     var cfg = {
         "_id": "rs0",

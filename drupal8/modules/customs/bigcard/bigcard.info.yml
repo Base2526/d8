@@ -1,9 +1,0 @@
-name: Bigcard
-type: module
-description: Bigcard by Big C
-core: 8.x
-package: Big C
-dependencies:
-    - config_pages
-    - block
-        

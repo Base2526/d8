@@ -343,7 +343,6 @@ app.get('/',  async(req, res) => {
 	// .then(res => res.json()) // expecting a json response
   // .then(json => console.log(json));
   
-  
 });
 
 app.post('/api/login', async(req, res) => {
