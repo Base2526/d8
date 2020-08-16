@@ -27,11 +27,13 @@ import {headers,
         difference_between_two_timestamps,
         format_email,
         getTimeWithDate,
-        chit_status} from '../Utils/Config';
+        chit_status,
+        initData} from '../Utils/Config';
 
 import {  loadingOverlayActive,
           updateShootNumbers,
-          setTypeChitTemp} from '../../actions/huay';
+          deleteChitTemp,
+          addChitTemp} from '../../actions/huay';
 
 import '../../index.css';
 
@@ -66,7 +68,7 @@ class ChitPage extends Component {
 
       numbers:[],
 
-      data: this.initData()
+      // data: this.initData()
     }
 
     this.handleItemClick = this.handleItemClick.bind(this);
@@ -99,10 +101,15 @@ class ChitPage extends Component {
     this.subscribeEvent = this.subscribeEvent.bind(this)
 
     this.clickSendBet   = this.clickSendBet.bind(this)
+
+    // this.initData       = this.initData.bind(this)
   }
 
   componentWillReceiveProps(nextProps){
+    console.log('componentWillReceiveProps 1');
     if(nextProps.numbers.length !== this.state.numbers.length){
+
+      console.log('componentWillReceiveProps 2');
 
       nextProps.numbers.sort((date1, date2) =>{
         // This is a comparison function that will result in dates being sorted in
@@ -294,7 +301,9 @@ class ChitPage extends Component {
 
   handleItemClick = (id) => {
     let mid  = id.split("-");
-    let {data, m} = this.state;
+    let {m} = this.state;
+
+    let {data} = this.props.data
 
     // console.log(data, m)
     let find = data.find((val) => { return val.type === mid[0]});
@@ -315,6 +324,8 @@ class ChitPage extends Component {
         total+=parseInt(nvv.quantity)
       })
     })
+
+    this.props.addChitTemp({props: this.props, data: newData})
     
     this.setState({data: newData, total})
   }
@@ -323,7 +334,9 @@ class ChitPage extends Component {
     console.log(newVal, valStr, event.id, event.value);
 
     let mid  = event.id.split("-");
-    let {data, m} = this.state;
+    let {m} = this.state;
+
+    let {data} = this.props.data
 
     let find = data.find((val) => { return val.type === mid[0]});
 
@@ -347,15 +360,20 @@ class ChitPage extends Component {
         total+=parseInt(nvv.quantity)
       })
     })
+
+    this.props.addChitTemp({props: this.props, data: newData})
     
     this.setState({data: newData, total})
   }
 
   addNumber(number){
     let {user} = this.props;
-    let {data, m} = this.state;
+    let {m} = this.state;
+
+    let {data} = this.props.data
 
     console.log(m)
+    console.log(data)
 
     m.mi.map((key, i) =>{
       let find = data.find((val) => { return val.type === key});
@@ -379,9 +397,9 @@ class ChitPage extends Component {
             total+=parseInt(nvv.quantity)
           })
         })
-
-
         console.log(newData)
+
+        this.props.addChitTemp({props: this.props, data: newData})
         
         this.setState({data: newData, total})
       }else{
@@ -392,7 +410,10 @@ class ChitPage extends Component {
 
   // กดส่งโพย
   clickSendBet = () =>{
-    let {data} = this.state;
+    // let {data} = this.state;
+
+    let {data} = this.props.data;
+    
     // กรณียังไม่มีการเลือก จะให้แสดงข้อความ
     if(isEmpty(data.filter(function(v) { return !isEmpty(v.items)}))){
       showToast('warn', 'ยังไม่มีการเลือกหวย');
@@ -405,7 +426,9 @@ class ChitPage extends Component {
     this.setState({confirm_show: false, is_active:true})
 
     let {location, round} = this.props; 
-    let {data} = this.state;
+
+    let {data} = this.props.data; 
+    // let {data} = this.state;
 
     round  = {...round, 'chit_status': chit_status.wait_approve};
 
@@ -478,7 +501,9 @@ class ChitPage extends Component {
       if(response.data.result){
         // this.nextPath('/');
 
-        this.setState({data: this.initData()});
+        // this.setState({data: this.initData()});
+
+        this.props.deleteChitTemp({});
 
         showToast('success', 'ส่งโพยเรียบร้อย');
       }else{
@@ -590,7 +615,8 @@ class ChitPage extends Component {
 
   setEqualPrice(quantity){
     let total = 0;
-    let {data} = this.state
+    // let {data} = this.state
+    let {data} = this.props.data
     let new_data = [...data]
     data.map((v, k) =>{
       // let tmp_v = {...v}
@@ -603,6 +629,9 @@ class ChitPage extends Component {
       })
       new_data[k] = {...v, items}
     })
+
+    this.props.addChitTemp({props: this.props, data: new_data})
+
     this.setState({data:new_data, total, equal_price: quantity})
   }
 
@@ -657,7 +686,7 @@ class ChitPage extends Component {
 
     // let {round, location, numbers} = this.props; 
 
-    this.props.setTypeChitTemp({type, props: this.props});
+    // this.props.setTypeChitTemp({type, props: this.props});
 
     let {m} = this.state
     let tmp_m = {}
@@ -834,7 +863,9 @@ class ChitPage extends Component {
   }
 
   expanded(index, isOpened){
-    let {data} = this.state;
+    // let {data} = this.state;
+
+    let {data} = this.props.data;
     let item = data[index]
 
     // isOpened
@@ -843,12 +874,16 @@ class ChitPage extends Component {
     let new_data = [...data]
     new_data[index] = item;
 
+    this.props.addChitTemp({props: this.props, data: new_data})
+
     this.setState({data: new_data})
   }
 
   listBookmakers(){
-    let { data } = this.state;
+    // let { data } = this.state;
 
+    let {data} = this.props.data;
+    console.log(this.props)
     data =  data.filter(function(val) { return !isEmpty(val.items)})
     // console.log(data)
     return(
@@ -947,7 +982,9 @@ class ChitPage extends Component {
 
   showConfirmModal(){
     let {match, round} = this.props; 
-    let {data, note} = this.state;
+    let { /*data,*/ note} = this.state;
+
+    let { data } = this.props.data;
     data =  data.filter(function(val) { return !isEmpty(val.items)})
 
     let header_row;
@@ -1340,7 +1377,7 @@ const mapStateToProps = (state, ownProps) => {
 		return {};
   }
 
-  // console.log(state)
+  console.log(state, ownProps)
   if(state.auth.isLoggedIn){
     /*
       // หวยรัฐบาลไทย  : thai-government : 66 
@@ -1424,10 +1461,22 @@ const mapStateToProps = (state, ownProps) => {
 
     // console.log( numbers );
 
+    let {datas} = state.chit_temp
+    // console.log(datas)
+    let data = datas.find( item => (item.tid === tid && item.type_lotterys === type_lotterys) ); 
+    if(isEmpty(data)){
+      data = initData()
+    }
+
+    // console.log(initData())
+    console.log(data)
+
     return {  logged_in: true, 
               user: state.auth.user,
               lotterys,
               // yeekee_round: state.yeekee_round.data,
+
+              data,
               round,
               numbers,
               is_connect: state.socket_io.is_connect};
@@ -1444,9 +1493,12 @@ const mapDispatchToProps = (dispatch) => {
     updateShootNumbers: (data) =>{
       dispatch(updateShootNumbers(data))
     },
-    setTypeChitTemp: (data) =>{
-      dispatch(setTypeChitTemp(data))
-    }
+    deleteChitTemp: (data) =>{
+      dispatch(deleteChitTemp(data))
+    },
+    addChitTemp: (data) =>{
+      dispatch(addChitTemp(data))
+    },
 	}
 }
 

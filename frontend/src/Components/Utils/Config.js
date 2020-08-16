@@ -396,3 +396,65 @@ export function difference_between_two_timestamps(date){
 export function format_email(str){
     return str.replace(str.substring(2,str.length-2), "***");
 }
+
+export function initData(){
+    return [
+      {
+        headerName: 'สามตัวบน',
+        isOpened: true,
+        type:'type_3_up',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'สามตัวโต๊ด',
+        isOpened: true,
+        type:'type_3_toot',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'สองตัวบน',
+        isOpened: true,
+        type:'type_2_up',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'สองตัวล่าง',
+        isOpened: true,
+        isReactComponent: false,
+        type:'type_2_down',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'สามตัวกลับ',
+        isOpened: true,
+        type:'type_3_undo',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'สองตัวกลับ',
+        isOpened: true,
+        type:'type_2_undo',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'วิ่งบน',
+        isOpened: true,
+        type:'type_1_up',
+        height: 120,
+        items: [],
+      },
+      {
+        headerName: 'วิ่งล่าง',
+        isOpened: true,
+        type:'type_1_down',
+        height: 120,
+        items: [],
+      }
+    ]
+  }

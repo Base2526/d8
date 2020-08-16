@@ -1673,82 +1673,83 @@ class Utils extends ControllerBase {
   }
 
   public static function autoShootNumber(){
-
     $collection = Utils::GetMongoDB()->shoot_numbers;
     // $cursor     = $collection->findOne(['round_id'=>$round_tid]);
 
     // if(empty($cursor)){
-      // $numbers = array();
+    // $numbers = array();
 
-      $sn = array();
-      // for ($x = 0; $x < 1000; $x++) {
-      //   $sn[] =   [
-      //               'round_id' => $round_tid,
-      //               'number'   => Utils::generateRandomString(TRUE,5),
-      //               'uid'      => '7',
-      //               'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
-      //             ];
-      // }
+    // $sn = array();
+    // for ($x = 0; $x < 1000; $x++) {
+    //   $sn[] =   [
+    //               'round_id' => $round_tid,
+    //               'number'   => Utils::generateRandomString(TRUE,5),
+    //               'uid'      => '7',
+    //               'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
+    //             ];
+    // }
 
-      $yeekee_round_terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('yeekee_round');
+    $yeekee_round_terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('yeekee_round');
 
-      // dpm( $yeekee_round_terms );
-      $data = array();
-      foreach($yeekee_round_terms as $yeekee_round_tag_term) {
-        $data[] = $yeekee_round_tag_term->tid;
-      }
+    // dpm( $yeekee_round_terms );
+    $data = array();
+    foreach($yeekee_round_terms as $yeekee_round_tag_term) {
+      $data[] = $yeekee_round_tag_term->tid;
+    }
 
 
-      $uids = array(7, 8, 9, 15, 18);      
-
-      sort($data);
-      for ($x = 0; $x <=1000; $x++) {
-        $round_tid = rand( $data[0], $data[ count($data) -1 ] );
-        if(in_array($round_tid, $data)){
-          // dpm( $x .' > '.$rand );
-
-          $term = Term::load($round_tid);
-          // $date = new \DateTime();
-          // $date->setTimestamp($term->field_time_answer->value);
-
-          
-
-          $uid =  $uids[rand(0, count($uids)-1 )];
-          $user = User::load($uid);
-
-          $sn[] =   [
-              'round_id' => strval($round_tid),
-              'number'   => Utils::generateRandomString(TRUE,5),
-              'uid'      => $uid,
-              // 'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
-              'user'     => (object)array( 'uid'   =>$uid, 
-                                            'name'  =>$user->getUsername(),
-                                            'email' =>$user->getEmail()),
-              'date'     => strval($term->field_time_answer->value * 1000),
-              'createdAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
-              'updatedAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
-
-            ];
+    $uids = array(7, 8, 9, 15, 18);      
 
     sort($data);
-    for ($x = 0; $x <= 10000; $x++) {
+    for ($x = 0; $x <=1000; $x++) {
       $round_tid = rand( $data[0], $data[ count($data) -1 ] );
       if(in_array($round_tid, $data)){
+        // dpm( $x .' > '.$rand );
+
         $term = Term::load($round_tid);
-        $sn[] =   [
+        // $date = new \DateTime();
+        // $date->setTimestamp($term->field_time_answer->value);
+
+        
+
+        $uid =  $uids[rand(0, count($uids)-1 )];
+        $user = User::load($uid);
+
+        $sn =   [
             'round_id' => strval($round_tid),
             'number'   => Utils::generateRandomString(TRUE,5),
-            'uid'      => '7',
+            'uid'      => $uid,
             // 'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
-            'date'     => $term->field_time_answer->value ,
+            'user'     => (object)array( 'uid'   =>$uid, 
+                                          'name'  =>$user->getUsername(),
+                                          'email' =>$user->getEmail()),
+            'date'     => strval($term->field_time_answer->value * 1000),
             'createdAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
             'updatedAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
 
           ];
+
+        // sort($data);
+        // for ($x = 0; $x <= 1000; $x++) {
+        //   $round_tid = rand( $data[0], $data[ count($data) -1 ] );
+        //   if(in_array($round_tid, $data)){
+        //     $term = Term::load($round_tid);
+        //     $sn[] =   [
+        //         'round_id' => strval($round_tid),
+        //         'number'   => Utils::generateRandomString(TRUE,5),
+        //         'uid'      => '7',
+        //         // 'created'=>(new \DateTime('now'))->getTimestamp() * 1000,
+        //         'date'     => $term->field_time_answer->value ,
+        //         'createdAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
+        //         'updatedAt'=>new \MongoDB\BSON\UTCDateTime((new \DateTime('now'))->getTimestamp()*1000),
+
+        //       ];
+        //   }
+        // }
+
+        $collection->insertOne($sn);
       }
     }
-
-    $collection->insertMany($sn);
   }
 
   function generateRandomString($is_number = FALSE, $length = 10) {

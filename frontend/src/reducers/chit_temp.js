@@ -1,10 +1,11 @@
 import * as types from "../actions/types";
-import _ from 'lodash';
+import _, { find } from 'lodash';
 
 import {isEmpty}  from "../Components/Utils/Config"
 
 const initialState = {
     m: {mode:3, mi:['type_3_up']},
+    datas: [],
 };
 
 const chit_temp = (state = initialState, action) => {
@@ -166,33 +167,80 @@ const chit_temp = (state = initialState, action) => {
         }
 
         case types.ADD_CHIT_TEMP:
-            // let state_data = state.data;
-            // if(isEmpty(state_data)){
-            //     return {
-            //         ...state,
-            //         data:[action.data],
-            //     };
-            // }
-            // if(action.data.type_lotterys == '67'){
-            //     let find = _.find(state_data,  function(v, k) {return v.round_tid == action.data.round_tid &&  v.date == action.data.date })
-            //     if(isEmpty(find)){
-            //         return {
-            //             ...state,
-            //             data:[...state_data, action.data],
-            //         };
-            //     }
-            // }else{
-            //     let find = _.find(state_data,  function(v, k) {return v.type_lotterys == action.data.type_lotterys })
-            
-            //     if(isEmpty(find)){
-            //         return {
-            //             ...state,
-            //             data:[...state_data, action.data],
-            //         };
-            //     }
-            // }        
-            return state;
+          let {props, data} = action.data
+          let {tid, type_lotterys} = props.location.state
 
+          return initialState;
+          
+          // console.log(state, props, data, tid, type_lotterys);
+          // console.log(state)
+
+          if(isEmpty(state.datas)){
+            return {...state,
+                          datas:[...state.datas, {tid, type_lotterys, data}]}
+          }
+          let findIndex = state.datas.findIndex( item => (item.tid === tid && item.type_lotterys === type_lotterys) ); 
+        
+
+          console.log( state )
+          if(findIndex != -1){
+            console.log('>1');
+
+            state.datas[findIndex] = {tid, type_lotterys, data}
+
+            let tstate = {...state,
+                            datas:{
+                              ...state.datas, 
+                                [findIndex] : {tid, type_lotterys, data}}}
+
+            console.log(tstate, state, data, tid, type_lotterys);
+            return state;
+          }else{
+            console.log('<1');
+
+            let tstate = {...state,
+                            datas:[...state.datas, {tid, type_lotterys, data}]}
+                            
+            console.log(tstate);
+            return tstate
+          }
+
+          /*
+          profile: {
+                            ...state.user.profile,
+                            gender:action.gender_id
+                        }*/
+          
+          // var found = array.find(function (element) { 
+          //               return element > 0; 
+          //             }); 
+
+          // let state_data = state.data;
+          // if(isEmpty(state_data)){
+          //     return {
+          //         ...state,
+          //         data:[action.data],
+          //     };
+          // }
+          // if(action.data.type_lotterys == '67'){
+          //     let find = _.find(state_data,  function(v, k) {return v.round_tid == action.data.round_tid &&  v.date == action.data.date })
+          //     if(isEmpty(find)){
+          //         return {
+          //             ...state,
+          //             data:[...state_data, action.data],
+          //         };
+          //     }
+          // }else{
+          //     let find = _.find(state_data,  function(v, k) {return v.type_lotterys == action.data.type_lotterys })
+          
+          //     if(isEmpty(find)){
+          //         return {
+          //             ...state,
+          //             data:[...state_data, action.data],
+          //         };
+          //     }
+          // }        
+          return state;
         case types.DELETE_CHIT_TEMP:{
             return initialState;
         }
