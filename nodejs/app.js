@@ -1059,6 +1059,8 @@ io.on('connection', (socket) => {
 });
 
 async function update_socket_id(socket){
+  return true;
+
   // var cookief =socket.handshake.headers.cookie; 
   // var cookies = cookie.parse(socket.handshake.headers.cookie);
   // console.log(socket.connected);

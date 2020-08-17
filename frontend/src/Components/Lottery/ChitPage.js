@@ -28,12 +28,14 @@ import {headers,
         format_email,
         getTimeWithDate,
         chit_status,
-        initData} from '../Utils/Config';
+        initData,
+        permutation} from '../Utils/Config';
 
 import {  loadingOverlayActive,
           updateShootNumbers,
           deleteChitTemp,
-          addChitTemp} from '../../actions/huay';
+          addChitTemp,
+          deleteItemByTypeChitTemp} from '../../actions/huay';
 
 import '../../index.css';
 
@@ -71,9 +73,7 @@ class ChitPage extends Component {
       // data: this.initData()
     }
 
-    this.handleItemClick = this.handleItemClick.bind(this);
-    // this.renderItem = this.renderItem.bind(this);
-    // this.handleItemOnInput = this.handleItemOnInput.bind(this);
+    this.handleItemDeleteClick = this.handleItemDeleteClick.bind(this);
     this.handlerItemChange = this.handlerItemChange.bind(this);
 
     this.listBookmakers    = this.listBookmakers.bind(this);
@@ -102,7 +102,7 @@ class ChitPage extends Component {
 
     this.clickSendBet   = this.clickSendBet.bind(this)
 
-    // this.initData       = this.initData.bind(this)
+    this.clickClear       = this.clickClear.bind(this)
   }
 
   componentWillReceiveProps(nextProps){
@@ -172,7 +172,98 @@ class ChitPage extends Component {
     }else{
       this.setState({numbers})
     }
+
+
+    // var res = str.split(" ");
+
+    // let a = '009';
+    // let _a = a.split("");
+    // let output = permutation(_a);
+    // console.log('YO', output);
   }
+
+  // permutation(_a, buff='', delimiter=''){
+  //   var output = [];
+
+  //   let num = _a.length
+
+  //   if (num > 1) {
+
+  //     _a.map((val, key) =>{
+  //       var temp = _a;
+  //       temp = temp.filter((pval, pkey) => {return pkey !== key})
+  //       // temp.sort()
+  //       var ret = this.permutation(temp, val.trim(), delimiter);
+
+  //       console.log(ret)
+
+  //       if(Array.isArray(ret)){
+  //         output = [...output, ret];
+  //       }else{
+  //         output = [...output, ret];
+  //       }
+
+  //       console.log(output)
+  //     })
+
+  //     return output;
+  //   }else {
+  //     return _a[0];
+  //   }
+  // }
+
+  /*
+  const permutator = (inputArr) => {
+  let result = [];
+
+  const permute = (arr, m = []) => {
+    if (arr.length === 0) {
+      result.push(m)
+    } else {
+      for (let i = 0; i < arr.length; i++) {
+        let curr = arr.slice();
+        let next = curr.splice(i, 1);
+        permute(curr.slice(), m.concat(next))
+     }
+   }
+ }
+
+ permute(inputArr)
+
+ return result;
+}
+  */
+
+
+  /*
+  function permutation($_a, $buffer='', $delimiter='') {
+    $output = array();
+
+    $num = count($_a);
+    if ($num > 1) {
+        foreach ($_a as $key=>$val) {
+            $temp = $_a;
+            unset($temp[$key]);
+            sort($temp);
+
+            $return = permutation($temp, trim($buffer.$delimiter.$val, $delimiter), $delimiter);
+
+            if(is_array($return)) {
+                $output = array_merge($output, $return);
+                $output = array_unique($output);
+            }
+            else {
+                $output[] = $return;
+            }
+
+        }
+        return $output;
+    }
+    else {
+        return $buffer.$delimiter.$_a[0];
+    }
+}
+  */
 
   componentWillUnmount(){
     if(interval){
@@ -299,11 +390,16 @@ class ChitPage extends Component {
     }
   }
 
-  handleItemClick = (id) => {
+  handleItemDeleteClick = (id) => {
     let mid  = id.split("-");
+
+
+    this.props.deleteItemByTypeChitTemp({id})
+    console.log(mid)
+    /*
     let {m} = this.state;
 
-    let {data} = this.props.data
+    let {data} = this.props
 
     // console.log(data, m)
     let find = data.find((val) => { return val.type === mid[0]});
@@ -325,9 +421,10 @@ class ChitPage extends Component {
       })
     })
 
-    this.props.addChitTemp({props: this.props, data: newData})
+    // this.props.addChitTemp({props: this.props, data: newData})
+    */
     
-    this.setState({data: newData, total})
+    // this.setState({data: newData, total})
   }
 
   handlerItemChange(newVal, valStr, event){
@@ -336,7 +433,7 @@ class ChitPage extends Component {
     let mid  = event.id.split("-");
     let {m} = this.state;
 
-    let {data} = this.props.data
+    let {data} = this.props
 
     let find = data.find((val) => { return val.type === mid[0]});
 
@@ -361,20 +458,70 @@ class ChitPage extends Component {
       })
     })
 
-    this.props.addChitTemp({props: this.props, data: newData})
+    // this.props.addChitTemp({props: this.props, data: newData})
     
     this.setState({data: newData, total})
   }
 
   addNumber(number){
-    let {user} = this.props;
+
+    let {round, location, numbers} = this.props; 
+
+    // console.log(round)
+    // console.log(location.state)
+
+    // let {user} = this.props;
     let {m} = this.state;
 
-    let {data} = this.props.data
+    let {data} = this.props
 
     console.log(m)
-    console.log(data)
+    console.log(data, number, round)
 
+    // tid: "111", name: "43", is_close: false, date: 1597656600000, weight: "42"
+
+    let {tid, date} = round
+
+    let date1    = new Date();
+    let date2    = new Date(round.date);
+
+    if(date1 > date2){
+      showToast('error', 'Time out')
+    }else{
+      // กรณีสามตัวบน + กลับด้วย
+      if( m.mi.includes('type_3_undo') ){
+        let output = permutation(number.split(""));
+        output.map((v, index) =>{
+          this.props.addChitTemp({props: this.props, data: {...round, mode:m.mode, mi:'type_3_up', number:v, quantity:1, price:90 }})
+        })
+        // type_2_undo
+      }else if(m.mi.includes('type_2_undo')){
+        // กรณีสองตัวบน + กลับด้วย
+        if(m.mi.includes('type_2_up')){
+          let output = permutation(number.split(""));
+          output.map((v, index) =>{
+            this.props.addChitTemp({props: this.props, data: {...round, mode:m.mode, mi:'type_2_up', number:v, quantity:1, price:90 }})
+          })
+        }
+
+        // กรณีสองตัวล่าง + กลับด้วย
+        if(m.mi.includes('type_2_down')){
+          let output = permutation(number.split(""));
+          output.map((v, index) =>{
+            this.props.addChitTemp({props: this.props, data: {...round, mode:m.mode, mi:'type_2_down', number:v, quantity:1, price:90 }})
+          })
+        }
+      }else{
+        m.mi.map((v, index) =>{
+          this.props.addChitTemp({props: this.props, data: {...round, mode:m.mode, mi:v, number, quantity:1, price:90 }})
+        })
+      }
+    }
+
+  
+
+   
+    /*
     m.mi.map((key, i) =>{
       let find = data.find((val) => { return val.type === key});
       let items = find.items;
@@ -406,13 +553,15 @@ class ChitPage extends Component {
         showToast('warn', 'กรอบเลขซํ้า')
       }
     })
+
+    */
   } 
 
   // กดส่งโพย
   clickSendBet = () =>{
     // let {data} = this.state;
 
-    let {data} = this.props.data;
+    let {data} = this.props;
     
     // กรณียังไม่มีการเลือก จะให้แสดงข้อความ
     if(isEmpty(data.filter(function(v) { return !isEmpty(v.items)}))){
@@ -422,12 +571,20 @@ class ChitPage extends Component {
     }
   } 
 
+  clickClear = () =>{
+    // deleteChitTemp();
+    let {location, round} = this.props; 
+    // console.log(round)
+
+    this.props.deleteChitTemp({round})
+  }
+
   handleBetClick = async()=>{
     this.setState({confirm_show: false, is_active:true})
 
     let {location, round} = this.props; 
 
-    let {data} = this.props.data; 
+    let {data} = this.props; 
     // let {data} = this.state;
 
     round  = {...round, 'chit_status': chit_status.wait_approve};
@@ -616,7 +773,7 @@ class ChitPage extends Component {
   setEqualPrice(quantity){
     let total = 0;
     // let {data} = this.state
-    let {data} = this.props.data
+    let {data} = this.props
     let new_data = [...data]
     data.map((v, k) =>{
       // let tmp_v = {...v}
@@ -865,7 +1022,7 @@ class ChitPage extends Component {
   expanded(index, isOpened){
     // let {data} = this.state;
 
-    let {data} = this.props.data;
+    let {data} = this.props;
     let item = data[index]
 
     // isOpened
@@ -874,7 +1031,7 @@ class ChitPage extends Component {
     let new_data = [...data]
     new_data[index] = item;
 
-    this.props.addChitTemp({props: this.props, data: new_data})
+    // this.props.addChitTemp({props: this.props, data: new_data})
 
     this.setState({data: new_data})
   }
@@ -882,8 +1039,13 @@ class ChitPage extends Component {
   listBookmakers(){
     // let { data } = this.state;
 
-    let {data} = this.props.data;
-    console.log(this.props)
+    let {data} = this.props;
+    // console.log(this.props)
+    // console.log(data)
+
+    if(isEmpty(data)){
+      return <div />;
+    }
     data =  data.filter(function(val) { return !isEmpty(val.items)})
     // console.log(data)
     return(
@@ -905,18 +1067,19 @@ class ChitPage extends Component {
               }}>
               {
                 value.items.map((v, key) =>{
+                  // console.log('>> delete ', v.tid, v.number, );
                   return (<div key={key}>
                           <div>{v.number}</div>
                           <div>
                             <NumericInput 
                               min={1} 
-                              id={value.type +"-"+ key}
+                              id={v.mi +"-"+ v.tid+"-"+v.number}
                               onChange={this.handlerItemChange}
                               value={v.quantity} />
                             <div>
                               ชนะ : {v.quantity*v.price}
                             </div>
-                            <button key={key} data-id={value.type +"-"+ key} style={{backgroundColor: 'red'}} onClick={e => this.handleItemClick(e.target.getAttribute('data-id'))}>X</button>
+                            <button key={key} data-id={v.mi +"-"+ v.tid+"-"+v.number} style={{backgroundColor: 'red'}} onClick={e => this.handleItemDeleteClick(e.target.getAttribute('data-id'))}>X</button>
                           </div>
                         </div>)
                 })
@@ -984,7 +1147,7 @@ class ChitPage extends Component {
     let {match, round} = this.props; 
     let { /*data,*/ note} = this.state;
 
-    let { data } = this.props.data;
+    let { data } = this.props;
     data =  data.filter(function(val) { return !isEmpty(val.items)})
 
     let header_row;
@@ -1297,6 +1460,11 @@ class ChitPage extends Component {
                 กดส่งโพย
               </Button>
             { view_shoot_number_show }
+            <Button
+                variant="primary"
+                onClick={() =>this.clickClear() }>
+                เคลียส์
+              </Button>
             </Col>
           </Row>
           <Row>
@@ -1462,14 +1630,125 @@ const mapStateToProps = (state, ownProps) => {
     // console.log( numbers );
 
     let {datas} = state.chit_temp
-    // console.log(datas)
-    let data = datas.find( item => (item.tid === tid && item.type_lotterys === type_lotterys) ); 
-    if(isEmpty(data)){
+    console.log(datas)
+
+    let data = []
+    if(!isEmpty(datas)){
+      let type_3_up_items = datas.filter((element) => { 
+                              return element.date === round.date &&  
+                                      element.tid === round.tid  &&
+                                      element.mi  === 'type_3_up'
+                            }); 
+
+      let type_3_toot_items = datas.filter((element) => { 
+                              return element.date === round.date &&  
+                                      element.tid === round.tid  &&
+                                      element.mi  === 'type_3_toot'
+                            }); 
+                
+      
+
+      // let type_3_undo_item = datas.filter((element) => { 
+      //                         return element.date === round.date &&  
+      //                                 element.tid === round.tid  &&
+      //                                 element.mi  === 'type_3_undo'
+      //                       });
+                            
+      console.log(type_3_up_items, type_3_toot_items)
+
+      // if(m.mi.includes('type_2_up')){
+
+      // }
+
+      // if(m.mi.includes('type_2_down')){
+
+      // }
+
+      let type_2_up_item = datas.filter((element) => { 
+                          return element.date === round.date &&  
+                                  element.tid === round.tid  &&
+                                  element.mi  === 'type_2_up'
+                        });
+
+      let type_2_down_item = datas.filter((element) => { 
+                          return element.date === round.date &&  
+                                  element.tid === round.tid  &&
+                                  element.mi  === 'type_2_down'
+                        });
+
+      data = [
+              {
+                headerName: 'สามตัวบน',
+                isOpened: true,
+                type:'type_3_up',
+                height: 120,
+                items: type_3_up_items
+              },
+              {
+                headerName: 'สามตัวโต๊ด',
+                isOpened: true,
+                type:'type_3_toot',
+                height: 120,
+                items: type_3_toot_items
+              },
+              {
+                headerName: 'สองตัวบน',
+                isOpened: true,
+                type:'type_2_up',
+                height: 120,
+                items: type_2_up_item,
+              },
+              {
+                headerName: 'สองตัวล่าง',
+                isOpened: true,
+                isReactComponent: false,
+                type:'type_2_down',
+                height: 120,
+                items: type_2_down_item,
+              }
+              /*,
+              {
+                headerName: 'สามตัวกลับ',
+                isOpened: true,
+                type:'type_3_undo',
+                height: 120,
+                items: type_3_undo_item,
+              } ,
+              {
+                headerName: 'สองตัวกลับ',
+                isOpened: true,
+                type:'type_2_undo',
+                height: 120,
+                items: [],
+              }*/ ,
+              {
+                headerName: 'วิ่งบน',
+                isOpened: true,
+                type:'type_1_up',
+                height: 120,
+                items: [],
+              },
+              {
+                headerName: 'วิ่งล่าง',
+                isOpened: true,
+                type:'type_1_down',
+                height: 120,
+                items: [],
+              }
+            ]
+    }else{
       data = initData()
     }
 
+    
+
+    // let data = datas.find( item => (item.tid === tid && item.type_lotterys === type_lotterys) ); 
+    // if(isEmpty(data)){
+    //   data = initData()
+    // }
+
     // console.log(initData())
-    console.log(data)
+    // console.log(data)
 
     return {  logged_in: true, 
               user: state.auth.user,
@@ -1498,6 +1777,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     addChitTemp: (data) =>{
       dispatch(addChitTemp(data))
+    },
+    deleteItemByTypeChitTemp: (data) =>{
+      dispatch(deleteItemByTypeChitTemp(data))
     },
 	}
 }

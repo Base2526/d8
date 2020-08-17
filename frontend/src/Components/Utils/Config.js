@@ -457,4 +457,33 @@ export function initData(){
         items: [],
       }
     ]
+}
+
+// https://stackoverflow.com/questions/9960908/permutations-in-javascript
+export function permutation(permutation) {
+    var length = permutation.length,
+        result = [permutation.slice().join('')],
+        c = new Array(length).fill(0),
+        i = 1, k, p;
+  
+    while (i < length) {
+      if (c[i] < i) {
+        k = i % 2 && c[i];
+        p = permutation[i];
+        permutation[i] = permutation[k];
+        permutation[k] = p;
+        ++c[i];
+        i = 1;
+
+        let v = permutation.slice().join('');
+        if(isEmpty(result.filter((item)=>{ return item === v}))){
+          result.push(v);
+        }
+      } else {
+        c[i] = 0;
+        ++i;
+      }
+    }
+    return result;
   }
+

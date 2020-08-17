@@ -1,10 +1,10 @@
 import * as types from "../actions/types";
 import _, { find } from 'lodash';
 
-import {isEmpty}  from "../Components/Utils/Config"
+import {isEmpty, showToast}  from "../Components/Utils/Config"
 
 const initialState = {
-    m: {mode:3, mi:['type_3_up']},
+    // m: {mode:3, mi:['type_3_up']},
     datas: [],
 };
 
@@ -169,12 +169,32 @@ const chit_temp = (state = initialState, action) => {
         case types.ADD_CHIT_TEMP:
           let {props, data} = action.data
           let {tid, type_lotterys} = props.location.state
-
-          return initialState;
           
           // console.log(state, props, data, tid, type_lotterys);
-          // console.log(state)
+          console.log(data)
 
+          let {datas} = state
+          if(isEmpty(datas)){
+            return {...state, datas:[...datas, data]}
+          }
+          // console.log(datas)
+          // showToast('error', 'Time out')
+
+          var find = datas.find((element) => { 
+                        // console.log(element.date, element.tid, element.number, element.is_close)
+                        return element.date === data.date && 
+                              element.tid === data.tid && 
+                              element.mi === data.mi && 
+                              element.number === data.number; 
+                      }); 
+
+          // console.log(find)
+          if(isEmpty(find)){
+            return {...state, datas:[...datas, data]}
+          }
+
+          console.log(state)
+          /*
           if(isEmpty(state.datas)){
             return {...state,
                           datas:[...state.datas, {tid, type_lotterys, data}]}
@@ -204,6 +224,7 @@ const chit_temp = (state = initialState, action) => {
             console.log(tstate);
             return tstate
           }
+          */
 
           /*
           profile: {
@@ -242,7 +263,48 @@ const chit_temp = (state = initialState, action) => {
           // }        
           return state;
         case types.DELETE_CHIT_TEMP:{
-            return initialState;
+            let {round} = action.data
+          
+            let {datas} = state
+
+            let filter =  datas.filter((element) => { 
+                            return element.tid !== round.tid 
+                          }); 
+
+            
+
+            let xx =  {
+                        ...state,
+                        datas:filter,
+                      };
+                      
+            console.log(filter, xx, datas)
+            // return state;
+            return initialState
+        }
+
+        case types.DELETE_ITEM_BY_TYPE_CHIT_TEMP:{
+
+          let {id} = action.data
+          let code  = id.split("-");
+          // ["type_3_up", "61", "366"]
+          let mi = code[0]
+          let tid = code[1]
+          let number = code[2]
+
+          console.log('DELETE_ITEM_BY_TYPE_CHIT_TEMP', action, code, mi, tid, number)
+          
+          let {datas} = state
+
+          let filter =  datas.filter((element) => { 
+                          console.log(element)
+                          return element.number !== number &&
+                                 element.tid === tid
+                        });           
+          return {
+                  ...state,
+                  datas:filter,
+                };
         }
         default:{
             return state;

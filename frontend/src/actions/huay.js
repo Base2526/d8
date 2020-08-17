@@ -81,3 +81,9 @@ export const setTypeChitTemp = (data) =>({
     type: types.CHIT_TEMP_SET_TYPE,
     data
 })
+
+// DELETE_ITEM_BY_TYPE_CHIT_TEMP
+export const deleteItemByTypeChitTemp = (data) =>({
+    type: types.DELETE_ITEM_BY_TYPE_CHIT_TEMP,
+    data
+})

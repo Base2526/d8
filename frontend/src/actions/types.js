@@ -28,3 +28,5 @@ export const DELETE_AWARD            = "delete_award";
 export const ADD_CHIT_TEMP           = "add_chit_temp";
 export const DELETE_CHIT_TEMP        = "delete_chit_temp";
 export const CHIT_TEMP_SET_TYPE      = "chit_temp_set_type";
+
+export const DELETE_ITEM_BY_TYPE_CHIT_TEMP      = "delete_item_by_type_chit_temp";
