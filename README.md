@@ -166,7 +166,7 @@ https://www.techighness.com/post/hook-node-js-console-log-insert-in-mongodb/
 
 
 Drupal 8-9 (PHP 7)  Try-catch
- try {
+- try {
             
  } catch (\Throwable $e) {
      \Drupal::logger('SearchApi')->notice($e->__toString());
