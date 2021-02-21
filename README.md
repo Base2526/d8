@@ -163,3 +163,11 @@ https://makitweb.com/convert-unix-timestamp-to-date-time-with-javascript/
 
 # nodejs log mongodb
 https://www.techighness.com/post/hook-node-js-console-log-insert-in-mongodb/
+
+
+Drupal 8-9 (PHP 7)  Try-catch
+ try {
+            
+ } catch (\Throwable $e) {
+     \Drupal::logger('SearchApi')->notice($e->__toString());
+ }
