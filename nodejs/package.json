@@ -20,7 +20,7 @@
     "express-session": "^1.17.1",
     "form-data": "^3.0.0",
     "fs": "0.0.1-security",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "mongodb": "^3.5.6",
     "mongodb-topology-manager": "^2.1.0",
     "mongoose": "^5.6.1",
